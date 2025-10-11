@@ -1,0 +1,236 @@
+/* ---------- ZÁKLAD ---------- */
+:root{
+    --accent: #ff6f61;       /* farba hríbika / CTA */
+    --muted: #6c757d;
+    --bg: #ffffff;
+    --shadow: 0 6px 18px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --max-content-width: 1200px;
+    --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+    margin:0;
+    font-family: var(--font-sans);
+    background: linear-gradient(180deg,#fbfbfb 0%, #ffffff 100%);
+    color:#222;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+}
+
+/* container center */
+.container {
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: 0 12px;
+}
+
+/* ---------- HEADER / H2 ---------- */
+h2.app-title{
+    text-align:center;
+    margin: 18px 0;
+    font-size: 1.4rem;
+    letter-spacing: 0.2px;
+}
+
+/* ---------- MAP ---------- */
+#map {
+    width: 100%;
+    height: 80vh;       /* 80% výšky obrazovky */
+    min-height: 360px;  /* pre desktop */
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+/* Leaflet / Google map: small padding so popups don't stick to edges */
+.leaflet-container, .gm-style {
+    touch-action: pan-y;
+}
+
+/* ---------- MODAL ---------- */
+/* väčšie a pohodlné inputy */
+.modal-content {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+
+.modal-header {
+    background-color: var(--accent);
+    color: #fff;
+    border-bottom: none;
+    align-items: center;
+}
+
+.modal-header .modal-title {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
+}
+
+/* modal body scroll a padding */
+.modal-body{
+    padding: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* form controls dotykovo pohodlné */
+.form-control {
+    border-radius: 8px;
+    padding: .6rem .75rem;
+    font-size: 1rem;
+}
+
+/* submit button väčší */
+.modal-footer .btn-primary {
+    padding: .6rem 1.2rem;
+    font-size: 1.05rem;
+    border-radius: 10px;
+}
+
+/* help text small */
+.form-text-muted {
+    color: var(--muted);
+    font-size: .85rem;
+}
+
+/* ---------- MOBILNÉ + TLAČIDLO ---------- */
+.btn-add-rozcestnik {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: transform .08s ease, box-shadow .12s ease;
+}
+
+/* fixed circular CTA on mobile */
+@media (max-width: 768px) {
+    .btn-add-rozcestnik {
+        position: fixed;
+        bottom: 14px;
+        right: 14px;
+        z-index: 1100;
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        font-size: 28px;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+    }
+}
+
+/* hover / active */
+.btn-add-rozcestnik:active{ transform: translateY(1px) scale(.995) }
+
+/* ---------- INFO / POPUP GALLERY ---------- */
+/* pre Leaflet popup alebo Google InfoWindow */
+.popup-gallery {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:6px;
+}
+
+.popup-gallery img{
+    width: 86px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    border: 2px solid rgba(255,255,255,0.9);
+}
+
+/* väčší obrázok v detaile */
+.rozcestnik-main-photo{
+    width:100%;
+    max-height: 360px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+/* ---------- MAP MARKER (fallback styling) ---------- */
+/* ak budeme používať HTML marker alebo marker cluster */
+.marker-label {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background: rgba(255,255,255,0.95);
+    padding:6px 10px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    font-weight:600;
+    font-size: 0.95rem;
+}
+
+/* ---------- FORM GROUPS ---------- */
+.input-row {
+    display:flex;
+    gap:8px;
+}
+
+.input-row .form-control {
+    flex:1;
+}
+
+/* on small screens stack vertically */
+@media (max-width:600px){
+    .input-row{ flex-direction: column; }
+}
+
+/* ---------- ADMIN BADGE (optional) ---------- */
+.badge-pending{
+    background: #ffd9d2;
+    color: #7a2b1a;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-weight:600;
+    font-size:.8rem;
+}
+
+/* ---------- SMALL UTILITIES ---------- */
+.mt-2{margin-top:.5rem}
+.mb-2{margin-bottom:.5rem}
+.text-muted{color:var(--muted)}
+
+/* ---------- PRINT / DEBUG ---------- */
+@media print {
+    #map { height: 400px; }
+}
+
+.slideshow-container {
+    position: relative;
+    max-width: 220px;
+}
+
+.slide img {
+    width: 100%;
+    display: block;
+}
+
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 5px;
+    margin-top: -15px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    user-select: none;
+    z-index: 10;
+    text-decoration: none;
+}
+
+.prev { left: 0; }
+.next { right: 0; }

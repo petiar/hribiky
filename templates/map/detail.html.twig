@@ -1,0 +1,95 @@
+{# templates/rozcestnik/detail.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="mb-4">{{ rozcestnik.title }} ({{ rozcestnik.altitude }} m n. m.)</h2>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Pridal:</strong> {{ rozcestnik.name }} ({{ rozcestnik.createdAt|date('d.m.Y H:i') }})</li>
+                            <li class="list-group-item"><strong>GPS:</strong> {{ rozcestnik.latitude }}, {{ rozcestnik.longitude }}</li>
+                            <li class="list-group-item">{{ rozcestnik.description|default('-') }}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mb-5">
+                    <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
+                        ← Späť na mapu
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pravý stĺpec: fotky -->
+            <div class="col-md-6">
+                {% if rozcestnik.fotky|length > 0 %}
+                    <div id="rozcestnikCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for foto in rozcestnik.fotky %}
+                                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                    <img src="{{ asset('uploads/photos/' ~ foto.path) }}" class="d-block w-100 rounded" alt="Foto">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if rozcestnik.fotky|length > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#rozcestnikCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#rozcestnikCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Bez fotiek.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-5">
+        {% if rozcestnik.updates|length > 0 %}
+            {% for update in rozcestnik.updates %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Aktualizácia od {{ update.name|default('Neznámy autor') }}</h5>
+                        <p class="card-text">{{ update.description|default('Bez popisu') }}</p>
+                        <p class="text-muted small">{{ update.createdAt|date('d.m.Y H:i') }}</p>
+
+                        {% if update.fotky|length > 0 %}
+                            <div class="row mt-3">
+                                {% for foto in update.fotky %}
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <img src="{{ asset('uploads/photos/' ~ foto.path) }}"
+                                             class="img-fluid rounded shadow-sm update-foto"
+                                             alt="Update foto"
+                                             data-bs-toggle="modal"
+                                             data-bs-target="#lightboxModal"
+                                             data-bs-src="{{ asset('uploads/photos/' ~ foto.path) }}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">Zatiaľ žiadne aktualizácie.</p>
+        {% endif %}
+        </div>
+    </div>
+    <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body p-0 text-center">
+                    <img src="" id="lightboxImage" class="img-fluid rounded" alt="Zväčšená fotka">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="{{ asset('js/hribiky.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container mt-5" style="max-width:400px">
+        <h3 class="mb-3 text-center">Admin Prihlásenie</h3>
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+        <form method="post">
+            <div class="mb-3">
+                <label>Email</label>
+                <input type="email" name="_email" value="{{ last_username }}" class="form-control" required autofocus>
+            </div>
+            <div class="mb-3">
+                <label>Heslo</label>
+                <input type="password" name="_password" class="form-control" required>
+            </div>
+            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+            <button class="btn btn-primary w-100" type="submit">Prihlásiť sa</button>
+        </form>
+    </div>
+{% endblock %}

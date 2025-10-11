@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hríbiky{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <div id="map" style="height: 80vh;"></div>
+    </div>
+
+    {% include 'map/modal.html.twig' %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        // Twig prepis JSON dát z PHP
+        const hribiky = {{ hribiky|raw }};
+    </script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ asset('js/hribiky.js') }}"></script>
+{% endblock %}

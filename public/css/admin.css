@@ -1,0 +1,50 @@
+/* 🧭 Hríbiky Admin UI fixy */
+
+/* Zmenšenie ikon v sidebar menu */
+ i,
+ .fa,
+ .fas,
+ .far,
+ .fab {
+    font-size: 0.9rem !important;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+/* Zmenšenie ikon aj v dashboarde */
+ .fa,
+ .fas,
+ .far,
+ .fab {
+    font-size: 1rem !important;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+/* Celkové prispôsobenie rozloženia */
+.sidebar {
+    font-size: 0.95rem;
+}
+
+.content-header {
+    padding: 0.75rem 1rem;
+}
+
+.content-body {
+    padding: 1.25rem;
+}
+
+/* Dashboard cards */
+.card {
+    border-radius: 0.75rem;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+/* Vylepšené tlačidlá */
+.btn {
+    border-radius: 0.5rem;
+}

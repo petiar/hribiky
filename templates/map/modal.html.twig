@@ -1,0 +1,62 @@
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'addForm'}}) }}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel">Pridať hríbik</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Názov'}}) }}
+                        {{ form_errors(form.title) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Tvoje meno'}}) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Tvoj email'}}) }}
+                        {{ form_errors(form.email) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_widget(form.fotky, {'attr': {'class': 'form-control' }}) }}
+                        {{ form_errors(form.fotky) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Opíš nám tento hríbik'}}) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_widget(form.altitude, {'attr': {'class': 'form-control', 'placeholder': 'Nadmorská výška'}}) }}
+                        {{ form_errors(form.altitude) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_widget(form.latitude, {'attr': {'class': 'form-control', 'id': 'latitude' }}) }}
+                        {{ form_errors(form.latitude) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_widget(form.longitude, {'attr': {'class': 'form-control', 'id': 'longitude' }}) }}
+                        {{ form_errors(form.longitude) }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Odoslať</button>
+                </div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% include 'map/rozcestnik_update_modal.html.twig' with { form: rozcestnikUpdateForm } %}
+<div class="modal fade" id="existingHribikModal" tabindex="-1" aria-labelledby="existingHribikModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="existingHribikModalLabel">Predtým, než pridáš nový hríbik...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavrieť"></button>
+            </div>
+            <div class="modal-body" id="existing-modal-body">
+            </div>
+        </div>
+    </div>
+</div>

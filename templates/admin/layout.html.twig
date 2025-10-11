@@ -1,0 +1,14 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+{% endblock %}
+
+{% block header_logo %}
+    <a href="{{ path('admin') }}" class="text-decoration-none text-white">
+        <i class="fa-solid fa-mountain"></i> Hríbiky Admin
+    </a>
+{% endblock %}
+
+

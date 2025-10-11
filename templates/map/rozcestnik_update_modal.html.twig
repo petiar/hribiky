@@ -1,0 +1,33 @@
+<div class="modal fade" id="addRozcestnikUpdate" tabindex="-1" aria-labelledby="addRozcestnikUpdateLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'addRozcestnikUpdateForm'}}) }}
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Pridať doplňujúce informácie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Tvoje meno'}}) }}
+                    {{ form_errors(form.name) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Tvoj email'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_widget(form.fotky, {'attr': {'class': 'form-control' }}) }}
+                    {{ form_errors(form.fotky) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Opíš nám tento hríbik'}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Odoslať</button>
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>

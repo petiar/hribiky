@@ -1,0 +1,29 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content %}
+    <div class="container py-4">
+        <h1 class="mb-4">🏔️ Hríbiky – Admin Dashboard</h1>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Rozcestníky</h5>
+                        <p class="card-text">Spravuj zoznam rozcestníkov, publikovanie a úpravy.</p>
+                        <a href="{{ path('admin', {crudControllerFqcn: 'App\\\\Controller\\\\Admin\\\\RozcestnikCrudController'}) }}" class="btn btn-primary w-100">Otvoriť</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Aktualizácie</h5>
+                        <p class="card-text">Over a schváľ nové doplnené informácie o rozcestníkoch.</p>
+                        <a href="{{ path('admin', {crudControllerFqcn: 'App\\\\Controller\\\\Admin\\\\RozcestnikUpdateCrudController'}) }}" class="btn btn-primary w-100">Otvoriť</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
