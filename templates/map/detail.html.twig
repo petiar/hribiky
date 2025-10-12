@@ -10,6 +10,8 @@
     <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ rozcestnik.fotky.0.path)) }}"/>
     <meta property="og:description" content="{{ rozcestnik.description }}"/>
     <meta property="og:site_name" content="Hríbiky.sk"/>
+    <meta property="place:location:latitude" content="{{ rozcestnik.latitude }}">
+    <meta property="place:location:longitude" content="{{ rozcestnik.longitude }}">
 {% endblock %}
 
 {% block body %}
