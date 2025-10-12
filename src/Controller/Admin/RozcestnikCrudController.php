@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -41,6 +42,11 @@ class RozcestnikCrudController extends AbstractCrudController
                         }
                         return $value;
                     });
+                break;
+            case Crud::PAGE_EDIT:
+                $fields[] = NumberField::new('latitude', 'Latitude');
+                $fields[] = NumberField::new('longitude', 'Longitude');
+                $fields[] = TextareaField::new('description', 'Popis');
                 break;
             default:
                 $fields[] = TextareaField::new('description', 'Popis');
