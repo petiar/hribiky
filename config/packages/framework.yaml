@@ -8,7 +8,7 @@ framework:
     #esi: true
     #fragments: true
     assets:
-        version: 0.9
+        version: 0.95
 
 when@test:
     framework:

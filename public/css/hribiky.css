@@ -237,3 +237,7 @@ h2.app-title{
     user-select: all;
     cursor: pointer;
 }
+
+.infowindow {
+    background-color: var(--bs-body-bg);
+}

@@ -41,7 +41,7 @@ class RozcestnikType extends AbstractType
                 'constraints' => [
                     new Assert\All([
                         new Assert\File([
-                            'maxSize' => '5M',
+                            'maxSize' => '8M',
                             'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif'],
                         ])
                     ])
