@@ -241,3 +241,8 @@ h2.app-title{
 .infowindow {
     background-color: var(--bs-body-bg);
 }
+
+.gm-style-iw-chr {
+    position: fixed;
+    right: 20px;
+}

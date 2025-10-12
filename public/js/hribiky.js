@@ -59,7 +59,7 @@ function initMap() {
             }
             imagesHtml += `</div>`;
 
-            let content = `<div class="infowindow p-2">
+            let content = `<div class="infowindow p-2 mt-2">
                 <h5><a href="/${hrib.id}">${hrib.title}</a></h5>
                 <p>${hrib.description || ''}</p>`;
             if (hrib.fotky) {
