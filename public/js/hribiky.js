@@ -35,7 +35,7 @@ function initMap() {
                 map: map,
                 title: hrib.title,
                 icon: {
-                    url: "/images/hribik.png", // cesta k obrázku
+                    url: "/images/mushroom.png", // cesta k obrázku
                     scaledSize: new google.maps.Size(40, 40), // veľkosť ikonky (šírka, výška)
                     origin: new google.maps.Point(0, 0),      // pozícia v rámci obrázka
                     anchor: new google.maps.Point(20, 40),    // bod, ktorý sa „ukotví“ na mape
@@ -80,10 +80,10 @@ function initMap() {
                 $('#rozcestnik_latitude').val(pos.coords.latitude);
                 $('#rozcestnik_longitude').val(pos.coords.longitude);
 
-                const alt = pos.coords.altitude.toFixed(0);
+                const alt = pos.coords.altitude;
                 if ( alt ) {
                     $('#altitudeText').show();
-                    $('#altitudeGuess').html( alt );
+                    $('#altitudeGuess').html( alt.toFixed() );
                 }
                 else {
                     $('#altitudeText').hide();
@@ -134,6 +134,7 @@ function initMap() {
             success: function(response) {
                 alert('Hríbik bol pridaný! Akonáhle ho overíme, ocitne sa na mape. Vďaka!');
                 $('#addModal').modal('hide');
+                form.reset();
             },
             error: function(xhr) {
                 let msg = 'Chyba pri odoslaní formulára.';

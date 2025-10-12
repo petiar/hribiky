@@ -29,15 +29,16 @@ class UserAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $email = $request->getPayload()->getString('email');
-        $email = 'admin@admin.sk';
+        $email = $request->request->get('email', '');
+        $password = $request->request->get('password', '');
+
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
         return new Passport(
             new UserBadge($email),
-            new PasswordCredentials($request->getPayload()->getString('password')),
+            new PasswordCredentials($password),
             [
-                new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token')),
+                new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
                 new RememberMeBadge(),
             ]
         );
@@ -49,9 +50,7 @@ class UserAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // For example:
-        // return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+        return new RedirectResponse($this->urlGenerator->generate('admin'));
     }
 
     protected function getLoginUrl(Request $request): string
@@ -61,6 +60,6 @@ class UserAuthenticator extends AbstractLoginFormAuthenticator
 
     public function supports(Request $request): bool
     {
-        return $request->isMethod('POST');
+        return $request->isMethod('POST') && $request->getPathInfo() === '/login';
     }
 }

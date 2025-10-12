@@ -18,7 +18,7 @@ class RozcestnikUpdateType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Vaše meno',
-                'required' => false,
+                'required' => true,
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('email', TextType::class, [
@@ -28,7 +28,7 @@ class RozcestnikUpdateType extends AbstractType
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Popis zmeny alebo doplnenie',
-                'required' => false,
+                'required' => true,
                 'attr' => ['class' => 'form-control', 'rows' => 4],
             ])
             ->add('fotky', FileType::class, [

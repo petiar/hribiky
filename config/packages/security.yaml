@@ -1,7 +1,6 @@
 security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
         App\Entity\User:
             algorithm: auto
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
@@ -15,21 +14,22 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        admin:
-            pattern: ^/admin
+        main:
             lazy: true
             provider: app_user_provider
-            custom_authenticator:
+            custom_authenticators:
                 - App\Security\UserAuthenticator
             logout:
-                path: /logout
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800
-                path: /
-                always_remember_me: true
+                path: app_logout
+                target: app_login
+            form_login:
+                username_parameter: email
+                password_parameter: password
+                login_path: app_login
+                check_path: app_login
+            entry_point: App\Security\UserAuthenticator
     access_control:
-        - { path: ^/adminxxx, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:

@@ -7,7 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -21,9 +21,18 @@ class RozcestnikType extends AbstractType
         $builder
             ->add('title', TextType::class)
             ->add('name', TextType::class)
-            ->add('email', EmailType::class)
+            ->add('email', EmailType::class, [
+                'required' => false,
+            ])
             ->add('description', TextareaType::class)
-            ->add('altitude', NumberType::class)
+            ->add('altitude', IntegerType::class, [
+                'required' => false,
+                'attr' => [
+                    'min' => 0,
+                    'max' => 2700,
+                    'step' => 1,
+                ],
+            ])
             ->add('latitude', HiddenType::class)
             ->add('longitude', HiddenType::class)
             ->add('fotky', FileType::class, [
