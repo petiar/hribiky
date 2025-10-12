@@ -60,7 +60,7 @@ function initMap() {
             imagesHtml += `</div>`;
 
             let content = `<div>
-                <h5><a href="/rozcestnik/${hrib.id}">${hrib.title}</a></h5>
+                <h5><a href="/${hrib.id}">${hrib.title}</a></h5>
                 <p>${hrib.description || ''}</p>`;
             if (hrib.fotky) {
                 content += imagesHtml;

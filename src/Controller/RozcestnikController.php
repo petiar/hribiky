@@ -113,7 +113,7 @@ class RozcestnikController extends AbstractController
         ], 400);
     }
 
-    #[Route('/rozcestnik/{id}', name: 'rozcestnik_detail')]
+    #[Route('/{id}', name: 'rozcestnik_detail', requirements: ['id' => '\d+'])]
     public function detail(int $id, EntityManagerInterface $em): Response
     {
         $rozcestnik = $em->getRepository(Rozcestnik::class)->find($id);

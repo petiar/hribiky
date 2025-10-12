@@ -1,6 +1,8 @@
 {# templates/rozcestnik/detail.html.twig #}
 {% extends 'base.html.twig' %}
 
+{% block title %}{{ rozcestnik.title }} ({{ rozcestnik.altitude }} m n. m.){% endblock %}
+
 {% block body %}
     <div class="container mt-4">
         <div class="row">
