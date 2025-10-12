@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Rozcestnik;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -14,9 +15,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class RozcestnikCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private UrlGeneratorInterface $urlGenerator,
+    ) {
+    }
 
     public static function getEntityFqcn(): string
     {
@@ -40,7 +46,12 @@ class RozcestnikCrudController extends AbstractCrudController
                 $fields[] = TextareaField::new('description', 'Popis');
         }
 
-        $fields[] = TextField::new('title', 'Názov');
+        $fields[] = TextField::new('title', 'Názov')
+        ->formatValue(function ($value, $entity) {
+            $url = $this->urlGenerator->generate('rozcestnik_detail', ['id' => $entity->getId()]);
+            return sprintf('<a href="%s">%s</a>', $url, $entity->getTitle());
+        })
+            ->renderAsHtml();
         $fields[] = TextField::new('name', 'Meno');
         $fields[] = EmailField::new('email', 'Email');
         $fields[] = BooleanField::new('published');
