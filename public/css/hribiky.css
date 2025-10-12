@@ -13,9 +13,7 @@
 html,body{height:100%}
 body{
     margin:0;
-    font-family: var(--font-sans);
-    background: linear-gradient(180deg,#fbfbfb 0%, #ffffff 100%);
-    color:#222;
+    font-family: "Roboto Slab", serif;
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
 }

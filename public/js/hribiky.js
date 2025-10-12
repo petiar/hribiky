@@ -120,6 +120,8 @@ function initMap() {
 
     $("#addForm").on("submit", function(e) {
         e.preventDefault();
+        const submitButton = $('#rozcestnikFormSubmitButton');
+        const originalText = disableButton( submitButton );
         $('#rozcestnik__token').val(document.querySelector('meta[name="rozcestnik_item_csrf_token"]').content);
         const form = $('#addForm')[0];
         const formData = new FormData(form);
@@ -135,6 +137,7 @@ function initMap() {
                 alert('Hríbik bol pridaný! Akonáhle ho overíme, ocitne sa na mape. Vďaka!');
                 $('#addModal').modal('hide');
                 form.reset();
+                enableButton( submitButton, originalText );
             },
             error: function(xhr) {
                 let msg = 'Chyba pri odoslaní formulára.';
@@ -142,12 +145,17 @@ function initMap() {
                     msg += '\n' + xhr.responseJSON.errors;
                 }
                 alert(msg);
+                form.reset();
+                enableButton( submitButton, originalText );
             }
         });
     });
 
     $("#addRozcestnikUpdateForm").on("submit", function(e) {
         e.preventDefault();
+        const submitButton = $('#rozcestnikUpdateFormSubmitButton');
+        const originalText = disableButton( submitButton );
+
         $('#rozcestnik_update__token').val(document.querySelector('meta[name="rozcestnik_update_item_csrf_token"]').content);
         const form = $('#addRozcestnikUpdateForm')[0];
         const formData = new FormData(form);
@@ -162,6 +170,8 @@ function initMap() {
             success: function(response) {
                 alert('Komentár k bríbiku bol pridaný, ďakujeme. Akonáhle ho overíme, ocitne sa pri hríbiku.');
                 $('#addRozcestnikUpdate').modal('hide');
+                form.reset();
+                enableButton( submitButton, originalText);
             },
             error: function(xhr) {
                 let msg = 'Chyba pri odoslaní formulára.';
@@ -169,6 +179,8 @@ function initMap() {
                     msg += '\n' + xhr.responseJSON.errors;
                 }
                 alert(msg);
+                form.reset();
+                enableButton( submitButton, originalText);
             }
         });
     });
@@ -205,6 +217,18 @@ function openAddForm(lat, lng) {
     modalB.show();
 }
 
+function disableButton(el) {
+    const originalText = el.html();
+    el.prop('disabled', true);
+    el.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Odosielam...');
+    return originalText;
+}
+
+function enableButton(el, originalText) {
+    el.prop('disabled', false);
+    el.html( originalText );
+}
+
 document.addEventListener('click', e => {
     if (e.target.classList.contains('update-hribik')) {
         const existingModal = bootstrap.Modal.getInstance(document.getElementById('existingHribikModal'));
@@ -233,4 +257,23 @@ document.addEventListener('click', e => {
         const lightboxModal = bootstrap.Modal.getInstance(document.getElementById('lightboxModal'));
         lightboxModal.hide();
     }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('themeToggle');
+    if (!toggle) return; // pre istotu, ak nie je na danej stránke
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme');
+    const currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+    document.documentElement.setAttribute('data-bs-theme', currentTheme);
+    toggle.textContent = currentTheme === 'dark' ? '☀️ Svetlý mód' : '🌙 Tmavý mód';
+
+    toggle.addEventListener('click', () => {
+        const newTheme = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-bs-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        toggle.textContent = newTheme === 'dark' ? '☀️ Svetlý mód' : '🌙 Tmavý mód';
+    });
 });

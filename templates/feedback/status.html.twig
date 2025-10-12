@@ -1,0 +1,42 @@
+{# templates/feedback/status.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Status spätných väzieb{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>Prehľad spätných väzieb</h1>
+
+        <table class="table table-bordered mt-3">
+            <thead>
+            <tr>
+                <th>Dátum</th>
+                <th>Text</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for fb in feedbacks %}
+                <tr>
+                    <td>{{ fb.createdAt|date('d.m.Y H:i') }}</td>
+                    <td>{{ fb.text }}</td>
+                    <td>
+                        {% set statusClass = {
+                            'NotRead': 'secondary',
+                            'Accepted': 'success',
+                            'Rejected': 'danger',
+                            'InProgress': 'warning',
+                            'Done': 'primary'
+                        }[fb.status.name] %}
+                        <span class="badge bg-{{ statusClass }}">{{ fb.status.label }}</span>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3">Žiadne spätné väzby</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

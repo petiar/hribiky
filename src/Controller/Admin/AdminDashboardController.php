@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Feedback;
 use App\Entity\Rozcestnik;
 use App\Entity\RozcestnikUpdate;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -110,7 +111,8 @@ class AdminDashboardController extends AbstractDashboardController
           MenuItem::linkToDashboard('Dashboard', 'fa fa-home'),
           MenuItem::linkToCrud('Hríbiky', 'fa fa-tags', Rozcestnik::class),
           MenuItem::linkToCrud('Aktualizácie', 'fa fa-file-text', RozcestnikUpdate::class),
-          MenuItem::linkToRoute('Späť na mapu', 'fa fa-undo', 'app_home'),
+          MenuItem::linkToCrud('Feedback', 'fa fa-comment', Feedback::class),
+          MenuItem::linkToUrl('Späť na mapu', 'fa fa-undo', '/'),
         ];
     }
 

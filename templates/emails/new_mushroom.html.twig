@@ -1,0 +1,11 @@
+{% block subject %}
+Hríbik na schválenie
+{% endblock %}
+
+<p>Niekto pridal nový hríbik na schválenie!</p>
+<ul>
+    <li>Názov: {{ rozcestnik.title }}</li>
+    <li>Popis: {{ rozcestnik.description }}</li>
+</ul>
+
+<p>Tu pozri: {{ url('admin_rozcestnik_index') }}</p>

@@ -8,6 +8,7 @@ use App\Form\RozcestnikType;
 use App\Form\RozcestnikUpdateType;
 use App\Repository\RozcestnikRepository;
 use App\Service\FotoUploader;
+use App\Service\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validation;
 
 class RozcestnikController extends AbstractController
 {
@@ -44,6 +46,7 @@ class RozcestnikController extends AbstractController
             'hribiky' => $jsonRozcestniky,
             'form' => $form->createView(),
             'rozcestnikUpdateForm' => $rozcestnikUpdateForm->createView(),
+            'count' => count($rozcestniky),
         ]);
     }
 
@@ -64,7 +67,7 @@ class RozcestnikController extends AbstractController
     }
 
     #[Route('/rozcestnik/create', name: 'rozcestnik_create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader): JsonResponse
+    public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader, MailService $mailService ): JsonResponse
     {
         $rozcestnik = new Rozcestnik();
         $form = $this->createForm(RozcestnikType::class, $rozcestnik);
@@ -77,6 +80,20 @@ class RozcestnikController extends AbstractController
 
             $entityManager->persist($rozcestnik);
             $entityManager->flush();
+
+            $mailService->send('emails/new_mushroom.html.twig', 'petiar@gmail.com', [
+                'rozcestnik' => $rozcestnik,
+            ]);
+
+            if ($rozcestnik->getEmail()) {
+                $validator = Validation::createValidator();
+                $violations = $validator->validate($rozcestnik->getEmail(), new \Symfony\Component\Validator\Constraints\Email());
+                if (count($violations) === 0) {
+                    $mailService->send('emails/thank_you.html.twig', $rozcestnik->getEmail(), [
+                        'rozcestnik' => $rozcestnik,
+                    ]);
+                }
+            }
 
             return $this->json([
                 'success' => true,

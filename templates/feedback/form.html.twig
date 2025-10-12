@@ -1,0 +1,18 @@
+{# templates/feedback/form.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Spätná väzba{% endblock %}
+
+{% block body %}
+    <div class="container mt-5 col-lg-6 offset-lg-3 col-md-10 offset-md-1">
+        <h1>Spätná väzba</h1>
+        <a class="btn btn-outline-secondary mt-3 mb-3" href="{{ path('status') }}">Overiť stav ostatných návrhov</a>
+        {% for flash in app.flashes('success') %}
+            <div class="alert alert-success">{{ flash }}</div>
+        {% endfor %}
+        <p>Ak si na stránke všimnete niečo čo nefunguje alebo ak máte nejaký dobrý nápad ako tento web spraviť ešte lepším, tuto mi to napíšte. Všetko si prečítam a ak sa mi to zapáči, alebo teda ak to bude nejaká chyba, tak to zapracujem. Ak chcete aj nejakú reakciu, dajte kdesi do textu aj kontakt na vás. Ideálne e-mail, telefonovať vám asi nebudem.</p>
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
