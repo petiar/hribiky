@@ -41,6 +41,7 @@
     <link rel="manifest" href="/images/site.webmanifest">
     <meta name="rozcestnik_item_csrf_token" content="{{ csrf_token('rozcestnik_item') }}">
     <meta name="rozcestnik_update_item_csrf_token" content="{{ csrf_token('rozcestnik_update_item') }}">
+    {% block ogtags %}{% endblock %}
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">

@@ -4,6 +4,15 @@
 
 {% block navbarbrand %}{{ count }} hríbikov{% endblock %}
 
+{% block ogtags %}
+    <meta property="og:title" content="Hríbiky.sk"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="{{ url('app_home') }}"/>
+    <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ randomRozcestnik.fotky.0.path)) }}" />
+    <meta property="og:description" content="Hríbiky sú turistické rozcestníky."/>
+    <meta property="og:site_name" content="Hríbiky.sk"/>
+{% endblock %}
+
 {% block body %}
     <div class="container mt-3">
         <div id="map" style="height: 80vh;"></div>
