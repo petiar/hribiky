@@ -23,7 +23,7 @@ class RozcestnikController extends AbstractController
     public function index(EntityManagerInterface $em, SerializerInterface $serializer): Response
     {
         $rozcestniky = $em->getRepository(Rozcestnik::class)->findBy(['published' => 1]);
-
+        $data = [];
         foreach ($rozcestniky as $rozcestnik) {
             $data[] = [
                 'id' => $rozcestnik->getId(),
