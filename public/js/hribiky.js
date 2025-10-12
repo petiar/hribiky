@@ -80,7 +80,7 @@ function initMap() {
                 $('#rozcestnik_latitude').val(pos.coords.latitude);
                 $('#rozcestnik_longitude').val(pos.coords.longitude);
 
-                const alt = pos.coords.altitude;
+                const alt = pos.coords.altitude.toFixed(0);
                 if ( alt ) {
                     $('#altitudeText').show();
                     $('#altitudeGuess').html( alt );
