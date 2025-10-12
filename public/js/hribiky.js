@@ -259,21 +259,3 @@ document.addEventListener('click', e => {
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const toggle = document.getElementById('themeToggle');
-    if (!toggle) return; // pre istotu, ak nie je na danej stránke
-
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const savedTheme = localStorage.getItem('theme');
-    const currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-
-    document.documentElement.setAttribute('data-bs-theme', currentTheme);
-    toggle.textContent = currentTheme === 'dark' ? '☀️ Svetlý mód' : '🌙 Tmavý mód';
-
-    toggle.addEventListener('click', () => {
-        const newTheme = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-bs-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        toggle.textContent = newTheme === 'dark' ? '☀️ Svetlý mód' : '🌙 Tmavý mód';
-    });
-});
