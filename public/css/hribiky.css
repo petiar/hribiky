@@ -234,3 +234,8 @@ h2.app-title{
 
 .prev { left: 0; }
 .next { right: 0; }
+
+.user-select-all {
+    user-select: all;
+    cursor: pointer;
+}

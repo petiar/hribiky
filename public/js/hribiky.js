@@ -79,10 +79,17 @@ function initMap() {
             navigator.geolocation.getCurrentPosition(async pos => {
                 $('#rozcestnik_latitude').val(pos.coords.latitude);
                 $('#rozcestnik_longitude').val(pos.coords.longitude);
-                $('#rozcestnik_altitude').val(pos.coords.altitude || '');
+
+                const alt = pos.coords.altitude;
+                if ( alt ) {
+                    $('#altitudeText').show();
+                    $('#altitudeGuess').html( alt );
+                }
+                else {
+                    $('#altitudeText').hide();
+                }
 
                 const response = await fetch(`/api/hribiky/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&radius=100`);
-                console.log(response);
 
                 const data = await response.json();
 

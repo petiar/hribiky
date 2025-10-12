@@ -30,6 +30,7 @@
                     <div class="mb-3">
                         {{ form_widget(form.altitude, {'attr': {'class': 'form-control', 'placeholder': 'Nadmorská výška'}}) }}
                         {{ form_errors(form.altitude) }}
+                        <div id="altitudeText" class="form-text">Nadmorská výška bola podľa geolokácie odhadnutá na <span class="user-select-all" id="altitudeGuess"></span> m n.m.</div>
                     </div>
                     <div class="mb-3">
                         {{ form_widget(form.latitude, {'attr': {'class': 'form-control', 'id': 'latitude' }}) }}
