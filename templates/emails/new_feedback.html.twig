@@ -1,5 +1,9 @@
-{% block subject %}Hríbiky.sk: Nový feedback{% endblock %}
+{% extends 'emails/base.html.twig' %}
 
+{% block header %}Nový feedback{% endblock %}
+
+{% block body %}
 <p>Máme na webe nový feedback, hovorí asi toto:</p>
 <p>{{ feedback.text }}</p>
 <p>Tu pozri: {{ url('admin_feedback_index') }}</p>
+{% endblock %}

@@ -81,7 +81,8 @@ class MushroomController extends AbstractController
             $entityManager->persist($rozcestnik);
             $entityManager->flush();
 
-            $mailService->send('emails/new_mushroom.html.twig', 'petiar@gmail.com', [
+            $subject = sprintf('Nový hríbik (%s) na Hríbiky.sk!', $rozcestnik->getTitle());
+            $mailService->send('emails/new_mushroom.html.twig', $subject, 'petiar@gmail.com', [
                 'rozcestnik' => $rozcestnik,
             ]);
 
@@ -89,7 +90,8 @@ class MushroomController extends AbstractController
                 $validator = Validation::createValidator();
                 $violations = $validator->validate($rozcestnik->getEmail(), new \Symfony\Component\Validator\Constraints\Email());
                 if (count($violations) === 0) {
-                    $mailService->send('emails/thank_you.html.twig', $rozcestnik->getEmail(), [
+                    $subject = 'Poďakovanie z Hríbiky.sk';
+                    $mailService->send('emails/thank_you.html.twig', $subject, $rozcestnik->getEmail(), [
                         'rozcestnik' => $rozcestnik,
                     ]);
                 }

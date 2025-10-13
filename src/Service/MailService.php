@@ -20,10 +20,10 @@ class MailService
 
     public function send(
         string $template,
+        string $subject,
         string $to,
         array $context = []
     ): void {
-        $subject = 'Email z hríbikov';
         $email = (new TemplatedEmail())
             ->from(new Address($this->emailFrom, $this->emailFromName))
             ->to($to)
