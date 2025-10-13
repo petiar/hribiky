@@ -21,32 +21,32 @@ use Symfony\Component\Validator\Validation;
 class MushroomController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(EntityManagerInterface $em, SerializerInterface $serializer): Response
+    public function index(EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
     {
-        $rozcestniky = $em->getRepository(Mushroom::class)->findBy(['published' => 1]);
+        $mushrooms = $entityManager->getRepository(Mushroom::class)->findBy(['published' => 1]);
         $data = [];
-        foreach ($rozcestniky as $rozcestnik) {
+        foreach ($mushrooms as $mushroom) {
             $data[] = [
-                'id' => $rozcestnik->getId(),
-                'title' => $rozcestnik->getTitle(),
-                'description' => $rozcestnik->getDescription(),
-                'latitude' => $rozcestnik->getLatitude(),
-                'longitude' => $rozcestnik->getLongitude(),
-                'fotky' => array_map(fn ($fotka) => '/uploads/photos/' . basename($fotka->getPath()), $rozcestnik->getPhotos()->toArray()),
+                'id' => $mushroom->getId(),
+                'title' => $mushroom->getTitle(),
+                'description' => $mushroom->getDescription(),
+                'latitude' => $mushroom->getLatitude(),
+                'longitude' => $mushroom->getLongitude(),
+                'fotky' => array_map(fn ($fotka) => '/uploads/photos/' . basename($fotka->getPath()), $mushroom->getPhotos()->toArray()),
             ];
         }
-        $jsonRozcestniky = $serializer->serialize($data, 'json');
-        $rozcestnik = new Mushroom();
-        $form = $this->createForm(MushroomType::class, $rozcestnik);
-        $rozcestnikUpdate = new MushroomComment();
-        $rozcestnikUpdateForm = $this->createForm(MushroomCommentType::class, $rozcestnikUpdate);
+        $mushroomsJson = $serializer->serialize($data, 'json');
+        $mushroom = new Mushroom();
+        $mushroomForm = $this->createForm(MushroomType::class, $mushroom);
+        $mushroomComment = new MushroomComment();
+        $mushroomCommentForm = $this->createForm(MushroomCommentType::class, $mushroomComment);
 
         return $this->render('map/index.html.twig', [
-            'hribiky' => $jsonRozcestniky,
-            'form' => $form->createView(),
-            'rozcestnikUpdateForm' => $rozcestnikUpdateForm->createView(),
-            'count' => count($rozcestniky),
-            'randomRozcestnik' => $rozcestniky[rand(0, count($rozcestniky) - 1)],
+            'mushrooms' => $mushroomsJson,
+            'form' => $mushroomForm->createView(),
+            'rozcestnikUpdateForm' => $mushroomCommentForm->createView(),
+            'count' => count($mushrooms),
+            'randomRozcestnik' => $mushrooms[rand(0, count($mushrooms) - 1)],
         ]);
     }
 

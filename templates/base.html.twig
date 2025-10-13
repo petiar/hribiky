@@ -81,8 +81,11 @@
                 <svg class="bi" width="30" height="24" aria-hidden="true">
                     <use xlink:href="#bootstrap"></use>
                 </svg>
-            </a> <span class="mb-3 mb-md-0 text-body-secondary">© {{ 'now' | date('Y') }} <a href="https://petiar.sk">Petiar</a></span></div>
-
+            </a> <span class="mb-3 mb-md-0 text-body-secondary">© {{ 'now' | date('Y') }} <a href="https://petiar.sk">Petiar</a></span>
+        </div>
+        <ul class="nav col-md-4 justify-content-end">
+            <li class="nav-item"><a href="{{ path('generate_api_key') }}" class="nav-link px-2 text-body-secondary">API</a></li>
+        </ul>
     </footer>
 </div>
 </body>

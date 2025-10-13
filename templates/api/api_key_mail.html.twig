@@ -1,0 +1,10 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block header %}API kľúč{% endblock %}
+
+{% block body %}
+    <p>Ahoj, toto je tvoj nový API kľúč:</p>
+    <p><pre>{{ key.keyValue }}</pre></p>
+    <p>Platnosť kľúča je do {{ key.validUntil|date('d.m.Y H:i') }}</p>
+    <p>Uži v zdraví!</p>
+{% endblock %}

@@ -30,3 +30,6 @@ services:
             $emailFrom: '%app.email_from%'
             $emailFromName: '%app.email_from_name%'
             $emailToMe: '%app.email_to_me%'
+    App\EventListener\ApiKeyListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 10 }
