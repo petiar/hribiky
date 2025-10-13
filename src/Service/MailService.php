@@ -23,12 +23,7 @@ class MailService
         string $to,
         array $context = []
     ): void {
-        $templateContent = $this->twig->load($template);
-        $subject = $templateContent->renderBlock(
-            'subject',
-            $context
-        ) ?? '(no subject)';
-
+        $subject = 'Email z hríbikov';
         $email = (new TemplatedEmail())
             ->from(new Address($this->emailFrom, $this->emailFromName))
             ->to($to)
