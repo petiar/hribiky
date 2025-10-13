@@ -49,7 +49,7 @@ class MushroomCommentType extends AbstractType
             'data_class' => MushroomComment::class,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
-            'csrf_token_id' => 'rozcestnik_update_item',
+            'csrf_token_id' => 'mushroom_comment_item',
         ]);
     }
 }

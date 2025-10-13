@@ -77,8 +77,8 @@ function initMap() {
     $('#addRozcestnik').click(function() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(async pos => {
-                $('#rozcestnik_latitude').val(pos.coords.latitude);
-                $('#rozcestnik_longitude').val(pos.coords.longitude);
+                $('#mushroom_latitude').val(pos.coords.latitude);
+                $('#mushroom_longitude').val(pos.coords.longitude);
 
                 const alt = pos.coords.altitude;
                 if ( alt ) {
@@ -122,11 +122,11 @@ function initMap() {
         e.preventDefault();
         const submitButton = $('#rozcestnikFormSubmitButton');
         const originalText = disableButton( submitButton );
-        $('#rozcestnik__token').val(document.querySelector('meta[name="rozcestnik_item_csrf_token"]').content);
+        $('#mushroom__token').val(document.querySelector('meta[name="mushroom_item_csrf_token"]').content);
         const form = $('#addForm')[0];
         const formData = new FormData(form);
 
-        formData.append('rozcestnik__token', document.querySelector('meta[name="rozcestnik_item_csrf_token"]').content);
+        formData.append('mushroom__token', document.querySelector('meta[name="mushroom_item_csrf_token"]').content);
         $.ajax({
             url: '/rozcestnik/create',
             type: 'POST',
@@ -155,11 +155,11 @@ function initMap() {
         const submitButton = $('#rozcestnikUpdateFormSubmitButton');
         const originalText = disableButton( submitButton );
 
-        $('#rozcestnik_update__token').val(document.querySelector('meta[name="rozcestnik_update_item_csrf_token"]').content);
+        $('#mushroom_comment__token').val(document.querySelector('meta[name="mushroom_comment_item_csrf_token"]').content);
         const form = $('#addRozcestnikUpdateForm')[0];
         const formData = new FormData(form);
 
-        formData.append('rozcestnik_update__token', document.querySelector('meta[name="rozcestnik_update_item_csrf_token"]').content);
+        formData.append('mushroom_comment__token', document.querySelector('meta[name="mushroom_comment_item_csrf_token"]').content);
         $.ajax({
             url: '/rozcestnik-update',
             type: 'POST',

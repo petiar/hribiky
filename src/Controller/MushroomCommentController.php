@@ -31,7 +31,7 @@ class MushroomCommentController extends AbstractController
                 return new JsonResponse(['success' => false, 'error' => 'Rozcestník neexistuje'], 404);
             }
 
-            $uploadedFiles = $form->get('fotky')->getData();
+            $uploadedFiles = $form->get('photos')->getData();
             $fotoUploader->uploadAndAttach($uploadedFiles, $update);
 
             $update->setMushroom($rozcestnik);

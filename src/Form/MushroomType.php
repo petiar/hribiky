@@ -58,7 +58,7 @@ class MushroomType extends AbstractType
             'data_class' => Mushroom::class,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
-            'csrf_token_id' => 'rozcestnik_item',
+            'csrf_token_id' => 'mushroom_item',
         ]);
     }
 }
