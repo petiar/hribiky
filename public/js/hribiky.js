@@ -89,7 +89,7 @@ function initMap() {
                     $('#altitudeText').hide();
                 }
 
-                const response = await fetch(`/api/hribiky/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&radius=100`);
+                const response = await fetch(`/api/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&radius=100`);
 
                 const data = await response.json();
 
@@ -209,8 +209,8 @@ $(document).on('click', '.prev, .next', function() {
 });
 
 function openAddForm(lat, lng) {
-    document.querySelector('#addModal input[id="rozcestnik_latitude"]').value = lat;
-    document.querySelector('#addModal input[id="rozcestnik_longitude"]').value = lng;
+    document.querySelector('#addModal input[id="mushroom_latitude"]').value = lat;
+    document.querySelector('#addModal input[id="mushroom_longitude"]').value = lng;
 
     const modalB = new bootstrap.Modal(document.getElementById('addModal'));
     modalB.show();
@@ -233,7 +233,7 @@ document.addEventListener('click', e => {
         const existingModal = bootstrap.Modal.getInstance(document.getElementById('existingHribikModal'));
         existingModal.hide();
         const id = e.target.dataset.id;
-        document.querySelector('#addRozcestnikUpdate input[name="rozcestnik_update[rozcestnik_id]"]').value = id;
+        document.querySelector('#addRozcestnikUpdate input[name="mushroom_comment[rozcestnik_id]"]').value = id;
 
         const rozcestnikUpdateModal = new bootstrap.Modal(document.getElementById('addRozcestnikUpdate'));
         rozcestnikUpdateModal.show();

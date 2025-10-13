@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\RozcestnikUpdate;
+use App\Entity\MushroomComment;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
@@ -12,7 +12,7 @@ class RozcestnikUpdateCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return RozcestnikUpdate::class;
+        return MushroomComment::class;
     }
 
     /*

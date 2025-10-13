@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
-class RozcestnikUpdate
+class MushroomComment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -29,17 +29,17 @@ class RozcestnikUpdate
     #[ORM\Column(type: "datetime")]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Rozcestnik::class, inversedBy: "updates")]
+    #[ORM\ManyToOne(targetEntity: Mushroom::class, inversedBy: "updates")]
     #[ORM\JoinColumn(nullable: false)]
-    private Rozcestnik $rozcestnik;
+    private Mushroom $mushroom;
 
-    #[ORM\OneToMany(mappedBy: "rozcestnikUpdate", targetEntity: Fotka::class, cascade: ["persist", "remove"])]
-    private Collection $fotky;
+    #[ORM\OneToMany(mappedBy: "mushroomComment", targetEntity: Photo::class, cascade: ["persist", "remove"])]
+    private Collection $photos;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
-        $this->fotky = new ArrayCollection();
+        $this->photos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -47,7 +47,7 @@ class RozcestnikUpdate
         return $this->id;
     }
 
-    public function setId(?int $id): RozcestnikUpdate
+    public function setId(?int $id): MushroomComment
     {
         $this->id = $id;
 
@@ -59,7 +59,7 @@ class RozcestnikUpdate
         return $this->description;
     }
 
-    public function setDescription(?string $description): RozcestnikUpdate
+    public function setDescription(?string $description): MushroomComment
     {
         $this->description = $description;
 
@@ -71,7 +71,7 @@ class RozcestnikUpdate
         return $this->published;
     }
 
-    public function setPublished(bool $published): RozcestnikUpdate
+    public function setPublished(bool $published): MushroomComment
     {
         $this->published = $published;
 
@@ -84,51 +84,51 @@ class RozcestnikUpdate
     }
 
     public function setCreatedAt(\DateTimeInterface $createdAt
-    ): RozcestnikUpdate {
+    ): MushroomComment {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getRozcestnik(): Rozcestnik
+    public function getMushroom(): Mushroom
     {
-        return $this->rozcestnik;
+        return $this->mushroom;
     }
 
-    public function setRozcestnik(Rozcestnik $rozcestnik): RozcestnikUpdate
+    public function setMushroom(Mushroom $mushroom): MushroomComment
     {
-        $this->rozcestnik = $rozcestnik;
+        $this->mushroom = $mushroom;
 
         return $this;
     }
 
-    public function getFotky(): Collection
+    public function getPhotos(): Collection
     {
-        return $this->fotky;
+        return $this->photos;
     }
 
-    public function setFotky(Collection $fotky): RozcestnikUpdate
+    public function setPhotos(Collection $photos): MushroomComment
     {
-        $this->fotky = $fotky;
+        $this->photos = $photos;
 
         return $this;
     }
 
-    public function addFotka(Fotka $foto): self
+    public function addFotka(Photo $foto): self
     {
-        if (!$this->fotky->contains($foto)) {
-            $this->fotky->add($foto);
-            $foto->setRozcestnikUpdate($this);
+        if (!$this->photos->contains($foto)) {
+            $this->photos->add($foto);
+            $foto->setMushroomComment($this);
         }
 
         return $this;
     }
 
-    public function removeFotka(Fotka $foto): self
+    public function removeFotka(Photo $foto): self
     {
-        if ($this->fotky->removeElement($foto)) {
-            if ($foto->getRozcestnikUpdate() === $this) {
-                $foto->setRozcestnikUpdate(null);
+        if ($this->photos->removeElement($foto)) {
+            if ($foto->getMushroomComment() === $this) {
+                $foto->setMushroomComment(null);
             }
         }
 
@@ -140,7 +140,7 @@ class RozcestnikUpdate
         return $this->name;
     }
 
-    public function setName(?string $name): RozcestnikUpdate
+    public function setName(?string $name): MushroomComment
     {
         $this->name = $name;
 
@@ -152,7 +152,7 @@ class RozcestnikUpdate
         return $this->email;
     }
 
-    public function setEmail(?string $email): RozcestnikUpdate
+    public function setEmail(?string $email): MushroomComment
     {
         $this->email = $email;
 

@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
-use App\Entity\Fotka;
-use App\Entity\Rozcestnik;
-use App\Entity\RozcestnikUpdate;
+use App\Entity\Photo;
+use App\Entity\Mushroom;
+use App\Entity\MushroomComment;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FotoUploader {
@@ -16,14 +16,14 @@ class FotoUploader {
             $newFilename = uniqid().'.'.$file->guessExtension();
             $file->move($this->uploadDir, $newFilename);
 
-            $foto = new Fotka();
+            $foto = new Photo();
             $foto->setPath($newFilename);
             $foto->setOwner($owner::class);
-            if ($owner instanceof Rozcestnik ) {
-                $foto->setRozcestnik($owner);
+            if ($owner instanceof Mushroom ) {
+                $foto->setMushroom($owner);
             }
-            if ($owner instanceof RozcestnikUpdate ) {
-                $foto->setRozcestnikUpdate($owner);
+            if ($owner instanceof MushroomComment ) {
+                $foto->setMushroomComment($owner);
             }
             $this->entityManager->persist($foto);
         }

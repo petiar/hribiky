@@ -2,11 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\Rozcestnik;
-use App\Entity\RozcestnikUpdate;
-use App\Form\RozcestnikType;
-use App\Form\RozcestnikUpdateType;
-use App\Repository\RozcestnikRepository;
+use App\Entity\Mushroom;
+use App\Entity\MushroomComment;
+use App\Form\MushroomType;
+use App\Form\MushroomCommentType;
+use App\Repository\MushroomRepository;
 use App\Service\FotoUploader;
 use App\Service\MailService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,12 +18,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validation;
 
-class RozcestnikController extends AbstractController
+class MushroomController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
     public function index(EntityManagerInterface $em, SerializerInterface $serializer): Response
     {
-        $rozcestniky = $em->getRepository(Rozcestnik::class)->findBy(['published' => 1]);
+        $rozcestniky = $em->getRepository(Mushroom::class)->findBy(['published' => 1]);
         $data = [];
         foreach ($rozcestniky as $rozcestnik) {
             $data[] = [
@@ -32,14 +32,14 @@ class RozcestnikController extends AbstractController
                 'description' => $rozcestnik->getDescription(),
                 'latitude' => $rozcestnik->getLatitude(),
                 'longitude' => $rozcestnik->getLongitude(),
-                'fotky' => array_map(fn ($fotka) => '/uploads/photos/' . basename($fotka->getPath()), $rozcestnik->getFotky()->toArray()),
+                'fotky' => array_map(fn ($fotka) => '/uploads/photos/' . basename($fotka->getPath()), $rozcestnik->getPhotos()->toArray()),
             ];
         }
         $jsonRozcestniky = $serializer->serialize($data, 'json');
-        $rozcestnik = new Rozcestnik();
-        $form = $this->createForm(RozcestnikType::class, $rozcestnik);
-        $rozcestnikUpdate = new RozcestnikUpdate();
-        $rozcestnikUpdateForm = $this->createForm(RozcestnikUpdateType::class, $rozcestnikUpdate);
+        $rozcestnik = new Mushroom();
+        $form = $this->createForm(MushroomType::class, $rozcestnik);
+        $rozcestnikUpdate = new MushroomComment();
+        $rozcestnikUpdateForm = $this->createForm(MushroomCommentType::class, $rozcestnikUpdate);
 
         return $this->render('map/index.html.twig', [
             'hribiky' => $jsonRozcestniky,
@@ -50,8 +50,8 @@ class RozcestnikController extends AbstractController
         ]);
     }
 
-    #[Route('/api/hribiky/nearby', name: 'api_hribiky_nearby', methods: ['GET'])]
-    public function nearby(Request $request, RozcestnikRepository $rozcestnikRepository): JsonResponse
+    #[Route('/api/nearby', name: 'api_nearby', methods: ['GET'])]
+    public function nearby(Request $request, MushroomRepository $mushroomRepository): JsonResponse
     {
         $lat = $request->query->get('lat');
         $lng = $request->query->get('lng');
@@ -61,7 +61,7 @@ class RozcestnikController extends AbstractController
             return $this->json(['error' => 'Missing coordinates'], 400);
         }
 
-        $nearby = $rozcestnikRepository->findNearby($lat, $lng, $radius);
+        $nearby = $mushroomRepository->findNearby($lat, $lng, $radius);
 
         return new JsonResponse(['hribiky' => $nearby]);
     }
@@ -69,13 +69,13 @@ class RozcestnikController extends AbstractController
     #[Route('/rozcestnik/create', name: 'rozcestnik_create', methods: ['POST'])]
     public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader, MailService $mailService ): JsonResponse
     {
-        $rozcestnik = new Rozcestnik();
-        $form = $this->createForm(RozcestnikType::class, $rozcestnik);
+        $rozcestnik = new Mushroom();
+        $form = $this->createForm(MushroomType::class, $rozcestnik);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $uploadedFiles = $form->get('fotky')->getData();
+            $uploadedFiles = $form->get('photos')->getData();
             $fotoUploader->uploadAndAttach($uploadedFiles, $rozcestnik);
 
             $entityManager->persist($rozcestnik);
@@ -116,7 +116,7 @@ class RozcestnikController extends AbstractController
     #[Route('/{id}', name: 'rozcestnik_detail', requirements: ['id' => '\d+'])]
     public function detail(int $id, EntityManagerInterface $em): Response
     {
-        $rozcestnik = $em->getRepository(Rozcestnik::class)->find($id);
+        $rozcestnik = $em->getRepository(Mushroom::class)->find($id);
         if (!$rozcestnik) {
             throw $this->createNotFoundException('Rozcestník nenájdený');
         }

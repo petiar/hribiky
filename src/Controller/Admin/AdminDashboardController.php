@@ -3,8 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Feedback;
-use App\Entity\Rozcestnik;
-use App\Entity\RozcestnikUpdate;
+use App\Entity\Mushroom;
+use App\Entity\MushroomComment;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -109,8 +109,8 @@ class AdminDashboardController extends AbstractDashboardController
     {
         return [
           MenuItem::linkToDashboard('Dashboard', 'fa fa-home'),
-          MenuItem::linkToCrud('Hríbiky', 'fa fa-tags', Rozcestnik::class),
-          MenuItem::linkToCrud('Aktualizácie', 'fa fa-file-text', RozcestnikUpdate::class),
+          MenuItem::linkToCrud('Hríbiky', 'fa fa-tags', Mushroom::class),
+          MenuItem::linkToCrud('Aktualizácie', 'fa fa-file-text', MushroomComment::class),
           MenuItem::linkToCrud('Feedback', 'fa fa-comment', Feedback::class),
           MenuItem::linkToUrl('Späť na mapu', 'fa fa-undo', '/'),
         ];

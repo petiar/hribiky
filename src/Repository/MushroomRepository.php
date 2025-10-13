@@ -2,15 +2,15 @@
 
 namespace App\Repository;
 
-use App\Entity\Rozcestnik;
+use App\Entity\Mushroom;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class RozcestnikRepository extends ServiceEntityRepository
+class MushroomRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Rozcestnik::class);
+        parent::__construct($registry, Mushroom::class);
     }
 
     public function findNearby(float $lat, float $lng, float $radius = 100): array
@@ -24,7 +24,7 @@ class RozcestnikRepository extends ServiceEntityRepository
                 cos(radians(h.longitude) - radians(:lng)) +
                 sin(radians(:lat)) * sin(radians(h.latitude))
             )) AS distance
-        FROM rozcestnik h
+        FROM mushroom h
         WHERE published = 1
         HAVING distance < :radius
         ORDER BY distance ASC

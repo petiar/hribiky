@@ -7,7 +7,7 @@
     <meta property="og:title" content="{{ rozcestnik.title }} ({{ rozcestnik.altitude }} m n. m.)"/>
     <meta property="og:type" content="place"/>
     <meta property="og:url" content="{{ url('rozcestnik_detail', { id: rozcestnik.id}) }}"/>
-    <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ rozcestnik.fotky.0.path)) }}"/>
+    <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ rozcestnik.photos.0.path)) }}"/>
     <meta property="og:description" content="{{ rozcestnik.description }}"/>
     <meta property="og:site_name" content="Hríbiky.sk"/>
     <meta property="place:location:latitude" content="{{ rozcestnik.latitude }}">
@@ -40,17 +40,17 @@
 
             <!-- Pravý stĺpec: fotky -->
             <div class="col-md-6">
-                {% if rozcestnik.fotky|length > 0 %}
+                {% if rozcestnik.photos|length > 0 %}
                     <div id="rozcestnikCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel">
                         <div class="carousel-inner">
-                            {% for foto in rozcestnik.fotky %}
+                            {% for foto in rozcestnik.photos %}
                                 <div class="carousel-item {% if loop.first %}active{% endif %}">
                                     <img src="{{ asset('uploads/photos/' ~ foto.path) }}" class="d-block w-100 rounded"
                                          alt="Foto">
                                 </div>
                             {% endfor %}
                         </div>
-                        {% if rozcestnik.fotky|length > 1 %}
+                        {% if rozcestnik.photos|length > 1 %}
                             <button class="carousel-control-prev" type="button" data-bs-target="#rozcestnikCarousel"
                                     data-bs-slide="prev">
                                 <span class="carousel-control-prev-icon"></span>
@@ -76,9 +76,9 @@
                             <p class="card-text">{{ update.description|default('Bez popisu') }}</p>
                             <p class="text-muted small">{{ update.createdAt|date('d.m.Y H:i') }}</p>
 
-                            {% if update.fotky|length > 0 %}
+                            {% if update.photos|length > 0 %}
                                 <div class="row mt-3">
-                                    {% for foto in update.fotky %}
+                                    {% for foto in update.photos %}
                                         <div class="col-6 col-md-3 mb-3">
                                             <img src="{{ asset('uploads/photos/' ~ foto.path) }}"
                                                  class="img-fluid rounded shadow-sm update-foto"

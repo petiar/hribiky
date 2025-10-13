@@ -22,6 +22,9 @@ class Feedback
     #[ORM\Column(type: Types::STRING, length: 20, enumType: FeedbackStatus::class)]
     private FeedbackStatus $status;
 
+    #[ORM\Column(type: "boolean")]
+    private bool $published = false;
+
     #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $createdAt;
 
@@ -64,5 +67,17 @@ class Feedback
     public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->published;
+    }
+
+    public function setPublished(bool $published): Feedback
+    {
+        $this->published = $published;
+
+        return $this;
     }
 }

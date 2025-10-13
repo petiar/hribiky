@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
-class Rozcestnik
+class Mushroom
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -41,16 +41,16 @@ class Rozcestnik
     #[ORM\Column(type: "datetime")]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\OneToMany(mappedBy: "rozcestnik", targetEntity: RozcestnikUpdate::class, cascade: ["remove"])]
+    #[ORM\OneToMany(mappedBy: "mushroom", targetEntity: MushroomComment::class, cascade: ["remove"])]
     private Collection $updates;
 
-    #[ORM\OneToMany(mappedBy: "rozcestnik", targetEntity: Fotka::class, cascade: ["persist", "remove"])]
-    private Collection $fotky;
+    #[ORM\OneToMany(mappedBy: "mushroom", targetEntity: Photo::class, cascade: ["persist", "remove"])]
+    private Collection $photos;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
-        $this->fotky = new ArrayCollection();
+        $this->photos = new ArrayCollection();
         $this->updates = new ArrayCollection();
     }
 
@@ -59,7 +59,7 @@ class Rozcestnik
         return $this->id;
     }
 
-    public function setId(?int $id): Rozcestnik
+    public function setId(?int $id): Mushroom
     {
         $this->id = $id;
 
@@ -71,7 +71,7 @@ class Rozcestnik
         return $this->name;
     }
 
-    public function setName(string $name): Rozcestnik
+    public function setName(string $name): Mushroom
     {
         $this->name = $name;
 
@@ -83,7 +83,7 @@ class Rozcestnik
         return $this->description;
     }
 
-    public function setDescription(?string $description): Rozcestnik
+    public function setDescription(?string $description): Mushroom
     {
         $this->description = $description;
 
@@ -95,7 +95,7 @@ class Rozcestnik
         return $this->latitude;
     }
 
-    public function setLatitude(float $latitude): Rozcestnik
+    public function setLatitude(float $latitude): Mushroom
     {
         $this->latitude = $latitude;
 
@@ -107,7 +107,7 @@ class Rozcestnik
         return $this->longitude;
     }
 
-    public function setLongitude(float $longitude): Rozcestnik
+    public function setLongitude(float $longitude): Mushroom
     {
         $this->longitude = $longitude;
 
@@ -119,7 +119,7 @@ class Rozcestnik
         return $this->altitude;
     }
 
-    public function setAltitude(?float $altitude): Rozcestnik
+    public function setAltitude(?float $altitude): Mushroom
     {
         $this->altitude = $altitude;
 
@@ -131,7 +131,7 @@ class Rozcestnik
         return $this->published;
     }
 
-    public function setPublished(bool $published): Rozcestnik
+    public function setPublished(bool $published): Mushroom
     {
         $this->published = $published;
 
@@ -143,7 +143,7 @@ class Rozcestnik
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): Rozcestnik
+    public function setCreatedAt(\DateTimeInterface $createdAt): Mushroom
     {
         $this->createdAt = $createdAt;
 
@@ -155,40 +155,40 @@ class Rozcestnik
         return $this->updates;
     }
 
-    public function setUpdates(Collection $updates): Rozcestnik
+    public function setUpdates(Collection $updates): Mushroom
     {
         $this->updates = $updates;
 
         return $this;
     }
 
-    public function getFotky(): Collection
+    public function getPhotos(): Collection
     {
-        return $this->fotky;
+        return $this->photos;
     }
 
-    public function addFotka(Fotka $foto): self
+    public function addFotka(Photo $foto): self
     {
-        if (!$this->fotky->contains($foto)) {
-            $this->fotky->add($foto);
-            $foto->setRozcestnik($this);
+        if (!$this->photos->contains($foto)) {
+            $this->photos->add($foto);
+            $foto->setMushroom($this);
         }
         return $this;
     }
 
-    public function removeFotka(Fotka $foto): self
+    public function removeFotka(Photo $foto): self
     {
-        if ($this->fotky->removeElement($foto)) {
-            if ($foto->getRozcestnik() === $this) {
-                $foto->setRozcestnik(null);
+        if ($this->photos->removeElement($foto)) {
+            if ($foto->getMushroom() === $this) {
+                $foto->setMushroom(null);
             }
         }
         return $this;
     }
 
-    public function setFotky(Collection $fotky): Rozcestnik
+    public function setPhotos(Collection $photos): Mushroom
     {
-        $this->fotky = $fotky;
+        $this->photos = $photos;
 
         return $this;
     }
@@ -198,7 +198,7 @@ class Rozcestnik
         return $this->title;
     }
 
-    public function setTitle(string $title): Rozcestnik
+    public function setTitle(string $title): Mushroom
     {
         $this->title = $title;
 
@@ -210,7 +210,7 @@ class Rozcestnik
         return $this->email;
     }
 
-    public function setEmail(?string $email): Rozcestnik
+    public function setEmail(?string $email): Mushroom
     {
         $this->email = $email;
 

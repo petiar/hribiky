@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Feedback;
 use App\Form\FeedbackType;
+use App\Service\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class FeedbackController extends AbstractController
 {
     #[Route('/feedback', name: 'feedback')]
-    public function feedback(Request $request, EntityManagerInterface $em): Response
+    public function feedback(Request $request, EntityManagerInterface $em, MailService $mailService): Response
     {
         $feedback = new Feedback();
         $form = $this->createForm(FeedbackType::class, $feedback);
@@ -24,6 +25,10 @@ class FeedbackController extends AbstractController
             $em->flush();
 
             $this->addFlash('success', 'Ďakujeme za vašu spätnú väzbu!');
+
+            $mailService->send('emails/new_feedback.html.twig', 'petiar@gmail.com', [
+                'feedback' => $feedback,
+            ]);
             return $this->redirectToRoute('feedback');
         }
 
@@ -35,7 +40,7 @@ class FeedbackController extends AbstractController
     #[Route('/status', name: 'status')]
     public function status(EntityManagerInterface $em): Response
     {
-        $feedbacks = $em->getRepository(Feedback::class)->findBy([], ['createdAt' => 'DESC']);
+        $feedbacks = $em->getRepository(Feedback::class)->findBy(['published' => 1], ['createdAt' => 'DESC']);
 
         return $this->render('feedback/status.html.twig', [
             'feedbacks' => $feedbacks,

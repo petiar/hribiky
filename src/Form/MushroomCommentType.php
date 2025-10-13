@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\RozcestnikUpdate;
+use App\Entity\MushroomComment;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -11,7 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class RozcestnikUpdateType extends AbstractType
+class MushroomCommentType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -31,7 +31,7 @@ class RozcestnikUpdateType extends AbstractType
                 'required' => true,
                 'attr' => ['class' => 'form-control', 'rows' => 4],
             ])
-            ->add('fotky', FileType::class, [
+            ->add('photos', FileType::class, [
                 'label' => 'Fotky (môžeš vybrať viac)',
                 'mapped' => false,
                 'multiple' => true,
@@ -46,7 +46,7 @@ class RozcestnikUpdateType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => RozcestnikUpdate::class,
+            'data_class' => MushroomComment::class,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'rozcestnik_update_item',

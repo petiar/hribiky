@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Rozcestnik;
+use App\Entity\Mushroom;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -14,7 +14,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class RozcestnikType extends AbstractType
+class MushroomType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -35,7 +35,7 @@ class RozcestnikType extends AbstractType
             ])
             ->add('latitude', HiddenType::class)
             ->add('longitude', HiddenType::class)
-            ->add('fotky', FileType::class, [
+            ->add('photos', FileType::class, [
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
@@ -55,7 +55,7 @@ class RozcestnikType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Rozcestnik::class,
+            'data_class' => Mushroom::class,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'rozcestnik_item',
