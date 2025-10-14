@@ -24,13 +24,13 @@ comment:
 about:
     title: 'O hříbcích'
     description: >
-        Hříbky jsou turistické rozcestníky.<br><br>
+        Hříbky jsou turistické rozcestníky.
         Jsou tichými strážci našich cest a nekompromisními oznamovateli času a vzdálenosti.
         Někdy se ukážou už z dálky a připravují nás tak na další verdikt o tom, kolik ještě a kolik už.
         Jindy se vynoří nenápadně, zeza nejbližší zatáčky, a je to jako náhlé setkání dobrého přítele.
         Jsou uzly na barevných šňůrkách našich cest.
         Ukazují, kudy jdeme my a kudy jdou ostatní, a oznamují nám, kam jinam se ještě dá jít a kde jsme ještě nebyli.
-        Pokoušejí se najít nepřejděné cesty a objevovat nové světy.<br><br>
+        Pokoušejí se najít nepřejděné cesty a objevovat nové světy.
         Říkají nám: "Odpočiň si, máš čas. Napij se a rozhlédni se. Jsi na správné cestě."
     how_title: 'Jak přidám hříbek?'
     how_description: 'Smyslem, principem a myšlenkou tohoto projektu není nacpat všechny tvoje fotky hříbků, které máš v telefonu, z pohodlí obýváku, ale udělat to přímo v terénu. Webová stránka si sama zjistí tvoje GPS a tyto použije k přidání hříbku. Takže ideálně během túry vytáhnout telefon, naťukat hribiky.cz, vyplnit krátký formulář, přidat fotku a můžeš jít dál.'
@@ -68,7 +68,7 @@ no_mushrooms_to_display: 'Zatím zde nejsou žádné hříbky k zobrazení.'
 date: 'Datum'
 text: 'Text'
 status: 'Stav'
-site_name: 'Hríbky.cz'
+site_name: 'Hříbky.cz'
 site_description: 'Hříbky jsou turistické rozcestníky.'
 close: 'Zavřít'
 submit: 'Odeslat'
