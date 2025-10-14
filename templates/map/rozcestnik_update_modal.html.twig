@@ -3,16 +3,16 @@
         {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'addRozcestnikUpdateForm'}}) }}
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addModalLabel">Pridať doplňujúce informácie</h5>
+                <h5 class="modal-title" id="addModalLabel">{{ 'comment.form_title'|trans }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Tvoje meno'}}) }}
+                    {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'comment.form_name_placeholder'|trans}}) }}
                     {{ form_errors(form.name) }}
                 </div>
                 <div class="mb-3">
-                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Tvoj email (nepovinný)'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'comment.form_email_placeholder'|trans }}) }}
                     {{ form_errors(form.email) }}
                 </div>
                 <div class="mb-3">
@@ -20,12 +20,12 @@
                     {{ form_errors(form.photos) }}
                 </div>
                 <div class="mb-3">
-                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Opíš nám tento hríbik'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'comment.form_story_placeholder'|trans}}) }}
                     {{ form_errors(form.description) }}
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" id="rozcestnikUpdateFormSubmitButton" class="btn btn-primary ajaxFormSubmitButton">Odoslať</button>
+                <button type="submit" id="rozcestnikUpdateFormSubmitButton" class="btn btn-primary ajaxFormSubmitButton">{{ 'submit'|trans }}</button>
             </div>
         </div>
         {{ form_end(form) }}

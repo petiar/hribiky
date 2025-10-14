@@ -12,6 +12,10 @@ class ErrorController extends AbstractController
 {
     public function show(\Throwable $exception, EntityManagerInterface $entityManager): Response
     {
+        if ($this->getParameter('kernel.debug')) {
+            throw $exception;
+        }
+
         $statusCode = method_exists($exception, 'getStatusCode')
             ? $exception->getStatusCode()
             : 500;
@@ -23,7 +27,7 @@ class ErrorController extends AbstractController
         }
 
         // Pre ostatné chyby štandardné zobrazenie
-        return $this->render('bundles/TwigBundle/Exception/error.html.twig', [
+        return $this->render('error/error.html.twig', [
             'status_code' => $statusCode,
             'status_text' => Response::$statusTexts[$statusCode] ?? 'Error',
         ]);

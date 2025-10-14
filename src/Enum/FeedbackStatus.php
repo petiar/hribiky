@@ -2,6 +2,8 @@
 
 namespace App\Enum;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 enum FeedbackStatus: string
 {
     case NotRead = 'NotRead';
@@ -10,13 +12,13 @@ enum FeedbackStatus: string
     case InProgress = 'InProgress';
     case Done = 'Done';
 
-    public function label(): string {
+    public function label(TranslatorInterface $t): string {
         return match ($this) {
-            self::NotRead => 'Neprečítané',
-            self::Accepted => 'Prijaté',
-            self::Rejected => 'Toto nebudem robiť',
-            self::InProgress => 'Toto už robím',
-            self::Done => 'Hotovo',
+            self::NotRead => $t->trans('feedback.status_notread'),
+            self::Accepted => $t->trans('feedback.status_accepted'),
+            self::Rejected => $t->trans('feedback.status_rejected'),
+            self::InProgress => $t->trans('feedback.status_inprogress'),
+            self::Done => $t->trans('feedback.status_done'),
         };
     }
 }

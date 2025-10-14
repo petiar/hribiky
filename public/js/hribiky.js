@@ -1,32 +1,18 @@
 let map;
 
 function initMap() {
-    const center = { lat: 48.669, lng: 19.699 };
+
+        const bodyEl = document.body;
+        const locale = (bodyEl.dataset.locale);
+
+        var center = { lat: 48.669, lng: 19.699 };
+        if (locale === 'cs') {
+            center = { lat: 49.8175, lng: 15.4730 };
+        }
     map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 7,
+        zoom: 8,
         center: center
     });
-
-    if (false && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(pos) {
-                const userPos = {
-                    lat: pos.coords.latitude,
-                    lng: pos.coords.longitude
-                };
-                map.setCenter(userPos);
-
-                new google.maps.Marker({
-                    position: userPos,
-                    map: map,
-                    title: "Vaša poloha"
-                });
-            },
-            function() {
-                console.log("Geolokácia zakázaná alebo neúspešná.");
-            }
-        );
-    }
 
     if (typeof hribiky !== 'undefined') {
         $.each(hribiky, function(i, hrib) {
@@ -94,18 +80,18 @@ function initMap() {
                 const data = await response.json();
 
                 if (data.hribiky && data.hribiky.length > 0) {
-                    let html = `<h5>V tvojom okolí sa už nachádzajú tieto hríbiky:</h5><ul class="list-group mb-3">`;
-                    data.hribiky.forEach(h => {
-                        html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-semibold">${h.title}, (${h.altitude} mnm)</span>
-                                    <button class="btn btn-sm btn-primary update-hribik" data-id="${h.id}">
-                                Aktualizovať
-                            </button>
-                         </li>`;
-                    });
-                    html += `</ul><hr><button id="newHribikAnyway" class="btn btn-success">Chcem pridať nový, v zozname som ho nenašiel</button>`;
+                    const list = document.getElementById('existingMushroomsList');
+                    const templateLi = list.querySelector('li');
+                    list.innerHTML = '';
 
-                    document.getElementById('existing-modal-body').innerHTML = html;
+                    data.hribiky.forEach(h => {
+                        const newLi = templateLi.cloneNode(true);
+                        const span = newLi.querySelector('.mushroomTitle');
+                        span.textContent = h.title + ", (" + h.altitude + ") m. n. m";
+                        const button = newLi.querySelector('button.update-hribik');
+                        button.dataset.id = h.id;
+                        list.appendChild(newLi);
+                    });
                     new bootstrap.Modal(document.getElementById('existingHribikModal')).show();
                 }
                 else {

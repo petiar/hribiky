@@ -1,0 +1,98 @@
+mushroom:
+    added_by: 'Pridal'
+    no_photos: 'Bez fotiek.'
+    no_comments: 'Zatiaľ žiadne aktualizácie.'
+    add_title: 'Pridať hríbik'
+    add_button: 'Stojím pri hríbiku, chcem ho pridať!'
+    form_title_placeholder: 'Názov'
+    form_name_placeholder: 'Tvoje meno'
+    form_email_placeholder: 'Tvoj email (nepovinné)'
+    form_description_placeholder: 'Opíš nám tento hríbik'
+    form_altitude_placeholder: 'Nadmorská výška (nepovinné)'
+    form_altitude_guess: 'Nadmorská výška bola podľa geolokácie odhadnutá na <span class="user-select-all" id="altitudeGuess"></span> m n.m.'
+before:
+    form_title: 'Predtým, než pridáš nový hríbik...'
+    form_description: 'V tvojom okolí sa už nachádzajú tieto hríbiky:'
+    form_add: 'Pridať príbeh'
+    form_add_new_anyway: 'Chcem pridať nový, v zozname som ho nenašiel'
+comment:
+    form_title: 'Pridať svoj príbeh'
+    form_name_placeholder: 'Tvoje meno'
+    form_email_placeholder: 'Tvoj email (nepovinné)'
+    form_story_placeholder: 'Tvoj príbeh'
+
+about:
+    title: 'O hríbikoch'
+    description: >
+        Hríbiky sú turistické rozcestníky.<br><br>
+        Sú to tichí strážcovia našich ciest a nekompromisní oznamovatelia času a vzdialenosti.
+        Niekedy sa ukážu už zďaleka a pripravujú nás tak na ďalší verdikt o tom koľko ešte a koľko už.
+        Inokedy sa vynoria nebadane, spoza najbližšej zákruty a je to ako náhle stretnutie dobrého priateľa.
+        Sú uzlami na farebných šnúrkach našich ciest.
+        Ukazujú kadiaľ ideme my a kadiaľ idú iní a oznamujú nám kam inam sa ešte dá ísť a kde sme ešte neboli.
+        Pokúšajú nájsť prechádzať ešte neprejdené cesty a objavovať nové svety.<br><br>
+        Vravia nám "Oddýchni si, máš čas. Napi sa a rozhliadni sa. Si na dobrej ceste"
+    how_title: 'Ako pridám hríbik?'
+    how_description: 'Zápletkou, princípom a myšlienkou tohto projektu nie je nacápať všetky tvoje fotky hríbikov, ktoré máš v telefóne, z kresla tvojej obývačky, ale spraviť to priamo v teréne. Webstránka si sama zistí tvoje GPS a tieto použije na pridanie hríbika. Takže ideálne počas túry vytiahnuť telefón, naťukať hribiky.sk, vyplniť krátky formulár, pridať fotku a môžeš ísť ďalej.'
+    what_title: 'Čo je táto stránka?'
+    what_description: 'Odjakživa som musel poctivo "prečítať" každý jeden hríbik. Neviem, či sa mi ich niekedy podarí prečítať všetky, ale možno by sme sa mohli pokúsiť dať spolu dokopy ich databázu. Vymyslel som si takýto projekt, potom roky ležal v zásuvke až prišiel jeden upršaný októbrový víkend.'
+    techstack_title: 'Technické oné'
+    techstack_description: 'Symfony 7, Bootstrap 5, jQuery'
+
+api:
+    header: 'API kľúč'
+    welcome: 'Ahoj, toto je tvoj nový API kľúč'
+    valid_until: 'Platnosť kľúča je do'
+    greeting: 'Uži v zdraví!'
+    title_generate: 'Generovanie API kľúča'
+    info: 'Máme aj API. Pomocou jednoduchých API volaní je možné získať dáta z tejto webstránky vo formáte JSON. Zatiaľ bez obrázkov, ale postupne pridám aj to.'
+    info_bottom: 'Oba sú to GET requesty, pričom v hlavičke musia mať API kľúč v Api-Key.'
+    key_generated: 'Váš API kľúč bol vygenerovaný:'
+    generate: 'Vygenerovať kľúč'
+
+form:
+    email: 'E-mail'
+    email_placeholder: 'Zadajte svoj e-mail'
+
+email:
+    new_feedback:
+        title: 'Nový feedback'
+        description: 'Máme na webe nový feedback, hovorí asi toto:'
+        click_here: 'Tu pozri:'
+    thank_you: 'ďakujem, že si pri svojej prechádzke myslel aj na hríbiky a obetoval trochu percent baterky v tvojom mobilnom telefóne a daroval nám nový úlovok. Pozriem na to a keď bude všetko ok tak sa už onedlho pridá medzi svojich kamarátov.</p><p><strong>Toto je zároveň posledný automatický mail, ktorý odomňa dostaneš. Nemám newsletter ani žiadne marketingové kampane.</strong>Samozrejme, ak ťa bude čokoľvek ohľadne tohto webu zaujímať napíš a rád ti odpoviem.'
+
+thank_you: 'Ďakujem!'
+hello: 'Ahoj'
+back_to_map: 'Späť na mapu'
+no_mushrooms_to_display: 'Zatiaľ tu nie sú žiadne hríbiky na zobrazenie.'
+date: 'Dátum'
+text: 'Text'
+status: 'Stav'
+site_name: 'Hríbiky.sk'
+site_description: 'Hríbiky sú turistické rozcestníky.'
+close: 'Zavrieť'
+submit: 'Odoslať'
+contact: 'Kontakt'
+contact_email: 'petiar@gmail.com'
+mushroom_count: 'hríbikov'
+
+menu:
+    mushrooms: 'Hríbiky'
+
+error404:
+    title: 'Ups, takú stránku nemáme...'
+    but: 'Ale máme napríklad aj takýto hríbik:'
+    detail: 'Zobraziť detail'
+
+feedback:
+    title: 'Niečo nefunguje?'
+    check_progress: 'Overiť stav ostatných návrhov'
+    description: 'Ak si na stránke všimnete niečo čo nefunguje alebo ak máte nejaký dobrý nápad ako tento web spraviť ešte lepším, tuto mi to napíšte. Všetko si prečítam a ak sa mi to zapáči, alebo teda ak to bude nejaká chyba, tak to zapracujem. Ak chcete aj nejakú reakciu, dajte kdesi do textu aj kontakt na vás. Ideálne e-mail, telefonovať vám asi nebudem.'
+    status: 'Ako sa darí'
+    status_description: 'Tu si môžete takto verejne pozrieť že čo robím a ako mi to ide.'
+    no_status: 'Zatiaľ tu nič nemám. Káva, knižka, Pink Floyd...'
+    status_notread: 'Neprečítané'
+    status_accepted: 'Budem to robiť'
+    status_rejected: 'Nebudem to robiť'
+    status_inprogress: 'Už na tom makám'
+    status_done: 'Hotovo'

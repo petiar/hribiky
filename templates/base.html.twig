@@ -12,7 +12,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Hríbiky{% endblock %}</title>
+    <title>{% block title %}{{ 'site_name'|trans }}{% endblock %}</title>
     <link rel="icon"
           href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
     <link
@@ -36,7 +36,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.min.js"
             integrity="sha512-nKXmKvJyiGQy343jatQlzDprflyB5c+tKCzGP3Uq67v+lmzfnZUi/ZT+fc6ITZfSC5HhaBKUIvr/nTLCV+7F+Q=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuiXVE5i-Kq_0YS1Nqc52abImgkcthR1U&callback=initMap"
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuiXVE5i-Kq_0YS1Nqc52abImgkcthR1U&callback=initMap&language={{ app.request.locale }}"
             async defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,12 +52,12 @@
     <meta name="mushroom_comment_item_csrf_token" content="{{ csrf_token('mushroom_comment_item') }}">
     {% block ogtags %}{% endblock %}
 </head>
-<body>
+<body data-locale="{{ app.request.locale }}">
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container">
-        <a class="navbar-brand" href="{{ path('app_home') }}">{% block navbarbrand %}Hríbiky{% endblock %}</a>
+        <a class="navbar-brand" href="{{ path('app_home') }}">{% block navbarbrand %}{{ 'menu.mushrooms'|trans }}{% endblock %}</a>
         {% if app.request.attributes.get('_route') == 'app_home' %}
-            <button class="btn btn-success" id="addRozcestnik">Stojím pri hríbiku, chcem ho pridať!</button>
+            <button class="btn btn-success" id="addRozcestnik">{{ 'mushroom.add_button'|trans }}</button>
         {% endif %}
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,15 +67,14 @@
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="{{ path('about') }}"><i
-                            class="bi bi-chat-heart-fill"></i> O hríbikoch</a>
+                            class="bi bi-chat-heart-fill"></i>&nbsp;{{ 'about.title'|trans }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="{{ path('contact') }}"><i class="bi bi-envelope"></i>
-                        Kontakt</a>
+                    <a class="nav-link" aria-current="page" href="{{ path('contact') }}"><i class="bi bi-envelope"></i>&nbsp;{{ 'contact'|trans }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="{{ path('feedback') }}"><i
-                            class="bi bi-person-raised-hand"></i> Niečo nefunguje?</a>
+                            class="bi bi-person-raised-hand"></i>&nbsp;{{ 'feedback.title'|trans }}</a>
                 </li>
             </ul>
         </div>

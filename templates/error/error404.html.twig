@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Stránka nenájdená{% endblock %}
+{% block title %}{{ 'error404.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
@@ -8,11 +8,11 @@
             <div class="col-md-8 text-center">
 
                 <h1 class="display-1 text-muted">404</h1>
-                <h2 class="mb-4">Ups, takú stránku tu nemáme. :-(</h2>
+                <h2 class="mb-4">{{ 'error404'|trans }}</h2>
 
                 {% if mushroom %}
                     <div class="mt-5">
-                        <h4 class="mb-4">Ale máme napríklad aj takýto hríbik:</h4>
+                        <h4 class="mb-4">{{ 'error404.but'|trans }}</h4>
 
                         <div class="card shadow-sm mx-auto" style="max-width: 600px;">
                             {% set photo = mushroom.photos|first %}
@@ -32,10 +32,10 @@
 
                                 <div class="mt-4">
                                     <a href="{{ path('rozcestnik_detail', {id: mushroom.id}) }}" class="btn btn-primary">
-                                        Zobraziť detail
+                                        {{ 'error404.detail'|trans }}
                                     </a>
                                     <a href="{{ path('app_home') }}" class="btn btn-secondary">
-                                        Späť na hlavnú stránku
+                                        {{ 'back_to_map'|trans }}
                                     </a>
                                 </div>
                             </div>
@@ -43,13 +43,12 @@
                     </div>
                 {% else %}
                     <div class="mt-5">
-                        <p class="text-muted">Zatiaľ tu nie sú žiadne hríbiky na zobrazenie.</p>
+                        <p class="text-muted">{{ 'no_mushrooms_to_display'|trans }}</p>
                         <a href="{{ path('app_home') }}" class="btn btn-primary">
-                            Späť na hlavnú stránku
+                            {{ 'back_to_homepage'|trans }}
                         </a>
                     </div>
                 {% endif %}
-
             </div>
         </div>
     </div>

@@ -1,16 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hríbiky{% endblock %}
+{% block title %}{{ 'site_name'|trans }}{% endblock %}
 
-{% block navbarbrand %}{{ count }} hríbikov{% endblock %}
+{% block navbarbrand %}{{ count }} {{ 'mushroom_count'|trans }}{% endblock %}
 
 {% block ogtags %}
-    <meta property="og:title" content="Hríbiky.sk"/>
+    <meta property="og:title" content="{{ 'site_name'|trans }}"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="{{ url('app_home') }}"/>
     <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ randomRozcestnik.photos.0.path)) }}" />
-    <meta property="og:description" content="Hríbiky sú turistické rozcestníky."/>
-    <meta property="og:site_name" content="Hríbiky.sk"/>
+    <meta property="og:description" content="{{ 'site_description'|trans }}"/>
+    <meta property="og:site_name" content="{{ 'site_name'|trans }}"/>
 {% endblock %}
 
 {% block body %}

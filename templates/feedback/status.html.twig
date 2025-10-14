@@ -1,18 +1,18 @@
 {# templates/feedback/status.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Status spätných väzieb{% endblock %}
+{% block title %}{{ 'feedback.status'|trans }}{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
-        <h1>Prehľad práce na webe</h1>
-        <p>Tu si môžete takto verejne pozrieť že čo robím a ako mi to ide.</p>
+        <h1>{{ 'feedback.status'|trans }}</h1>
+        <p>{{ 'feedback.status_description'|trans }}</p>
         <table class="table table-bordered mt-3">
             <thead>
             <tr>
-                <th>Dátum</th>
-                <th>Text</th>
-                <th>Status</th>
+                <th>{{ 'date'|trans }}</th>
+                <th>{{ 'text'|trans }}</th>
+                <th>{{ 'status'|trans }}</th>
             </tr>
             </thead>
             <tbody>
@@ -33,7 +33,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="3">Zatiaľ tu nič nemám. Káva, knižka, Pink Floyd...</td>
+                    <td colspan="3">{{ 'feedback.no_status'|trans }}</td>
                 </tr>
             {% endfor %}
             </tbody>

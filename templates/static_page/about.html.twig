@@ -1,25 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}O hríbikoch{% endblock %}
+{% block title %}{{ 'about.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="container mt-3 col-md-6 offset-md-3">
-        <h2>Čo sú to hríbiky?</h2>
-        <p class="text-justify">
-            Hríbiky sú turistické rozcestníky.<br><br>
-            Sú to tichí strážcovia našich ciest a nekompromisní oznamovatelia času a vzdialenosti.
-            Niekedy sa ukážu už zďaleka a pripravujú nás tak na ďalší verdikt o tom koľko ešte a koľko už.
-            Inokedy sa vynoria nebadane, spoza najbližšej zákruty a je to ako náhle stretnutie dobrého priateľa.
-            Sú uzlami na farebných šnúrkach našich ciest.
-            Ukazujú kadiaľ ideme my a kadiaľ idú iní a oznamujú nám kam inam sa ešte dá ísť a kde sme ešte neboli.
-            Pokúšajú nájsť prechádzať ešte neprejdené cesty a objavovať nové svety.<br><br>
-            Vravia nám "Oddýchni si, máš čas. Napi sa a rozhliadni sa. Si na dobrej ceste"
-        </p>
-        <h2>Ako pridám hríbik?</h2>
-        <p>Zápletkou, princípom a myšlienkou tohto projektu nie je nacápať všetky tvoje fotky hríbikov, ktoré máš v telefóne, z kresla tvojej obývačky, ale spraviť to priamo v teréne. Webstránka si sama zistí tvoje GPS a tieto použije na pridanie hríbika. Takže ideálne počas túry vytiahnuť telefón, naťukať hribiky.sk, vyplniť krátky formulár, pridať fotku a môžeš ísť ďalej.</p>
-        <h2>Čo je táto stránka?</h2>
-        <p>Odjakživa som musel poctivo "prečítať" každý jeden hríbik. Neviem, či sa mi ich niekedy podarí prečítať všetky, ale možno by sme sa mohli pokúsiť dať spolu dokopy ich databázu. Vymyslel som si takýto projekt, potom roky ležal v zásuvke až prišiel jeden upršaný októbrový víkend.</p>
-        <h2>Technické oné</h2>
-        <p>Symfony 7, Bootstrap 5, jQuery :-)</p>
+        <h2>{{ 'about.title'|trans }}</h2>
+        <p class="text-justify">{{ 'about.description'|trans }}</p>
+        <h2>{{ 'about.how_title'|trans }}</h2>
+        <p>{{ 'about.how_description'|trans }}</p>
+        <h2>{{ 'about.what_title'|trans }}</h2>
+        <p>{{ 'about.what_description'|trans }}</p>
+        <h2>{{ 'about.techstack_title'|trans }}</h2>
+        <p>{{ 'about.techstack_description'|trans }}</p>
     </div>
 {% endblock %}

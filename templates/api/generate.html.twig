@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Generovanie API kľúča{% endblock %}
+{% block title %}{{ 'api.title_generate'|trans }}{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
@@ -9,29 +9,28 @@
 
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h3 class="card-title mb-4 text-center">Generovanie API kľúča</h3>
-                        <p>Máme aj API. Pomocou jednoduchých API volaní je možné získať dáta z tejto webstránky vo formáte JSON. Zatiaľ bez obrázkov, ale postupne pridám aj to.</p>
+                        <h3 class="card-title mb-4 text-center">{{ 'api.title_generate'|trans }}</h3>
+                        <p>{{ 'api.info'|trans }}</p>
                         <pre>/api/mushrooms/</pre>
                         <pre>/api/mushrooms/{:id}</pre>
-                        <p>Oba sú to GET requesty, pričom v hlavičke musia mať API kľúč v Api-Key.</p>
+                        <p>{{ 'api.info_bottom'|trans }}</p>
                         {% if error %}
                             <div class="alert alert-danger">{{ error }}</div>
                         {% endif %}
 
                         {% if apiKey %}
                             <div class="alert alert-success">
-                                Váš API kľúč bol vygenerovaný:
+                                {{ 'api.key_generated'|trans }}
                                 <strong>{{ apiKey.keyValue }}</strong>
                             </div>
-                            <p>Platnosť kľúča je do {{ apiKey.validUntil|date('d.m.Y H:i') }}</p>
+                            <p>{{ 'api.valid_until'|trans }} {{ apiKey.validUntil|date('d.m.Y H:i') }}</p>
                         {% endif %}
-
                         <form method="post">
                             <div class="mb-3">
-                                <label for="email" class="form-label">E-mail</label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="Zadajte svoj e-mail" required>
+                                <label for="email" class="form-label">{{ 'form.email'|trans }}</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="{{ 'form.email_placeholder'|trans }}" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Vygenerovať kľúč</button>
+                            <button type="submit" class="btn btn-primary w-100">{{ 'api.generate'|trans }}</button>
                         </form>
 
                     </div>

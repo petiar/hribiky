@@ -9,7 +9,7 @@
     <meta property="og:url" content="{{ url('rozcestnik_detail', { id: rozcestnik.id}) }}"/>
     <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ rozcestnik.photos.0.path)) }}"/>
     <meta property="og:description" content="{{ rozcestnik.description }}"/>
-    <meta property="og:site_name" content="Hríbiky.sk"/>
+    <meta property="og:site_name" content="{{ 'site_name'|trans }}"/>
     <meta property="place:location:latitude" content="{{ rozcestnik.latitude }}">
     <meta property="place:location:longitude" content="{{ rozcestnik.longitude }}">
 {% endblock %}
@@ -22,7 +22,7 @@
                     <div class="card-body">
                         <h2 class="mb-4">{{ rozcestnik.title }} ({{ rozcestnik.altitude }} m n. m.)</h2>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><strong>Pridal:</strong> {{ rozcestnik.name }}
+                            <li class="list-group-item"><strong>{{ 'mushroom.added_by'|trans }}:</strong> {{ rozcestnik.name }}
                                 ({{ rozcestnik.createdAt|date('d.m.Y H:i') }})
                             </li>
 
@@ -35,7 +35,7 @@
                 </div>
                 <div class="text-center mb-5">
                     <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
-                        ← Späť na mapu
+                        ← {{ 'back_to_map'|trans }}
                     </a>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                         {% endif %}
                     </div>
                 {% else %}
-                    <p class="text-muted">Bez fotiek.</p>
+                    <p class="text-muted">{{ 'mushroom.no_photos'|trans }}</p>
                 {% endif %}
             </div>
         </div>
@@ -96,7 +96,7 @@
                     </div>
                 {% endfor %}
             {% else %}
-                <p class="text-muted">Zatiaľ žiadne aktualizácie.</p>
+                <p class="text-muted">{{ 'mushroom.no_comments'|trans }}</p>
             {% endif %}
         </div>
     </div>

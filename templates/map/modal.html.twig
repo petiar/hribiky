@@ -3,20 +3,20 @@
         {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'addForm'}}) }}
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addModalLabel">Pridať hríbik</h5>
+                    <h5 class="modal-title" id="addModalLabel">{{ 'mushroom.add_title'|trans }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Názov'}}) }}
+                        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'mushroom.form_title_placeholder'|trans}}) }}
                         {{ form_errors(form.title) }}
                     </div>
                     <div class="mb-3">
-                        {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Tvoje meno'}}) }}
+                        {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'mushroom.form_name_placeholder'|trans }}) }}
                         {{ form_errors(form.name) }}
                     </div>
                     <div class="mb-3">
-                        {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Tvoj email (nepovinné)'}}) }}
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'mushroom.form_email_placeholder'|trans}}) }}
                         {{ form_errors(form.email) }}
                     </div>
                     <div class="mb-3">
@@ -24,13 +24,13 @@
                         {{ form_errors(form.photos) }}
                     </div>
                     <div class="mb-3">
-                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Opíš nám tento hríbik'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'mushroom.form_description_placeholder'|trans }}) }}
                         {{ form_errors(form.description) }}
                     </div>
                     <div class="mb-3">
-                        {{ form_widget(form.altitude, {'attr': {'class': 'form-control', 'placeholder': 'Nadmorská výška'}}) }}
+                        {{ form_widget(form.altitude, {'attr': {'class': 'form-control', 'placeholder': ''}}) }}
                         {{ form_errors(form.altitude) }}
-                        <div id="altitudeText" class="form-text">Nadmorská výška bola podľa geolokácie odhadnutá na <span class="user-select-all" id="altitudeGuess"></span> m n.m.</div>
+                        <div id="altitudeText" class="form-text">{{ 'mushroom.form_altitude_guess'|trans }}</div>
                     </div>
                     <div class="mb-3">
                         {{ form_widget(form.latitude, {'attr': {'class': 'form-control', 'id': 'latitude' }}) }}
@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" id="rozcestnikFormSubmitButton" class="btn btn-primary ajaxFormSubmitButton">Odoslať</button>
+                    <button type="submit" id="rozcestnikFormSubmitButton" class="btn btn-primary ajaxFormSubmitButton">{{ 'submit'|trans }}</button>
                 </div>
             </div>
         {{ form_end(form) }}
@@ -53,10 +53,21 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="existingHribikModalLabel">Predtým, než pridáš nový hríbik...</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavrieť"></button>
+                <h5 class="modal-title" id="existingHribikModalLabel">{{ 'before.form_title'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'close'|trans }}"></button>
             </div>
             <div class="modal-body" id="existing-modal-body">
+                <h5>{{ 'before.form_description'|trans }}</h5>
+                <ul class="list-group mb-3" id="existingMushroomsList">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold mushroomTitle"></span>
+                        <button class="btn btn-sm btn-primary update-hribik" data-id="10">
+                            {{ 'before.form_add'|trans }}
+                        </button>
+                    </li>
+                </ul>
+                <hr>
+                <button id="newHribikAnyway" class="btn btn-success">{{ 'before.form_add_new_anyway'|trans }}</button>
             </div>
         </div>
     </div>

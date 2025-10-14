@@ -1,9 +1,9 @@
 {% extends 'emails/base.html.twig' %}
 
-{% block header %}Nový feedback{% endblock %}
+{% block header %}{{ 'email.new_feedback.title'|trans }}{% endblock %}
 
 {% block body %}
-<p>Máme na webe nový feedback, hovorí asi toto:</p>
+<p>{{ 'email.new_feedback.description'|trans }}</p>
 <p>{{ feedback.text }}</p>
-<p>Tu pozri: {{ url('admin_feedback_index') }}</p>
+<p>{{ 'email.new_feedback.click_here'|trans}} {{ url('admin_feedback_index') }}</p>
 {% endblock %}
