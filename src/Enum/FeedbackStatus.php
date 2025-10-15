@@ -12,13 +12,13 @@ enum FeedbackStatus: string
     case InProgress = 'InProgress';
     case Done = 'Done';
 
-    public function label(TranslatorInterface $t): string {
+    public function labelKey(): string {
         return match ($this) {
-            self::NotRead => $t->trans('feedback.status_notread'),
-            self::Accepted => $t->trans('feedback.status_accepted'),
-            self::Rejected => $t->trans('feedback.status_rejected'),
-            self::InProgress => $t->trans('feedback.status_inprogress'),
-            self::Done => $t->trans('feedback.status_done'),
+            self::NotRead => 'feedback.status_notread',
+            self::Accepted => 'feedback.status_accepted',
+            self::Rejected => 'feedback.status_rejected',
+            self::InProgress => 'feedback.status_inprogress',
+            self::Done => 'feedback.status_done',
         };
     }
 }

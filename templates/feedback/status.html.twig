@@ -28,7 +28,7 @@
                             'InProgress': 'warning',
                             'Done': 'primary'
                         }[fb.status.name] %}
-                        <span class="badge bg-{{ statusClass }}">{{ fb.status.label }}</span>
+                        <span class="badge bg-{{ statusClass }}">{{ fb.status.labelKey|trans }}</span>
                     </td>
                 </tr>
             {% else %}

@@ -91,7 +91,12 @@
                 </svg>
             </a> <span class="mb-3 mb-md-0 text-body-secondary">© {{ 'now' | date('Y') }} <a href="https://petiar.sk">Petiar</a></span>
         </div>
-        <ul class="nav col-md-4 justify-content-end">
+        <ul class="nav col-md-6 justify-content-end">
+            {% if (app.request.locale == 'sk') %}
+            <li class="nav-item"><a href="https://hribiky.cz{{ app.request.pathInfo }}" class="nav-link px-2 text-body-secondary">Česky</a></li>
+            {% else %}
+            <li class="nav-item"><a href="https://hribiky.sk{{ app.request.pathInfo }}" class="nav-link px-2 text-body-secondary">Slovensky</a></li>
+            {% endif %}
             <li class="nav-item"><a href="{{ path('generate_api_key') }}" class="nav-link px-2 text-body-secondary">API</a></li>
         </ul>
     </footer>

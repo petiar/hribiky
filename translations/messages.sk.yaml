@@ -96,3 +96,4 @@ feedback:
     status_rejected: 'Nebudem to robiť'
     status_inprogress: 'Už na tom makám'
     status_done: 'Hotovo'
+    text_label: 'Pokojne sa rozpíšte...'
