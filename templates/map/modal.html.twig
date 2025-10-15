@@ -28,7 +28,7 @@
                         {{ form_errors(form.description) }}
                     </div>
                     <div class="mb-3">
-                        {{ form_widget(form.altitude, {'attr': {'class': 'form-control', 'placeholder': ''}}) }}
+                        {{ form_widget(form.altitude, {'attr': {'class': 'form-control', 'placeholder': 'mushroom.form_altitude_placeholder'|trans}}) }}
                         {{ form_errors(form.altitude) }}
                         <div id="altitudeText" class="form-text">{{ 'mushroom.form_altitude_guess'|trans }}</div>
                     </div>
