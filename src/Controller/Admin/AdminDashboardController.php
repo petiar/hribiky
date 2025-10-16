@@ -2,6 +2,8 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\AccessLog;
+use App\Entity\Blacklist;
 use App\Entity\Feedback;
 use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
@@ -104,6 +106,8 @@ class AdminDashboardController extends AbstractDashboardController
           MenuItem::linkToCrud('Hríbiky', 'fa fa-tags', Mushroom::class),
           MenuItem::linkToCrud('Aktualizácie', 'fa fa-file-text', MushroomComment::class),
           MenuItem::linkToCrud('Feedback', 'fa fa-comment', Feedback::class),
+            MenuItem::linkToCrud('Access Log', 'fa fa-history', AccessLog::class),
+            MenuItem::linkToCrud('Blacklist', 'fa fa-stop', Blacklist::class),
           MenuItem::linkToUrl('Späť na mapu', 'fa fa-undo', '/'),
         ];
     }
