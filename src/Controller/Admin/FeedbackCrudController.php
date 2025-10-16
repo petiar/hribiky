@@ -32,7 +32,7 @@ class FeedbackCrudController extends AbstractCrudController
                 }),
             ChoiceField::new('status', 'Status')
                 ->setChoices(array_combine(
-                    array_map(fn($case) => $case->label(), FeedbackStatus::cases()),
+                    array_map(fn($case) => $case->labelKey(), FeedbackStatus::cases()),
                     FeedbackStatus::cases()
                 ))
                 ->renderExpanded(false)
