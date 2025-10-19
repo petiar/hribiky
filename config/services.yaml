@@ -8,6 +8,7 @@ parameters:
     app.email_from: 'zbierame@hribiky.sk'
     app.email_from_name: 'Hríbiky.sk'
     app.email_to_me: 'petiar@gmail.com'
+    ios_api_key: '%env(IOS_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -33,6 +34,8 @@ services:
     App\EventListener\ApiKeyListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 10 }
+        arguments:
+            $iosApiKey: '%ios_api_key%'
     App\EventListener\EntityCreateLogger:
         tags:
             - { name: doctrine.event_listener, event: postPersist }

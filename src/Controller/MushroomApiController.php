@@ -12,19 +12,30 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/mushrooms')]
 class MushroomApiController extends AbstractController
 {
+
     #[Route('', name: 'api_mushrooms_list', methods: ['GET'])]
-    public function list(EntityManagerInterface $em): JsonResponse
+    public function list(EntityManagerInterface $em, Request $request): JsonResponse
     {
         $mushrooms = $em->getRepository(Mushroom::class)->findAll();
+        $baseUrl = $request->getSchemeAndHttpHost();
 
-        $data = array_map(fn($mushroom) => [
-            'id' => $mushroom->getId(),
-            'name' => $mushroom->getName(),
-            'description' => $mushroom->getDescription(),
-            'latitude' => $mushroom->getLatitude(),
-            'longitude' => $mushroom->getLongitude(),
-            'altitude' => $mushroom->getAltitude(),
-        ], $mushrooms);
+        $data = [];
+        foreach ($mushrooms as $mushroom) {
+            $photos = $mushroom->getPhotos()->toArray();
+            $photosUrls = array_map(function ($photo) use ($baseUrl) {
+                return $baseUrl . '/uploads/photos/' . $photo->getPath();
+            }, $photos);
+            $data[] = [
+                'id' => $mushroom->getId(),
+                'title' => $mushroom->getTitle(),
+                'name' => $mushroom->getName(),
+                'description' => $mushroom->getDescription(),
+                'latitude' => $mushroom->getLatitude(),
+                'longitude' => $mushroom->getLongitude(),
+                'altitude' => $mushroom->getAltitude(),
+                'photos' => $photosUrls,
+            ];
+        }
 
         return $this->json($data);
     }

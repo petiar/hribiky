@@ -10,7 +10,15 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ApiKeyListener
 {
-    public function __construct(private EntityManagerInterface $em) {}
+
+    private string $iosApiKey;
+
+    public function __construct(
+        private EntityManagerInterface $em,
+        string $iosApiKey
+    ) {
+        $this->iosApiKey = $iosApiKey;
+    }
 
     public function onKernelRequest(RequestEvent $event): void
     {
@@ -23,7 +31,13 @@ class ApiKeyListener
         $providedKey = $request->headers->get('Api-Key');
 
         if (!$providedKey) {
-            $event->setResponse(new JsonResponse(['error' => 'Missing API key'], 401));
+            $event->setResponse(
+                new JsonResponse(['error' => 'Missing API key'], 401)
+            );
+            return;
+        }
+
+        if ($providedKey === $this->iosApiKey) {
             return;
         }
 
@@ -39,7 +53,9 @@ class ApiKeyListener
             ->getOneOrNullResult();
 
         if (!$key) {
-            $event->setResponse(new JsonResponse(['error' => 'Invalid API key'], 403));
+            $event->setResponse(
+                new JsonResponse(['error' => 'Invalid API key'], 403)
+            );
         }
     }
 }
