@@ -66,6 +66,8 @@ function initMap() {
                 $('#mushroom_latitude').val(pos.coords.latitude);
                 $('#mushroom_longitude').val(pos.coords.longitude);
 
+                getCountryFromLatLng(pos.coords.latitude, pos.coords.longitude);
+
                 const alt = pos.coords.altitude;
                 if ( alt ) {
                     $('#altitudeText').show();
@@ -244,3 +246,25 @@ document.addEventListener('click', e => {
     }
 });
 
+/** @return string */
+function getCountryFromLatLng(lat, lng) {
+    const geocoder = new google.maps.Geocoder();
+    const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+    geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === "OK") {
+            if (results[0]) {
+                let country = null;
+                for (const component of results[0].address_components) {
+                    if (component.types.includes("country")) {
+                        country = component.short_name; // CZ alebo SK
+                        break;
+                    }
+                }
+                $('#mushroom_country').val(country);
+            } else {
+                $('#mushroom_country').val('XX');
+            }
+        }
+    });
+}

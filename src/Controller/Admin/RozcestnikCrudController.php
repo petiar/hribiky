@@ -6,12 +6,15 @@ use App\Entity\Mushroom;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 
 class RozcestnikCrudController extends AbstractCrudController
 {
@@ -37,11 +40,18 @@ class RozcestnikCrudController extends AbstractCrudController
                         }
                         return $value;
                     });
+                $fields[] = TextField::new('country', 'Krajina');
                 break;
             case Crud::PAGE_EDIT:
                 $fields[] = NumberField::new('latitude', 'Latitude');
                 $fields[] = NumberField::new('longitude', 'Longitude');
                 $fields[] = TextareaField::new('description', 'Popis');
+                $fields[] = ChoiceField::new('country')
+                    ->setChoices([
+                        'Slovakia' => 'SK',
+                        'Czech Republic' => 'CZ',
+                    ])
+                    ->renderAsNativeWidget();
                 break;
             default:
                 $fields[] = TextareaField::new('description', 'Popis');
@@ -49,7 +59,7 @@ class RozcestnikCrudController extends AbstractCrudController
 
         $fields[] = TextField::new('title', 'Názov')
         ->formatValue(function ($value, $entity) {
-            $url = $this->urlGenerator->generate('rozcestnik_detail', ['id' => $entity->getId()]);
+            $url = $this->urlGenerator->generate('mushroom_detail', ['id' => $entity->getId()]);
             return sprintf('<a href="%s">%s</a>', $url, $entity->getTitle());
         })
             ->renderAsHtml();
@@ -59,6 +69,18 @@ class RozcestnikCrudController extends AbstractCrudController
         $fields[] = DateTimeField::new('createdAt', 'Dátum pridania')
             ->setSortable(true);
         return $fields;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(
+                ChoiceFilter::new('country')
+                    ->setChoices([
+                        'Slovakia' => 'SK',
+                        'Czech Republic' => 'CZ',
+                    ])
+            );
     }
 
     public function configureCrud(Crud $crud): Crud

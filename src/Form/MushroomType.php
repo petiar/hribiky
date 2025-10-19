@@ -35,6 +35,7 @@ class MushroomType extends AbstractType
             ])
             ->add('latitude', HiddenType::class)
             ->add('longitude', HiddenType::class)
+            ->add('country', HiddenType::class)
             ->add('photos', FileType::class, [
                 'mapped' => false,
                 'required' => false,

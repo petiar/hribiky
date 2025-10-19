@@ -1,17 +1,17 @@
 {# templates/rozcestnik/detail.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ rozcestnik.title }} ({{ rozcestnik.altitude }} m n. m.){% endblock %}
+{% block title %}{{ mushroom.title }} ({{ mushroom.altitude }} m n. m.){% endblock %}
 
 {% block ogtags %}
-    <meta property="og:title" content="{{ rozcestnik.title }} ({{ rozcestnik.altitude }} m n. m.)"/>
+    <meta property="og:title" content="{{ mushroom.title }} ({{ mushroom.altitude }} m n. m.)"/>
     <meta property="og:type" content="place"/>
-    <meta property="og:url" content="{{ url('rozcestnik_detail', { id: rozcestnik.id}) }}"/>
-    <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ rozcestnik.photos.0.path)) }}"/>
-    <meta property="og:description" content="{{ rozcestnik.description }}"/>
+    <meta property="og:url" content="{{ url('mushroom_detail', { id: mushroom.id}) }}"/>
+    <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ mushroom.photos.0.path)) }}"/>
+    <meta property="og:description" content="{{ mushroom.description }}"/>
     <meta property="og:site_name" content="{{ 'site_name'|trans }}"/>
-    <meta property="place:location:latitude" content="{{ rozcestnik.latitude }}">
-    <meta property="place:location:longitude" content="{{ rozcestnik.longitude }}">
+    <meta property="place:location:latitude" content="{{ mushroom.latitude }}">
+    <meta property="place:location:longitude" content="{{ mushroom.longitude }}">
 {% endblock %}
 
 {% block body %}
@@ -20,16 +20,20 @@
             <div class="col-md-6">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <h2 class="mb-4">{{ rozcestnik.title }} ({{ rozcestnik.altitude }} m n. m.)</h2>
+                        <h2 class="mb-4">{{ mushroom.title }} ({{ mushroom.altitude }} m n. m.)</h2>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><strong>{{ 'mushroom.added_by'|trans }}:</strong> {{ rozcestnik.name }}
-                                ({{ rozcestnik.createdAt|date('d.m.Y H:i') }})
+                            <li class="list-group-item"><strong>{{ 'mushroom.added_by'|trans }}:</strong> {{ mushroom.name }}
+                                ({{ mushroom.createdAt|date('d.m.Y H:i') }})
                             </li>
 
                             <li class="list-group-item"><strong>GPS:</strong>
-                                <a href="https://mapy.dennikn.sk/?x={{ rozcestnik.longitude }}&y={{ rozcestnik.latitude }}" target="_blank">{{ rozcestnik.latitude }}
-                                    , {{ rozcestnik.longitude }}</a></li>
-                            <li class="list-group-item">{{ rozcestnik.description|default('-') }}</li>
+                                {% if (mushroom.country == "CZ") %}
+                                    <a href="https://mapy.com/en/turisticka?x={{ mushroom.longitude }}&y={{ mushroom.latitude }}&z=14" target="_blank">{{ mushroom.latitude }}, {{ mushroom.longitude }}</a>
+                                {% else %}
+                                    <a href="https://mapy.dennikn.sk/?x={{ mushroom.longitude }}&y={{ mushroom.latitude }}" target="_blank">{{ mushroom.latitude }}, {{ mushroom.longitude }}</a>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item">{{ mushroom.description|default('-') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -42,22 +46,22 @@
 
             <!-- Pravý stĺpec: fotky -->
             <div class="col-md-6">
-                {% if rozcestnik.photos|length > 0 %}
-                    <div id="rozcestnikCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel">
+                {% if mushroom.photos|length > 0 %}
+                    <div id="mushroomCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel">
                         <div class="carousel-inner">
-                            {% for foto in rozcestnik.photos %}
+                            {% for foto in mushroom.photos %}
                                 <div class="carousel-item {% if loop.first %}active{% endif %}">
                                     <img src="{{ asset('uploads/photos/' ~ foto.path) }}" class="d-block w-100 rounded"
                                          alt="Foto">
                                 </div>
                             {% endfor %}
                         </div>
-                        {% if rozcestnik.photos|length > 1 %}
-                            <button class="carousel-control-prev" type="button" data-bs-target="#rozcestnikCarousel"
+                        {% if mushroom.photos|length > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#mushroomCarousel"
                                     data-bs-slide="prev">
                                 <span class="carousel-control-prev-icon"></span>
                             </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#rozcestnikCarousel"
+                            <button class="carousel-control-next" type="button" data-bs-target="#mushroomCarousel"
                                     data-bs-slide="next">
                                 <span class="carousel-control-next-icon"></span>
                             </button>
@@ -70,8 +74,8 @@
         </div>
 
         <div class="mt-5">
-            {% if rozcestnik.updates|length > 0 %}
-                {% for update in rozcestnik.updates %}
+            {% if mushroom.updates|length > 0 %}
+                {% for update in mushroom.updates %}
                     <div class="card mb-4 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">Aktualizácia od {{ update.name|default('Neznámy autor') }}</h5>

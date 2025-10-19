@@ -30,7 +30,7 @@
                     <div class="mb-3">
                         {{ form_widget(form.altitude, {'attr': {'class': 'form-control', 'placeholder': 'mushroom.form_altitude_placeholder'|trans}}) }}
                         {{ form_errors(form.altitude) }}
-                        <div id="altitudeText" class="form-text">{{ 'mushroom.form_altitude_guess'|trans }}</div>
+                        <div id="altitudeText" class="form-text">{{ 'mushroom.form_altitude_guess'|trans|raw }}</div>
                     </div>
                     <div class="mb-3">
                         {{ form_widget(form.latitude, {'attr': {'class': 'form-control', 'id': 'latitude' }}) }}
@@ -40,6 +40,11 @@
                         {{ form_widget(form.longitude, {'attr': {'class': 'form-control', 'id': 'longitude' }}) }}
                         {{ form_errors(form.longitude) }}
                     </div>
+                    <div class="mb-3">
+                        {{ form_widget(form.country, {'attr': {'class': 'form-control', 'id': 'country' }}) }}
+                        {{ form_errors(form.country) }}
+                    </div>
+                    <div id="country"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" id="rozcestnikFormSubmitButton" class="btn btn-primary ajaxFormSubmitButton">{{ 'submit'|trans }}</button>

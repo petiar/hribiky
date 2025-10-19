@@ -26,6 +26,9 @@ class Mushroom
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(type: "string", length: 16, nullable: true)]
+    private ?string $country = null;
+
     #[ORM\Column(type: "float")]
     private float $latitude;
 
@@ -216,4 +219,17 @@ class Mushroom
 
         return $this;
     }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(?string $country): Mushroom
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
 }
