@@ -18,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 
 class RozcestnikCrudController extends AbstractCrudController
 {
+
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -38,13 +39,16 @@ class RozcestnikCrudController extends AbstractCrudController
                         if (strlen($value) > 80) {
                             return substr($value, 0, 80).'…';
                         }
+
                         return $value;
                     });
                 $fields[] = TextField::new('country', 'Krajina');
                 break;
             case Crud::PAGE_EDIT:
-                $fields[] = NumberField::new('latitude', 'Latitude');
-                $fields[] = NumberField::new('longitude', 'Longitude');
+                $fields[] = NumberField::new('latitude', 'Latitude')
+                    ->setNumDecimals(12);
+                $fields[] = NumberField::new('longitude', 'Longitude')
+                    ->setNumDecimals(12);
                 $fields[] = TextareaField::new('description', 'Popis');
                 $fields[] = ChoiceField::new('country')
                     ->setChoices([
@@ -58,16 +62,25 @@ class RozcestnikCrudController extends AbstractCrudController
         }
 
         $fields[] = TextField::new('title', 'Názov')
-        ->formatValue(function ($value, $entity) {
-            $url = $this->urlGenerator->generate('mushroom_detail', ['id' => $entity->getId()]);
-            return sprintf('<a href="%s">%s</a>', $url, $entity->getTitle());
-        })
+            ->formatValue(function ($value, $entity) {
+                $url = $this->urlGenerator->generate(
+                    'mushroom_detail',
+                    ['id' => $entity->getId()]
+                );
+
+                return sprintf(
+                    '<a href="%s">%s</a>',
+                    $url,
+                    $entity->getTitle()
+                );
+            })
             ->renderAsHtml();
         $fields[] = TextField::new('name', 'Meno');
         $fields[] = EmailField::new('email', 'Email');
         $fields[] = BooleanField::new('published');
         $fields[] = DateTimeField::new('createdAt', 'Dátum pridania')
             ->setSortable(true);
+
         return $fields;
     }
 
