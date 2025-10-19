@@ -27,7 +27,7 @@ class EntityCreateLogger
 
         $ip = $request->getClientIp();
         $path = $request->getPathInfo();
-        $data = json_encode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
         if (!$data) {
             $data = json_encode($request->request->all(), true);
         }
