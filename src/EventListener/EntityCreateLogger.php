@@ -27,12 +27,13 @@ class EntityCreateLogger
 
         $ip = $request->getClientIp();
         $path = $request->getPathInfo();
+        $data = json_encode($request->request->all(), true);
         $userAgent = $request->headers->get('User-Agent');
 
         $entityClass = get_class($entity);
         $entityId = method_exists($entity, 'getId') ? $entity->getId() : null;
 
-        $log = new AccessLog($ip, $entityClass, $entityId, $path, $userAgent);
+        $log = new AccessLog($ip, $entityClass, $entityId, $path, $userAgent, $data);
 
         $this->em->persist($log);
         $this->em->flush();

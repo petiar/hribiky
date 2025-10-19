@@ -31,12 +31,16 @@ class AccessLog
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $userAgent = null;
 
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $data = null;
+
     public function __construct(
         string $ipAddress,
         ?string $entityClass = null,
         ?int $entityId = null,
         ?string $path = null,
-        ?string $userAgent = null
+        ?string $userAgent = null,
+        ?string $data = null
     ) {
         $this->ipAddress = $ipAddress;
         $this->entityClass = $entityClass;
@@ -44,6 +48,7 @@ class AccessLog
         $this->path = $path;
         $this->userAgent = $userAgent;
         $this->accessedAt = new \DateTimeImmutable();
+        $this->data = $data;
     }
 
     public function getId(): ?int
@@ -126,6 +131,18 @@ class AccessLog
     public function setUserAgent(?string $userAgent): AccessLog
     {
         $this->userAgent = $userAgent;
+
+        return $this;
+    }
+
+    public function getData(): ?string
+    {
+        return $this->data;
+    }
+
+    public function setData(?string $data): AccessLog
+    {
+        $this->data = $data;
 
         return $this;
     }
