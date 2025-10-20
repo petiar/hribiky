@@ -69,38 +69,25 @@ class MushroomController extends AbstractController
     #[Route('/rozcestnik/create', name: 'rozcestnik_create', methods: ['POST'])]
     public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader, MailService $mailService ): JsonResponse
     {
-        $rozcestnik = new Mushroom();
-        $form = $this->createForm(MushroomType::class, $rozcestnik);
+        $mushroom = new Mushroom();
+        $form = $this->createForm(MushroomType::class, $mushroom);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $uploadedFiles = $form->get('photos')->getData();
-            $fotoUploader->uploadAndAttach($uploadedFiles, $rozcestnik);
+            $fotoUploader->uploadAndAttach($uploadedFiles, $mushroom);
 
-            $entityManager->persist($rozcestnik);
+            $entityManager->persist($mushroom);
             $entityManager->flush();
 
-            $subject = sprintf('Nový hríbik (%s) na Hríbiky.sk!', $rozcestnik->getTitle());
-            $mailService->send('emails/new_mushroom.html.twig', $subject, 'petiar@gmail.com', [
-                'rozcestnik' => $rozcestnik,
-            ]);
-
-            if ($rozcestnik->getEmail()) {
-                $validator = Validation::createValidator();
-                $violations = $validator->validate($rozcestnik->getEmail(), new \Symfony\Component\Validator\Constraints\Email());
-                if (count($violations) === 0) {
-                    $subject = 'Poďakovanie z Hríbiky.sk';
-                    $mailService->send('emails/thank_you.html.twig', $subject, $rozcestnik->getEmail(), [
-                        'rozcestnik' => $rozcestnik,
-                    ]);
-                }
-            }
+            $mailService->sendMushroomAdmin($mushroom);
+            $mailService->sendMushroomThankYou($mushroom);
 
             return $this->json([
                 'success' => true,
                 'message' => 'Rozcestník bol úspešne pridaný!',
-                'rozcestnikId' => $rozcestnik->getId()
+                'rozcestnikId' => $mushroom->getId()
             ]);
         }
 

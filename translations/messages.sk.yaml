@@ -59,10 +59,10 @@ email:
         title: 'Nový feedback'
         description: 'Máme na webe nový feedback, hovorí asi toto:'
         click_here: 'Tu pozri:'
-    thank_you: 'ďakujem, že si pri svojej prechádzke myslel aj na hríbiky a obetoval trochu percent baterky v tvojom mobilnom telefóne a daroval nám nový úlovok. Pozriem na to a keď bude všetko ok tak sa už onedlho pridá medzi svojich kamarátov.</p><p><strong>Toto je zároveň posledný automatický mail, ktorý odomňa dostaneš. Nemám newsletter ani žiadne marketingové kampane.</strong>Samozrejme, ak ťa bude čokoľvek ohľadne tohto webu zaujímať napíš a rád ti odpoviem.'
 
 thank_you: 'Ďakujem!'
 hello: 'Ahoj'
+thank_you_body: 'ďakujem, že si pri svojej prechádzke myslel aj na hríbiky a obetoval trochu percent baterky v tvojom mobilnom telefóne a daroval nám nový úlovok. Pozriem na to a keď bude všetko ok tak sa už onedlho pridá medzi svojich kamarátov.</p><p><strong>Toto je zároveň posledný automatický mail, ktorý odomňa dostaneš. Nemám newsletter ani žiadne marketingové kampane.</strong>Samozrejme, ak ťa bude čokoľvek ohľadne tohto webu zaujímať napíš a rád ti odpoviem.'
 back_to_map: 'Späť na mapu'
 no_mushrooms_to_display: 'Zatiaľ tu nie sú žiadne hríbiky na zobrazenie.'
 date: 'Dátum'

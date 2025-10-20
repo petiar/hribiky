@@ -59,6 +59,7 @@ email:
 
 thank_you: 'Děkujeme!'
 hello: 'Ahoj'
+thank_you_body: 'ďěkuju Ti, že jsi vynaložil svou energii a čas a přidal jsi další rozcestník. Abychom se vyhnuli chybám, pečlivě vše zkontrolujeme a když bude všechno v pořádku, hned Tvůj rozcestník zveřejníme, aby dělal radost i ostatním.'
 back_to_map: 'Zpět na mapu'
 no_mushrooms_to_display: 'Zatím zde nejsou žádné hříbky k zobrazení.'
 date: 'Datum'

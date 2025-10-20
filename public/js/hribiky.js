@@ -110,11 +110,8 @@ function initMap() {
         e.preventDefault();
         const submitButton = $('#rozcestnikFormSubmitButton');
         const originalText = disableButton( submitButton );
-        $('#mushroom__token').val(document.querySelector('meta[name="mushroom_item_csrf_token"]').content);
         const form = $('#addForm')[0];
         const formData = new FormData(form);
-
-        formData.append('mushroom__token', document.querySelector('meta[name="mushroom_item_csrf_token"]').content);
         $.ajax({
             url: '/rozcestnik/create',
             type: 'POST',
