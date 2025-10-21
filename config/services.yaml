@@ -28,6 +28,7 @@ services:
             $uploadDir: '%photos_directory%'
     App\Service\MailService:
         arguments:
+            $logger: '@logger'
             $emailFrom: '%app.email_from%'
             $emailFromName: '%app.email_from_name%'
             $emailToMe: '%app.email_to_me%'
