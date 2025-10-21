@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Mushroom;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -25,6 +26,7 @@ class MailService
     public function __construct(
         private MailerInterface $mailer,
         private Environment $twig,
+        private LoggerInterface $logger,
         private string $emailFrom,
         private string $emailFromName,
         private string $emailToMe,
@@ -33,14 +35,16 @@ class MailService
 
     public function send(): void
     {
-        $email = (new TemplatedEmail())
-            ->from(new Address($this->emailFrom, $this->emailFromName))
-            ->to($this->recipient)
-            ->subject($this->subject)
-            ->htmlTemplate($this->template)
-            ->context($this->context);
+        if ($this->isEmailAddressValid()) {
+            $email = (new TemplatedEmail())
+                ->from(new Address($this->emailFrom, $this->emailFromName))
+                ->to($this->recipient)
+                ->subject($this->subject)
+                ->htmlTemplate($this->template)
+                ->context($this->context);
 
-        $this->mailer->send($email);
+            $this->mailer->send($email);
+        }
     }
 
     public function sendMushroomThankYou(Mushroom $mushroom): void
@@ -94,16 +98,22 @@ class MailService
 
     public function setRecipient(string $recipient): MailService
     {
+        $this->recipient = $recipient;
+    }
+
+    public function isEmailAddressValid(): bool
+    {
         $validator = Validation::createValidator();
         $violations = $validator->validate(
-            $recipient,
+            $this->getRecipient(),
             new \Symfony\Component\Validator\Constraints\Email()
         );
         if (count($violations) === 0) {
-            $this->recipient = $recipient;
-            return $this;
+            return true;
         }
-        throw new InvalidArgumentException('Neplatná e-mailová adresa.');
+        $this->logger->alert('Neplatná e-mailová adresa');
+
+        return false;
     }
 
     public function getContext(): array

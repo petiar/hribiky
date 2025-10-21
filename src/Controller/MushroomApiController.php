@@ -106,8 +106,7 @@ class MushroomApiController extends AbstractController
 
         $mailService->sendMushroomAdmin($mushroom);
         $mailService->sendMushroomThankYou($mushroom);
-
-        return $this->json(['status' => 'ok', 'id' => $mushroom->getId()]);
+        return new JsonResponse(['status' => 'ok', 'id' => $mushroom->getId()], 201);
     }
 }
 
