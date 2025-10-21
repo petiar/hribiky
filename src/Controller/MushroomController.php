@@ -82,8 +82,9 @@ class MushroomController extends AbstractController
             $entityManager->flush();
 
             $mailService->sendMushroomAdmin($mushroom);
-            $mailService->sendMushroomThankYou($mushroom);
-
+            if ($mushroom->getEmail()) {
+                $mailService->sendMushroomThankYou($mushroom);
+            }
             return $this->json([
                 'success' => true,
                 'message' => 'Rozcestník bol úspešne pridaný!',

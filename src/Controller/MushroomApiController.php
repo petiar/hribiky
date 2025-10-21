@@ -105,7 +105,9 @@ class MushroomApiController extends AbstractController
         $entityManager->flush();
 
         $mailService->sendMushroomAdmin($mushroom);
-        $mailService->sendMushroomThankYou($mushroom);
+        if ($mushroom->getEmail()) {
+            $mailService->sendMushroomThankYou($mushroom);
+        }
         return new JsonResponse(['status' => 'ok', 'id' => $mushroom->getId()], 201);
     }
 }
