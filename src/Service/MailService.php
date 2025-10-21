@@ -99,6 +99,8 @@ class MailService
     public function setRecipient(string $recipient): MailService
     {
         $this->recipient = $recipient;
+
+        return $this;
     }
 
     public function isEmailAddressValid(): bool
