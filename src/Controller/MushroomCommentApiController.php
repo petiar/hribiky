@@ -52,6 +52,7 @@
                  'name' => $comment->getName(),
                  'description' => $comment->getDescription(),
                  'photos' => $photosUrls,
+                 'createdAt' => $comment->getCreatedAt(),
              ];
          }
 

@@ -54,6 +54,7 @@ class MushroomApiController extends AbstractController
                 'longitude' => $mushroom->getLongitude(),
                 'altitude' => $mushroom->getAltitude(),
                 'photos' => $photosUrls,
+                'createdAt' => $mushroom->getCreatedAt(),
             ];
         }
 
