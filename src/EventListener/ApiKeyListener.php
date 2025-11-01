@@ -54,7 +54,11 @@ class ApiKeyListener
 
         if (!$key) {
             $event->setResponse(
-                new JsonResponse(['error' => 'Invalid API key'], 403)
+                new JsonResponse([
+                    'status' => 'error',
+                    'message' => 'Invalid API key',
+                    'id' => null,
+                    ], 403)
             );
         }
     }

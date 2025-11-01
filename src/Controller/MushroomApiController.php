@@ -96,7 +96,9 @@ class MushroomApiController extends AbstractController
         $mushroom->setAltitude($request->request->get('altitude'));
         $mushroom->setName($request->request->get('name'));
         $mushroom->setEmail($request->request->get('email'));
+        $mushroom->setCountry($request->request->get('country'));
         $mushroom->setPublished(0);
+        $mushroom->setSource('api');
 
         if ($file = $request->files->get('photo')) {
             $fotoUploader->uploadAndAttach([$file], $mushroom);

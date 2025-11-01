@@ -50,6 +50,9 @@ class Mushroom
     #[ORM\OneToMany(mappedBy: "mushroom", targetEntity: Photo::class, cascade: ["persist", "remove"])]
     private Collection $photos;
 
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $source = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -228,6 +231,18 @@ class Mushroom
     public function setCountry(?string $country): Mushroom
     {
         $this->country = $country;
+
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): static
+    {
+        $this->source = $source;
 
         return $this;
     }

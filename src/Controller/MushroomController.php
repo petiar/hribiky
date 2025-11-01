@@ -78,6 +78,8 @@ class MushroomController extends AbstractController
             $uploadedFiles = $form->get('photos')->getData();
             $fotoUploader->uploadAndAttach($uploadedFiles, $mushroom);
 
+            $mushroom->setSource('web');
+
             $entityManager->persist($mushroom);
             $entityManager->flush();
 
