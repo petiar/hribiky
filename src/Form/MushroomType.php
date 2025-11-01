@@ -16,13 +16,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class MushroomType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
+
+    public function buildForm(
+        FormBuilderInterface $builder,
+        array $options
+    ): void {
         $builder
             ->add('title', TextType::class)
             ->add('name', TextType::class)
             ->add('email', EmailType::class, [
                 'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'autocomplete' => 'email',
+                    'inputmode' => 'email',
+                ],
             ])
             ->add('description', TextareaType::class)
             ->add('altitude', IntegerType::class, [
@@ -43,9 +51,13 @@ class MushroomType extends AbstractType
                     new Assert\All([
                         new Assert\File([
                             'maxSize' => '8M',
-                            'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif'],
-                        ])
-                    ])
+                            'mimeTypes' => [
+                                'image/jpeg',
+                                'image/png',
+                                'image/gif',
+                            ],
+                        ]),
+                    ]),
                 ],
                 'label' => 'Fotky',
                 'multiple' => true,

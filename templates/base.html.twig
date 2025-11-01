@@ -51,33 +51,45 @@
     {% block ogtags %}{% endblock %}
 </head>
 <body data-locale="{{ app.request.locale }}">
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
+<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="light" id="mainNavbar">
     <div class="container">
-        <a class="navbar-brand" href="{{ path('app_home') }}">{% block navbarbrand %}{{ 'menu.mushrooms'|trans }}{% endblock %}</a>
+        <a class="navbar-brand" href="{{ path('app_home') }}">
+            {% block navbarbrand %}{{ 'menu.mushrooms'|trans }}{% endblock %}
+        </a>
+
         {% if app.request.attributes.get('_route') == 'app_home' %}
             <button class="btn btn-success" id="addRozcestnik">{{ 'mushroom.add_button'|trans }}</button>
         {% endif %}
+
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="{{ path('about') }}"><i
-                            class="bi bi-chat-heart-fill"></i>&nbsp;{{ 'about.title'|trans }}</a>
+                    <a class="nav-link" href="{{ path('about') }}"><i class="bi bi-chat-heart-fill"></i>&nbsp;{{ 'about.title'|trans }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="{{ path('contact') }}"><i class="bi bi-envelope"></i>&nbsp;{{ 'contact'|trans }}</a>
+                    <a class="nav-link" href="{{ path('contact') }}"><i class="bi bi-envelope"></i>&nbsp;{{ 'contact'|trans }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="{{ path('feedback') }}"><i
-                            class="bi bi-person-raised-hand"></i>&nbsp;{{ 'feedback.title'|trans }}</a>
+                    <a class="nav-link" href="{{ path('feedback') }}"><i class="bi bi-person-raised-hand"></i>&nbsp;{{ 'feedback.title'|trans }}</a>
                 </li>
             </ul>
+
+            {# Prepínač svetlý / tmavý režim #}
+            <div class="ms-lg-3">
+                <button id="themeToggle" class="btn btn-outline-secondary d-flex align-items-center" type="button">
+                    <i class="bi bi-sun-fill" id="icon-sun"></i>
+                    <i class="bi bi-moon-stars-fill d-none" id="icon-moon"></i>
+                </button>
+            </div>
         </div>
     </div>
 </nav>
+
 {% block body %}{% endblock %}
 <div class="container">
     <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
@@ -95,10 +107,46 @@
             {% else %}
             <li class="nav-item"><a href="https://hribiky.sk{{ app.request.pathInfo }}" class="nav-link px-2 text-body-secondary">Slovensky</a></li>
             {% endif %}
-            <li class="nav-item"><a href="{{ path('generate_api_key') }}" class="nav-link px-2 text-body-secondary">API</a></li>
+            <li class="nav-item"><a href="{{ path('app_leaderboard') }}" class="nav-link px-2 text-body-secondary">Leaderboard</a></li>
         </ul>
     </footer>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const navbar = document.getElementById('mainNavbar');
+        const toggleBtn = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('icon-sun');
+        const moonIcon = document.getElementById('icon-moon');
+
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        let theme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+        applyTheme(theme);
+
+        toggleBtn.addEventListener('click', () => {
+            theme = (theme === 'light') ? 'dark' : 'light';
+            applyTheme(theme);
+            localStorage.setItem('theme', theme);
+        });
+
+        function applyTheme(theme) {
+            document.body.setAttribute('data-bs-theme', theme);
+            navbar.setAttribute('data-bs-theme', theme);
+
+            // Zobraziť ikonku *opačnej* témy = tej, na ktorú sa dá prepnúť
+            if (theme === 'dark') {
+                // teraz je tmavý → zobrazím slniečko (prepnutie na svetlý)
+                sunIcon.classList.remove('d-none');
+                moonIcon.classList.add('d-none');
+            } else {
+                // teraz je svetlý → zobrazím mesiačik (prepnutie na tmavý)
+                sunIcon.classList.add('d-none');
+                moonIcon.classList.remove('d-none');
+            }
+        }
+    });
+</script>
 </body>
 <script src="{{ asset('js/hribiky.js') }}"></script>
 </html>

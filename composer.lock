@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "578803a03a3b777ab6f98839ed6318eb",
+    "content-hash": "e95d80f6e849cb4f6d93cf64db9097d5",
     "packages": [
         {
             "name": "composer/semver",
@@ -1208,16 +1208,16 @@
         },
         {
             "name": "easycorp/easyadmin-bundle",
-            "version": "v4.26.3",
+            "version": "v4.26.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyCorp/EasyAdminBundle.git",
-                "reference": "fed89754c7532ce5592fda43921d810b59e24c4c"
+                "reference": "330c2b85d8f8e840c01e873c818c4ab87a6b8684"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/fed89754c7532ce5592fda43921d810b59e24c4c",
-                "reference": "fed89754c7532ce5592fda43921d810b59e24c4c",
+                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/330c2b85d8f8e840c01e873c818c4ab87a6b8684",
+                "reference": "330c2b85d8f8e840c01e873c818c4ab87a6b8684",
                 "shasum": ""
             },
             "require": {
@@ -1266,7 +1266,8 @@
                 "symfony/expression-language": "^5.4|^6.0|^7.0",
                 "symfony/phpunit-bridge": "^6.1|^7.0",
                 "symfony/process": "^5.4|^6.0|^7.0",
-                "symfony/web-link": "^5.4|^6.0|^7.0"
+                "symfony/web-link": "^5.4|^6.0|^7.0",
+                "vincentlanglet/twig-cs-fixer": "^3.10"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -1298,7 +1299,7 @@
             ],
             "support": {
                 "issues": "https://github.com/EasyCorp/EasyAdminBundle/issues",
-                "source": "https://github.com/EasyCorp/EasyAdminBundle/tree/v4.26.3"
+                "source": "https://github.com/EasyCorp/EasyAdminBundle/tree/v4.26.5"
             },
             "funding": [
                 {
@@ -1306,7 +1307,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-10-08T18:21:48+00:00"
+            "time": "2025-10-19T11:16:17+00:00"
         },
         {
             "name": "egulias/email-validator",

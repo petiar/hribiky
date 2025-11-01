@@ -12,4 +12,19 @@ class UserRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, User::class);
     }
+
+    /**
+     * @return User[]
+     */
+    public function findTopContributors(int $limit = 50): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.mushroomCount > 0')
+            ->andWhere('u.name IS NOT NULL AND u.name <> \'\'')
+            ->orderBy('u.mushroomCount', 'DESC')
+            ->addOrderBy('u.id', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

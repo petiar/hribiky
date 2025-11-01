@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\MushroomComment;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,10 +22,14 @@ class MushroomCommentType extends AbstractType
                 'required' => true,
                 'attr' => ['class' => 'form-control'],
             ])
-            ->add('email', TextType::class, [
+            ->add('email', EmailType::class, [
                 'label' => 'Email',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
+                'attr' => [
+                    'class' => 'form-control',
+                    'autocomplete' => 'email',
+                    'inputmode' => 'email',
+                ],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Popis zmeny alebo doplnenie',

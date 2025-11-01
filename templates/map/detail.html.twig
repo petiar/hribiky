@@ -3,11 +3,19 @@
 
 {% block title %}{{ mushroom.title }} ({{ mushroom.altitude }} m n. m.){% endblock %}
 
+{% if mushroom.altitude is not empty %}
+    {% set title = mushroom.title ~ ' (' ~ mushroom.altitude ~ ' m n. m.)' %}
+{% else %}
+    {% set title = mushroom.title %}
+{% endif %}
+
 {% block ogtags %}
-    <meta property="og:title" content="{{ mushroom.title }} ({{ mushroom.altitude }} m n. m.)"/>
+    <meta property="og:title" content="{{ title }}"/>
     <meta property="og:type" content="place"/>
     <meta property="og:url" content="{{ url('mushroom_detail', { id: mushroom.id}) }}"/>
+    {% if mushroom.photos is defined and mushroom.photos|length > 0 %}
     <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ mushroom.photos.0.path)) }}"/>
+    {% endif %}
     <meta property="og:description" content="{{ mushroom.description }}"/>
     <meta property="og:site_name" content="{{ 'site_name'|trans }}"/>
     <meta property="place:location:latitude" content="{{ mushroom.latitude }}">
@@ -20,7 +28,7 @@
             <div class="col-md-6">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <h2 class="mb-4">{{ mushroom.title }} ({{ mushroom.altitude }} m n. m.)</h2>
+                        <h2 class="mb-4">{{ title }}</h2>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><strong>{{ 'mushroom.added_by'|trans }}:</strong> {{ mushroom.name }}
                                 ({{ mushroom.createdAt|date('d.m.Y H:i') }})

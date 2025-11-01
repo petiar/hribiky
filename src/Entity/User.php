@@ -11,6 +11,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Table(name: 'user')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    const ROLE_RELIABLE_TRESHOLD = 20;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -27,6 +29,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $mushroomCount = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $name = null;
 
     public function getId(): ?int
     {
@@ -72,6 +80,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function addRole(string $role): self
+    {
+        $role = strtoupper($role);
+        if (!in_array($role, $this->roles, true)) {
+            $this->roles[] = $role;
+        }
+        return $this;
+    }
+
+    public function removeRole(string $role): self
+    {
+        $role = strtoupper($role);
+        $this->roles = array_filter($this->roles, fn($r) => $r !== $role);
+        return $this;
+    }
+
     public function getPassword(): string
     {
         return $this->password;
@@ -86,5 +110,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // Ak by si ukladal plain heslo, môžeš ho tu vymazať
+    }
+
+    public function getMushroomCount(): ?int
+    {
+        return $this->mushroomCount;
+    }
+
+    public function setMushroomCount(?int $mushroomCount): static
+    {
+        $this->mushroomCount = $mushroomCount;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
     }
 }

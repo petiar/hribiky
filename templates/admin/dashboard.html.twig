@@ -10,7 +10,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Rozcestníky</h5>
                         <p class="card-text">Spravuj zoznam rozcestníkov, publikovanie a úpravy.</p>
-                        <a href="{{ path('admin', {crudControllerFqcn: 'App\\\\Controller\\\\Admin\\\\RozcestnikCrudController'}) }}" class="btn btn-primary w-100">Otvoriť</a>
+                        <a href="{{ path('admin_rozcestnik_index', {crudControllerFqcn: 'App\\\\Controller\\\\Admin\\\\RozcestnikCrudController'}) }}" class="btn btn-primary w-100">Otvoriť</a>
                     </div>
                 </div>
             </div>
@@ -20,7 +20,17 @@
                     <div class="card-body">
                         <h5 class="card-title">Aktualizácie</h5>
                         <p class="card-text">Over a schváľ nové doplnené informácie o rozcestníkoch.</p>
-                        <a href="{{ path('admin', {crudControllerFqcn: 'App\\\\Controller\\\\Admin\\\\RozcestnikUpdateCrudController'}) }}" class="btn btn-primary w-100">Otvoriť</a>
+                        <a href="{{ path('admin_rozcestnik_update_index', {crudControllerFqcn: 'App\\\\Controller\\\\Admin\\\\RozcestnikUpdateCrudController'}) }}" class="btn btn-primary w-100">Otvoriť</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Užívatelia</h5>
+                        <p class="card-text">Správa užívateľov.</p>
+                        <a href="{{ path('admin_user_index', {crudControllerFqcn: 'App\\\\Controller\\\\Admin\\\\UserCrudController'}) }}" class="btn btn-primary w-100">Otvoriť</a>
                     </div>
                 </div>
             </div>

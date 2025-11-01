@@ -63,6 +63,7 @@ email:
 thank_you: 'Ďakujem!'
 hello: 'Ahoj'
 thank_you_body: 'ďakujem, že si pri svojej prechádzke myslel aj na hríbiky a obetoval trochu percent baterky v tvojom mobilnom telefóne a daroval nám nový úlovok. Pozriem na to a keď bude všetko ok tak sa už onedlho pridá medzi svojich kamarátov.</p><p><strong>Toto je zároveň posledný automatický mail, ktorý odomňa dostaneš. Nemám newsletter ani žiadne marketingové kampane.</strong>Samozrejme, ak ťa bude čokoľvek ohľadne tohto webu zaujímať napíš a rád ti odpoviem.'
+thank_you_statistics: 'Mimochodom, toto je už %mushroomCount%. hríbik v poradí, ktorý máš na našej stránke. Tento počet kontrolujeme podľa e-mailovej adresy, ktorú si použil(a), tak ak chceš svoje skóre zvyšovať, používaj stále tú istú. Je to táto, na ktorú ti prišiel aj tento e-mail.'
 back_to_map: 'Späť na mapu'
 no_mushrooms_to_display: 'Zatiaľ tu nie sú žiadne hríbiky na zobrazenie.'
 date: 'Dátum'
@@ -97,3 +98,13 @@ feedback:
     status_inprogress: 'Už na tom makám'
     status_done: 'Hotovo'
     text_label: 'Pokojne sa rozpíšte...'
+
+leaderboard.title: "Rebríček prispievateľov"
+leaderboard.heading: "Rebríček prispievateľov"
+leaderboard.subheading: "podľa počtu hríbikov"
+leaderboard.empty: "Zatiaľ nemáme žiadnych prispievateľov. Buď prvý!"
+leaderboard.unknown_user: "Neznámy používateľ"
+leaderboard.reliable: "Spoľahlivý prispievateľ"
+leaderboard.count: "%count% hríbikov"
+leaderboard.note1: "Ak sa chceš dostať do tohto zoznamu, musíš pri každom pridávaní hríbika zadať svoju e-mailovú adresu. A ideálne stále tú istú - podľa nej totiž viem, že si ten hríbik pridal ty. Neposielam žiaden newsletter ani spamy, adresy nikomu nedávam, tak sa nemusíš báť."
+leaderboard.note2: "Do počtu sa zarátavajú len schválené hríbiky a rebríček sa prepočítava raz denne, takže ak si práve pridal/a hríbik, ktorým sa definitívne dostaneš na čelo tabuľky, buď trpezlivý/á, chvíľku to potrvá. Každopádne gratulujem a nepoľavuj!"

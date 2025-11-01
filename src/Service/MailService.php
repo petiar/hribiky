@@ -3,6 +3,9 @@
 namespace App\Service;
 
 use App\Entity\Mushroom;
+use App\Entity\User;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
@@ -27,6 +30,7 @@ class MailService
         private MailerInterface $mailer,
         private Environment $twig,
         private LoggerInterface $logger,
+        private EntityManagerInterface $entityManager,
         private string $emailFrom,
         private string $emailFromName,
         private string $emailToMe,
@@ -51,8 +55,18 @@ class MailService
     {
         $this->setSubject('Poďakovanie z Hríbiky.sk');
         $this->setRecipient($mushroom->getEmail());
-        $this->setTemplate('emails/thank_you.html.twig');
-        $this->setContext(['mushroom' => $mushroom]);
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $mushroom->getEmail()]);
+        if ($user instanceof User) {
+            $this->setTemplate('emails/thank_you_user.html.twig');
+            $this->setContext([
+                'mushroom' => $mushroom,
+                'user' => $user,
+            ]);
+        }
+        else {
+            $this->setTemplate('emails/thank_you.html.twig');
+            $this->setContext(['mushroom' => $mushroom]);
+        }
         $this->send();
     }
 

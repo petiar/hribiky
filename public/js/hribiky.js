@@ -139,12 +139,9 @@ function initMap() {
         e.preventDefault();
         const submitButton = $('#rozcestnikUpdateFormSubmitButton');
         const originalText = disableButton( submitButton );
-
-        $('#mushroom_comment__token').val(document.querySelector('meta[name="mushroom_comment_item_csrf_token"]').content);
         const form = $('#addRozcestnikUpdateForm')[0];
         const formData = new FormData(form);
 
-        formData.append('mushroom_comment__token', document.querySelector('meta[name="mushroom_comment_item_csrf_token"]').content);
         $.ajax({
             url: '/rozcestnik-update',
             type: 'POST',

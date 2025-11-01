@@ -49,6 +49,8 @@ class RozcestnikCrudController extends AbstractCrudController
                     ->setNumDecimals(12);
                 $fields[] = NumberField::new('longitude', 'Longitude')
                     ->setNumDecimals(12);
+                $fields[] = NumberField::new('altitude', 'Altitude')
+                    ->setNumDecimals(12);
                 $fields[] = TextareaField::new('description', 'Popis');
                 $fields[] = ChoiceField::new('country')
                     ->setChoices([
