@@ -60,6 +60,22 @@ class MushroomApiController extends AbstractController
         return $this->json($data);
     }
 
+    #[Route('/nearby', name: '_nearby', methods: ['GET'])]
+    public function nearby(Request $request, MushroomRepository $mushroomRepository): JsonResponse
+    {
+        $latitude = $request->query->get('latitude');
+        $longitude = $request->query->get('longitude');
+        $radius = $request->query->get('radius', 100); // default 100m
+
+        if (!$latitude || !$longitude) {
+            return $this->json(['error' => 'Missing coordinates'], 400);
+        }
+
+        $nearby = $mushroomRepository->findNearby($latitude, $longitude, $radius);
+
+        return new JsonResponse(['hribiky' => $nearby]);
+    }
+
     #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(Mushroom $mushroom): JsonResponse
     {
