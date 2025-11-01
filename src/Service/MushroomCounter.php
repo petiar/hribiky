@@ -68,6 +68,9 @@ class MushroomCounter
                         if ($count >= User::ROLE_RELIABLE_TRESHOLD) {
                             $user->addRole('ROLE_RELIABLE');
                         }
+                        if (($prevCount > $count) && ($count < User::ROLE_RELIABLE_TRESHOLD)) {
+                            $user->removeRole('ROLE_RELIABLE');
+                        }
                         $changed = true;
                     }
                     if (!$prevUsername && $username) {
