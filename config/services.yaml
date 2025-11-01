@@ -43,3 +43,6 @@ services:
     App\EventListener\BlacklistRequestListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 255 }
+    App\Command\FetchTimelapseCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

@@ -96,6 +96,7 @@ class MushroomApiController extends AbstractController
     #[Route('', name: 'create', methods: ['POST'])]
     public function add(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, FotoUploader $fotoUploader, MailService $mailService): JsonResponse
     {
+        print_r($_POST);
         foreach (['title', 'latitude', 'longitude', 'name'] as $field) {
             if (!$request->request->has($field)) {
                 return $this->json([
@@ -118,7 +119,8 @@ class MushroomApiController extends AbstractController
         $mushroom->setSource('api');
 
         if ($file = $request->files->get('photo')) {
-            $fotoUploader->uploadAndAttach([$file], $mushroom);
+            print_r($file);
+            $fotoUploader->uploadAndAttach($file, $mushroom);
         }
         $entityManager->persist($mushroom);
         $entityManager->flush();
