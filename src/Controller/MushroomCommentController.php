@@ -6,6 +6,7 @@ use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
 use App\Form\MushroomCommentType;
 use App\Service\FotoUploader;
+use App\Service\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,28 +16,34 @@ use Symfony\Component\Routing\Annotation\Route;
 class MushroomCommentController extends AbstractController
 {
     #[Route('/rozcestnik-update', name: 'rozcestnik_update_create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader): JsonResponse
+    public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader, MailService $mailService): JsonResponse
     {
-        $update = new MushroomComment();
-        $form = $this->createForm(MushroomCommentType::class, $update, [
+        $mushroomComment = new MushroomComment();
+        $form = $this->createForm(MushroomCommentType::class, $mushroomComment, [
             'attr' => ['id' => 'form_rozcestnik_update'],
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $rozcestnikId = $form->get('rozcestnik_id')->getData();
-            $rozcestnik = $entityManager->getRepository(Mushroom::class)->find($rozcestnikId);
+            $mushroomId = $form->get('rozcestnik_id')->getData();
+            $mushroom = $entityManager->getRepository(Mushroom::class)->find($mushroomId);
 
-            if (!$rozcestnik) {
-                return new JsonResponse(['success' => false, 'error' => 'Rozcestník neexistuje'], 404);
+            if (!$mushroom) {
+                return new JsonResponse(['success' => false, 'error' => 'Hríbik neexistuje'], 404);
             }
 
             $uploadedFiles = $form->get('photos')->getData();
-            $fotoUploader->uploadAndAttach($uploadedFiles, $update);
+            $fotoUploader->uploadAndAttach($uploadedFiles, $mushroomComment);
 
-            $update->setMushroom($rozcestnik);
-            $entityManager->persist($update);
+            $mushroomComment->setMushroom($mushroom);
+            $mushroomComment->setSource('web');
+            $entityManager->persist($mushroomComment);
             $entityManager->flush();
+
+            $mailService->sendMushroomCommentAdmin($mushroomComment);
+            if ($mushroom->getEmail()) {
+                $mailService->sendMushroomCommentThankYou($mushroomComment);
+            }
 
             return new JsonResponse(['success' => true]);
         }

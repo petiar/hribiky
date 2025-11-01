@@ -1,0 +1,9 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block header %}{{ 'thank_you'|trans }}!{% endblock %}
+
+{% block body %}
+    <p>{{ 'hello'|trans }} {{ mushroom_comment.name }},</p>
+    <p>{{ 'thank_you_body_comment'|trans|raw }}</p>
+    <p>Tvoje Hríbiky.sk</p>
+{% endblock %}

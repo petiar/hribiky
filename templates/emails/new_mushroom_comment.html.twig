@@ -1,0 +1,12 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block header %}Komentár na schválenie{% endblock %}
+
+{% block body %}
+    <p>Niekto pridal nový komentár na schválenie!</p>
+    <ul>
+        <li>Znenie: {{ mushroom_comment.description }}</li>
+    </ul>
+
+    <p>Tu pozri: {{ url('admin_rozcestnik_update_index') }}</p>
+{% endblock %}

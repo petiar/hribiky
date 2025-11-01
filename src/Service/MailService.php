@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Mushroom;
+use App\Entity\MushroomComment;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -70,6 +71,15 @@ class MailService
         $this->send();
     }
 
+    public function sendMushroomCommentThankYou(MushroomComment $mushroomComment): void
+    {
+        $this->setSubject('Poďakovanie z Hríbiky.sk');
+        $this->setRecipient($mushroomComment->getEmail());
+        $this->setTemplate('emails/thank_you_comment.html.twig');
+        $this->setContext(['mushroom_comment' => $mushroomComment]);
+        $this->send();
+    }
+
     public function sendMushroomAdmin(Mushroom $mushroom): void
     {
         $this->setSubject(
@@ -78,6 +88,15 @@ class MailService
         $this->setRecipient($this->emailToMe);
         $this->setTemplate('emails/new_mushroom.html.twig');
         $this->setContext(['mushroom' => $mushroom]);
+        $this->send();
+    }
+
+    public function sendMushroomCommentAdmin(MushroomComment $mushroomComment): void
+    {
+        $this->setSubject('Nový komentár na Hríbiky.sk!');
+        $this->setRecipient($this->emailToMe);
+        $this->setTemplate('emails/new_mushroom_comment.html.twig');
+        $this->setContext(['mushroom_comment' => $mushroomComment]);
         $this->send();
     }
 

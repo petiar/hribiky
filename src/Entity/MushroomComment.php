@@ -36,6 +36,9 @@ class MushroomComment
     #[ORM\OneToMany(mappedBy: "mushroomComment", targetEntity: Photo::class, cascade: ["persist", "remove"])]
     private Collection $photos;
 
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $source = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -155,6 +158,18 @@ class MushroomComment
     public function setEmail(?string $email): MushroomComment
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): static
+    {
+        $this->source = $source;
 
         return $this;
     }
