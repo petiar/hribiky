@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Doplniť popis k hríbiku: {{ mushroom.title }}{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h1 class="h3 mb-4 text-center">{{ mushroom.title }}</h1>
+
+                        <div class="mb-4 text-center">
+                            <p class="text-muted mb-0">
+                                Pridané {{ mushroom.createdAt|date('d.m.Y H:i') }}
+                            </p>
+                        </div>
+
+                        {% if mushroom.photos|length %}
+                            <div class="text-center mb-4">
+                                <img src="{{ asset('uploads/photos/' ~ mushroom.photos|first.path) }}"
+                                     alt="foto"
+                                     class="img-fluid rounded shadow-sm"
+                                     style="max-height: 400px; object-fit: cover;">
+                            </div>
+                        {% endif %}
+
+                        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': ''}}) }}
+                        <div class="mb-4">
+                            <label class="form-label small"><p>Napíš sem, čo by si o tomto rozcestníku chcel povedať ostatným turistom — napríklad, v akom je stave, ako sa tam ide alebo čo ťa tam zaujalo. Kľudne pridaj aj osobný zážitok, pocity či krátky príbeh z miesta – nech má tvoj zápis dušu.</p>
+                                <p>Dobre si to premysli, pretože tento formulár sa dá uložiť len raz.</p></label>
+                            {{ form_widget(form.description) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                Uložiť popis
+                            </button>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

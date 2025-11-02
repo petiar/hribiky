@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Odkaz neplatný{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="alert alert-danger shadow-sm text-center p-5">
+                    <h1 class="h4 mb-3">⚠️ Odkaz nie je platný</h1>
+                    <p class="mb-0">Tento odkaz už bol použitý alebo mu vypršala platnosť.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

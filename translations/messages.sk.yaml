@@ -62,7 +62,9 @@ email:
 
 thank_you: 'Ďakujem!'
 hello: 'Ahoj'
-thank_you_body: 'ďakujem, že si pri svojej prechádzke myslel aj na hríbiky a obetoval trochu percent baterky v tvojom mobilnom telefóne a daroval nám nový úlovok. Pozriem na to a keď bude všetko ok tak sa už onedlho pridá medzi svojich kamarátov.</p><p><strong>Toto je zároveň posledný automatický mail, ktorý odomňa dostaneš. Nemám newsletter ani žiadne marketingové kampane.</strong>Samozrejme, ak ťa bude čokoľvek ohľadne tohto webu zaujímať napíš a rád ti odpoviem.'
+thank_you_body: 'ďakujem, že si pri svojej prechádzke myslel aj na hríbiky a obetoval trochu percent baterky v tvojom mobilnom telefóne a daroval nám nový úlovok. Pozriem na to a keď bude všetko ok tak sa už onedlho pridá medzi svojich kamarátov.'
+thank_you_edit_link_title: 'Chceš ešte niečo doplniť do popisu?'
+thank_you_edit_link_description: 'Chápem, že pri turistike je menej času písať siahodlhé opisy, navyše na biednej klávesnici mobilného telefónu. Preto posielam jednorazový odkaz, na ktorom môžeš teraz, alebo v pohodlí domova, doplniť viac o tomto hríbiku, o mieste na ktorom stojí alebo aj o tvojej túre. <strong>Odkaz platí 7 dní</strong>. Nech sa páči:'
 thank_you_statistics: 'Mimochodom, toto je už %mushroomCount%. hríbik v poradí, ktorý máš na našej stránke. Tento počet kontrolujeme podľa e-mailovej adresy, ktorú si použil(a), tak ak chceš svoje skóre zvyšovať, používaj stále tú istú. Je to táto, na ktorú ti prišiel aj tento e-mail.'
 thank_you_body_comment: 'či už si pridal svoj príbeh, zážitok alebo upozornenie ohľadom hríbika, ďakujem veľmi pekne! Pozriem na to čím skôr a keď bude všetko ok, rád zverejním.'
 back_to_map: 'Späť na mapu'

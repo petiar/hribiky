@@ -60,6 +60,8 @@ email:
 thank_you: 'Děkujeme!'
 hello: 'Ahoj'
 thank_you_body: 'ďěkuju Ti, že jsi vynaložil svou energii a čas a přidal jsi další rozcestník. Abychom se vyhnuli chybám, pečlivě vše zkontrolujeme a když bude všechno v pořádku, hned Tvůj rozcestník zveřejníme, aby dělal radost i ostatním.'
+thank_you_edit_link_title: 'Chceš ještě něco doplnit do popisu?'
+thank_you_edit_link_description: 'Rozumím, že při turistice není moc času psát dlouhé popisy, navíc na malé klávesnici mobilního telefonu. Proto posílám jednorázový odkaz, na kterém můžeš teď, nebo v pohodlí domova, doplnit více o tomto rozcestníku, o místě, kde stojí, nebo i o své túře. <strong>Odkaz platí 7 dní</strong>. Prosím, zde je:'
 thank_you_statistics: 'Mimochodem, toto je už %mushroomCount%. hříbek v pořadí, který máš na naší stránce. Tento počet sledujeme podle e-mailové adresy, kterou jsi použil(a), takže pokud chceš své skóre dál zvyšovat, používej pořád stejnou adresu. Je to ta, na kterou ti přišel i tento e-mail.'
 thank_you_body_comment: 'ať už jsi přidal svůj příběh, zážitek nebo upozornění ohledně houbičky, moc děkuji! Podívám se na to co nejdřív a pokud bude všechno v pořádku, rád to zveřejním.'
 back_to_map: 'Zpět na mapu'

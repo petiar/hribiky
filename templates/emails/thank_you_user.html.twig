@@ -5,6 +5,8 @@
 {% block body %}
     <p>{{ 'hello'|trans }} {{ mushroom.name }},</p>
     <p>{{ 'thank_you_body'|trans|raw }}</p>
+    <h2>{{ 'thank_you_edit_link_title'|trans }}</h2>
+    <p>{{ 'thank_you_edit_link_description'|trans|raw }} {{ edit_url }}</p>
     <p>{{ 'thank_you_statistics'|trans({'%mushroomCount%': user.mushroomCount + 1 }) }}</p>
     <p>Tvoje Hríbiky.sk</p>
 {% endblock %}

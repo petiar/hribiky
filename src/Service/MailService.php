@@ -32,6 +32,7 @@ class MailService
         private Environment $twig,
         private LoggerInterface $logger,
         private EntityManagerInterface $entityManager,
+        private MushroomEditLinkService $mushroomEditLinkService,
         private string $emailFrom,
         private string $emailFromName,
         private string $emailToMe,
@@ -56,12 +57,14 @@ class MailService
     {
         $this->setSubject('Poďakovanie z Hríbiky.sk');
         $this->setRecipient($mushroom->getEmail());
+        $editUrl = $this->mushroomEditLinkService->create($mushroom);
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $mushroom->getEmail()]);
         if ($user instanceof User) {
             $this->setTemplate('emails/thank_you_user.html.twig');
             $this->setContext([
                 'mushroom' => $mushroom,
                 'user' => $user,
+                'edit_url' => $editUrl,
             ]);
         }
         else {

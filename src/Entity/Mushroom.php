@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 #[ORM\Entity]
 class Mushroom
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
@@ -47,11 +48,30 @@ class Mushroom
     #[ORM\OneToMany(mappedBy: "mushroom", targetEntity: MushroomComment::class, cascade: ["remove"])]
     private Collection $updates;
 
-    #[ORM\OneToMany(mappedBy: "mushroom", targetEntity: Photo::class, cascade: ["persist", "remove"])]
+    #[ORM\OneToMany(mappedBy: "mushroom", targetEntity: Photo::class, cascade: [
+        "persist",
+        "remove",
+    ])]
     private Collection $photos;
 
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $source = null;
+
+    #[ORM\OneToOne(mappedBy: 'mushroom', targetEntity: MushroomEditLink::class, cascade: ['remove'])]
+    private ?MushroomEditLink $editLink = null;
+
+    public function getEditLink(): ?MushroomEditLink
+    {
+        return $this->editLink;
+    }
+
+    public function setEditLink(?MushroomEditLink $l): self
+    {
+        $this->editLink = $l;
+
+        return $this;
+    }
+
 
     public function __construct()
     {
@@ -179,6 +199,7 @@ class Mushroom
             $this->photos->add($foto);
             $foto->setMushroom($this);
         }
+
         return $this;
     }
 
@@ -189,6 +210,7 @@ class Mushroom
                 $foto->setMushroom(null);
             }
         }
+
         return $this;
     }
 
@@ -246,7 +268,6 @@ class Mushroom
 
         return $this;
     }
-
 
 
 }
