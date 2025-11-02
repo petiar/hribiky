@@ -1,13 +1,13 @@
 {# templates/rozcestnik/detail.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ mushroom.title }} ({{ mushroom.altitude }} m n. m.){% endblock %}
-
 {% if mushroom.altitude is not empty %}
     {% set title = mushroom.title ~ ' (' ~ mushroom.altitude ~ ' m n. m.)' %}
 {% else %}
     {% set title = mushroom.title %}
 {% endif %}
+
+{% block title %}{{ title }}{% endblock %}
 
 {% block ogtags %}
     <meta property="og:title" content="{{ title }}"/>
@@ -121,4 +121,37 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {% set countries = {
+        'SK': 'Slovakia',
+        'CZ': 'Czech Republic',
+        'PL': 'Poland'
+    } %}
+    <script type="application/ld+json">
+{{ {
+            "@context": "https://schema.org",
+            "@type": "TouristAttraction",
+            "@id": url('mushroom_detail', { id: mushroom.id}),
+            "name": mushroom.title,
+            "description": mushroom.description ?? "",
+            "url": url('app_home'),
+            "mainEntityOfPage": url('app_home'),
+            "isAccessibleForFree": true,
+            "identifier": mushroom.id,
+            "dateCreated": mushroom.createdAt|date('c'),
+            "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": mushroom.latitude,
+                "longitude": mushroom.longitude,
+                "elevation": mushroom.altitude
+            },
+            "image": mushroom.photos|length > 0 ? absolute_url(asset('uploads/photos/' ~ mushroom.photos|first.path)) : '',
+            "containedInPlace": mushroom.country ? {
+                "@type": "Country",
+                "name": countries[mushroom.country]|default(mushroom.country)
+            } : null
+        } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}
+</script>
 {% endblock %}

@@ -39,4 +39,14 @@ class MushroomRepository extends ServiceEntityRepository
 
         return $result->fetchAllAssociative();
     }
+
+    /**
+     * @return Mushroom[]
+     */
+    public function findAllPublished(): array {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.published = :pub')->setParameter('pub', 1)
+            ->orderBy('m.createdAt', 'DESC')
+            ->getQuery()->getResult();
+    }
 }

@@ -269,5 +269,23 @@ class Mushroom
         return $this;
     }
 
+    public function getLastModified(): \DateTimeInterface
+    {
+        $latest = $this->createdAt;
+
+        /**
+         * @var $comment \App\Entity\MushroomComment
+         */
+        foreach ($this->updates as $comment) {
+            if (!$comment->isPublished()) {
+                continue;
+            }
+            if ($comment->getCreatedAt() > $latest) {
+                $latest = $comment->getCreatedAt();
+            }
+        }
+
+        return $latest;
+    }
 
 }
