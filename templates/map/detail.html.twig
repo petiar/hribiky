@@ -129,6 +129,8 @@
         'CZ': 'Czech Republic',
         'PL': 'Poland'
     } %}
+    {% set pageUrl = absolute_url(path('mushroom_detail', {'id': mushroom.id})) %}
+    {% set firstPhoto = mushroom.photos|first %}
     <script type="application/ld+json">
 {{ {
             "@context": "https://schema.org",
@@ -136,22 +138,43 @@
             "@id": url('mushroom_detail', { id: mushroom.id}),
             "name": mushroom.title,
             "description": mushroom.description ?? "",
-            "url": url('app_home'),
-            "mainEntityOfPage": url('app_home'),
+            "url": pageUrl,
+            "mainEntityOfPage": pageUrl,
             "isAccessibleForFree": true,
             "identifier": mushroom.id,
-            "dateCreated": mushroom.createdAt|date('c'),
             "geo": {
                 "@type": "GeoCoordinates",
                 "latitude": mushroom.latitude,
                 "longitude": mushroom.longitude,
                 "elevation": mushroom.altitude
             },
-            "image": mushroom.photos|length > 0 ? absolute_url(asset('uploads/photos/' ~ mushroom.photos|first.path)) : '',
+            "image": firstPhoto ? { "@id": pageUrl ~ "#photo-1" } : null,
             "containedInPlace": mushroom.country ? {
                 "@type": "Country",
                 "name": countries[mushroom.country]|default(mushroom.country)
             } : null
         } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}
 </script>
+    <script type="application/ld+json">
+{{ {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "@id": pageUrl,
+            "url": pageUrl,
+            "datePublished": mushroom.createdAt|date('c'),
+            "dateModified": (mushroom.lastModified ?? mushroom.createdAt)|date('c')
+        } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}
+</script>
+    {% if firstPhoto %}
+        <script type="application/ld+json">
+{{ {
+                "@context": "https://schema.org",
+                "@type": "ImageObject",
+                "@id": pageUrl ~ "#photo-1",
+                "contentUrl": absolute_url(asset('uploads/photos/' ~ firstPhoto.path)),
+                "url": absolute_url(asset('uploads/photos/' ~ firstPhoto.path)),
+                "dateCreated": mushroom.createdAt|date('c')
+            } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}
+</script>
+    {% endif %}
 {% endblock %}
