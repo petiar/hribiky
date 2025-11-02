@@ -118,7 +118,7 @@ class MushroomApiController extends AbstractController
         $mushroom->setSource('api');
 
         if ($file = $request->files->get('photo')) {
-            $fotoUploader->uploadAndAttach($file, $mushroom);
+            $fotoUploader->uploadAndAttach([$file], $mushroom);
         }
         $entityManager->persist($mushroom);
         $entityManager->flush();
