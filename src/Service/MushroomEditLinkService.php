@@ -4,31 +4,39 @@ namespace App\Service;
 
 use App\Entity\Mushroom;
 use App\Entity\MushroomEditLink;
+use App\Repository\MushroomEditLinkRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class MushroomEditLinkService
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private UrlGeneratorInterface $router
+        private UrlGeneratorInterface $router,
+        private readonly MushroomEditLinkRepository $mushroomEditLinkRepository,
+        private LoggerInterface $logger
     ) {}
 
     public function create(Mushroom $mushroom, \DateInterval $ttl = new \DateInterval('P7D')): ?string
     {
         if (!$mushroom->getEmail()) {
-            return null; // nie je komu poslať
+            return null;
         }
 
         $token = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
         $hash  = hash('sha256', $token);
         $expiresAt = (new \DateTimeImmutable())->add($ttl);
 
-        // zmaž starý link ak existuje (nech je vždy len jeden)
-        $old = $this->em->getRepository(MushroomEditLink::class)->findOneBy(['mushroom' => $mushroom]);
-        if ($old) $this->em->remove($old);
+        $deleted = $this->mushroomEditLinkRepository->deleteOldUsedLinks();
+        $this->logger->info(sprintf('Zmazal som %d starých záznamov.', $deleted));
 
-        $link = new MushroomEditLink($mushroom, $hash, $expiresAt, $mushroom->getEmail());
+        $link = new MushroomEditLink();
+        $link->setTokenHash($hash)
+            ->setCreatedAt(new \DateTimeImmutable())
+            ->setExpiresAt($expiresAt)
+            ->setMushroom($mushroom);
+
         $this->em->persist($link);
         $this->em->flush();
 

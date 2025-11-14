@@ -41,7 +41,7 @@
                                     <a href="https://mapy.dennikn.sk/?x={{ mushroom.longitude }}&y={{ mushroom.latitude }}" target="_blank">{{ mushroom.latitude }}, {{ mushroom.longitude }}</a>
                                 {% endif %}
                             </li>
-                            <li class="list-group-item">{{ mushroom.description|default('-') }}</li>
+                            <li class="list-group-item">{{ mushroom.description|escape|nl2br }}</li>
                         </ul>
                     </div>
                 </div>

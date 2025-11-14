@@ -58,7 +58,10 @@ class MailService
         $this->setSubject('Poďakovanie z Hríbiky.sk');
         $this->setRecipient($mushroom->getEmail());
         $editUrl = $this->mushroomEditLinkService->create($mushroom);
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $mushroom->getEmail()]);
+        $user = null;
+        if ($mushroom->getEmail()) {
+            $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $mushroom->getEmail()]);
+        }
         if ($user instanceof User) {
             $this->setTemplate('emails/thank_you_user.html.twig');
             $this->setContext([

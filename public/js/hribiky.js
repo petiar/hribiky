@@ -1,32 +1,54 @@
 let map;
 
+window.addEventListener('load', () => {
+    if (typeof google !== 'undefined' && google.maps) {
+        initMap();
+    } else {
+        console.error("Google Maps API sa nenačítalo.");
+    }
+});
+
+const markers = [];
+
 function initMap() {
+    const mapEl = document.getElementById("map");
+    if (!mapEl) {
+        // Na tejto stránke nie je mapa
+        return;
+    }
 
-        const bodyEl = document.body;
-        const locale = (bodyEl.dataset.locale);
+    const bodyEl = document.body;
+    const locale = (bodyEl.dataset.locale);
 
-        var center = { lat: 48.669, lng: 19.699 };
-        if (locale === 'cs') {
-            center = { lat: 49.8175, lng: 15.4730 };
-        }
-    map = new google.maps.Map(document.getElementById("map"), {
+    let center = { lat: 48.669, lng: 19.699 }; // Slovensko
+    if (locale === 'cs') {
+        center = { lat: 49.8175, lng: 15.4730 }; // Česko
+    }
+
+    map = new google.maps.Map(mapEl, {
         zoom: 8,
-        center: center
+        center: center,
+        mapId: '2e47f3a28a3051b243c5e291'
     });
 
     if (typeof hribiky !== 'undefined') {
         $.each(hribiky, function(i, hrib) {
-            const marker = new google.maps.Marker({
+            const markerContent = document.createElement("div");
+            const markerImg = document.createElement("img");
+            markerImg.src = "/images/mushroom.png";
+            markerImg.alt = hrib.title || "Hríbik";
+            markerImg.style.width = "40px";
+            markerImg.style.height = "40px";
+            markerContent.appendChild(markerImg);
+
+            const marker = new google.maps.marker.AdvancedMarkerElement({
                 position: { lat: hrib.latitude, lng: hrib.longitude },
                 map: map,
                 title: hrib.title,
-                icon: {
-                    url: "/images/mushroom.png", // cesta k obrázku
-                    scaledSize: new google.maps.Size(40, 40), // veľkosť ikonky (šírka, výška)
-                    origin: new google.maps.Point(0, 0),      // pozícia v rámci obrázka
-                    anchor: new google.maps.Point(20, 40),    // bod, ktorý sa „ukotví“ na mape
-                },
+                content: markerContent
             });
+
+            markers.push(marker);
 
             let imagesHtml = `<div class="slideshow-container" id="slideshow-${hrib.id}">`;
             hrib.fotky.forEach((foto, index) => {
@@ -55,8 +77,42 @@ function initMap() {
 
             const infowindow = new google.maps.InfoWindow({ content });
             marker.addListener("click", function() {
-                infowindow.open(map, marker);
+                infowindow.open({ anchor: marker, map });
             });
+        });
+
+
+
+        const clusterer = new markerClusterer.MarkerClusterer({
+            map,
+            markers,
+            renderer: {
+                render: ({ count, position }) => {
+                    // obal pre ikonku + biely kruh
+                    const wrapper = document.createElement("div");
+                    wrapper.className = "cluster-wrapper";
+
+                    // ikonka hríba (tvoje PNG)
+                    const img = document.createElement("img");
+                    img.src = "/images/mushroom.png";
+                    img.alt = "Cluster";
+                    img.className = "cluster-icon";
+                    wrapper.appendChild(img);
+
+                    // biely kruh s číslom
+                    const bubble = document.createElement("div");
+                    bubble.className = "cluster-bubble";
+                    bubble.textContent = String(count);
+                    wrapper.appendChild(bubble);
+
+                    return new google.maps.marker.AdvancedMarkerElement({
+                        map,
+                        position,
+                        content: wrapper,
+                        zIndex: count, // ak chceš, nech väčšie clustre sú „vyššie“
+                    });
+                },
+            },
         });
     }
 

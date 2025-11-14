@@ -6,6 +6,7 @@
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
+        "ext-dom": "*",
         "ext-iconv": "*",
         "doctrine/dbal": "^3.10.3",
         "doctrine/doctrine-bundle": "^2.18",
@@ -43,9 +44,8 @@
         "symfony/validator": "7.3.*",
         "symfony/web-link": "7.3.*",
         "symfony/yaml": "7.3.*",
-        "twig/extra-bundle": "^2.12|^3.22",
-        "twig/twig": "^2.12|^3.22",
-        "ext-dom": "*"
+        "twig/extra-bundle": "^3.22",
+        "twig/twig": "^2.12|^3.22"
     },
     "config": {
         "allow-plugins": {
