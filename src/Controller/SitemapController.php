@@ -3,6 +3,7 @@
 // src/Controller/SitemapController.php
 namespace App\Controller;
 
+use App\Repository\BlogPostRepository;
 use App\Repository\MushroomRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ class SitemapController extends AbstractController
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private MushroomRepository $mushroomRepo,
+        private BlogPostRepository $blogPostRepo,
     ) {}
 
     #[Route('sitemap.xml', name: 'sitemap')]
@@ -26,6 +28,13 @@ class SitemapController extends AbstractController
         $urlset = $xml->createElement('urlset');
         $urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
         $xml->appendChild($urlset);
+
+        // Blog index
+        $blogIndex = $xml->createElement('url');
+        $blogIndex->appendChild($xml->createElement('loc', $this->urlGenerator->generate('blog_index', [], UrlGeneratorInterface::ABSOLUTE_URL)));
+        $blogIndex->appendChild($xml->createElement('changefreq', 'daily'));
+        $blogIndex->appendChild($xml->createElement('priority', '0.8'));
+        $urlset->appendChild($blogIndex);
 
         $mushrooms = $this->mushroomRepo->findAllPublished();
 
@@ -46,6 +55,19 @@ class SitemapController extends AbstractController
             $url->appendChild($xml->createElement('changefreq', 'monthly'));
             $url->appendChild($xml->createElement('priority', '0.5'));
 
+            $urlset->appendChild($url);
+        }
+
+        // Blog posty
+        foreach ($this->blogPostRepo->findAllPublished() as $post) {
+            $url = $xml->createElement('url');
+            $url->appendChild($xml->createElement(
+                'loc',
+                $this->urlGenerator->generate('blog_show', ['slug' => $post->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL)
+            ));
+            $url->appendChild($xml->createElement('lastmod', $post->getPublishedAt()?->format('Y-m-d') ?? $post->getCreatedAt()->format('Y-m-d')));
+            $url->appendChild($xml->createElement('changefreq', 'weekly'));
+            $url->appendChild($xml->createElement('priority', '0.7'));
             $urlset->appendChild($url);
         }
 

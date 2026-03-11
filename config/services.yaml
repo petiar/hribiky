@@ -9,6 +9,7 @@ parameters:
     app.email_from_name: 'Hríbiky.sk'
     app.email_to_me: 'petiar@gmail.com'
     ios_api_key: '%env(IOS_API_KEY)%'
+    anthropic_api_key: '%env(ANTHROPIC_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -23,6 +24,9 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Service\BlogPostGeneratorService:
+        arguments:
+            $apiKey: '%anthropic_api_key%'
     App\Service\FotoUploader:
         arguments:
             $uploadDir: '%photos_directory%'

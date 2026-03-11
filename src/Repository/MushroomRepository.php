@@ -40,6 +40,20 @@ class MushroomRepository extends ServiceEntityRepository
         return $result->fetchAllAssociative();
     }
 
+    public function findOneWithoutBlogPost(): ?Mushroom
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT id FROM mushroom WHERE published = 1 AND blog_post_generated = 0 AND description IS NOT NULL ORDER BY RAND() LIMIT 1';
+        $id = $conn->fetchOne($sql);
+
+        if (!$id) {
+            return null;
+        }
+
+        return $this->find($id);
+    }
+
     /**
      * @return Mushroom[]
      */

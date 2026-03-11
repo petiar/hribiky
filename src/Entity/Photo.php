@@ -24,6 +24,9 @@ class Photo
     #[ORM\ManyToOne(targetEntity: MushroomComment::class, inversedBy: "photos")]
     private ?MushroomComment $mushroomComment = null;
 
+    #[ORM\ManyToOne(targetEntity: BlogPost::class, inversedBy: "photos")]
+    private ?BlogPost $blogPost = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -84,5 +87,15 @@ class Photo
         return $this;
     }
 
+    public function getBlogPost(): ?BlogPost
+    {
+        return $this->blogPost;
+    }
 
+    public function setBlogPost(?BlogPost $blogPost): self
+    {
+        $this->blogPost = $blogPost;
+
+        return $this;
+    }
 }

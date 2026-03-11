@@ -60,6 +60,9 @@ class Mushroom
     #[ORM\OneToOne(mappedBy: 'mushroom', targetEntity: MushroomEditLink::class, cascade: ['remove'])]
     private ?MushroomEditLink $editLink = null;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $blogPostGenerated = false;
+
     public function getEditLink(): ?MushroomEditLink
     {
         return $this->editLink;
@@ -265,6 +268,18 @@ class Mushroom
     public function setSource(?string $source): static
     {
         $this->source = $source;
+
+        return $this;
+    }
+
+    public function isBlogPostGenerated(): bool
+    {
+        return $this->blogPostGenerated;
+    }
+
+    public function setBlogPostGenerated(bool $blogPostGenerated): self
+    {
+        $this->blogPostGenerated = $blogPostGenerated;
 
         return $this;
     }

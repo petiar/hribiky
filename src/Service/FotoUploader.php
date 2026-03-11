@@ -2,9 +2,10 @@
 
 namespace App\Service;
 
-use App\Entity\Photo;
+use App\Entity\BlogPost;
 use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
+use App\Entity\Photo;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FotoUploader {
@@ -22,8 +23,11 @@ class FotoUploader {
             if ($owner instanceof Mushroom ) {
                 $foto->setMushroom($owner);
             }
-            if ($owner instanceof MushroomComment ) {
+            if ($owner instanceof MushroomComment) {
                 $foto->setMushroomComment($owner);
+            }
+            if ($owner instanceof BlogPost) {
+                $foto->setBlogPost($owner);
             }
             $this->entityManager->persist($foto);
         }

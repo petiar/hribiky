@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\AccessLog;
 use App\Entity\Blacklist;
+use App\Entity\BlogPost;
 use App\Entity\Feedback;
 use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
@@ -111,6 +112,7 @@ class AdminDashboardController extends AbstractDashboardController
                 'fa fa-file-text',
                 MushroomComment::class
             ),
+            MenuItem::linkToCrud('Blog', 'fa fa-pen', BlogPost::class),
             MenuItem::linkToCrud('Feedback', 'fa fa-comment', Feedback::class),
             MenuItem::linkToCrud(
                 'Access Log',
