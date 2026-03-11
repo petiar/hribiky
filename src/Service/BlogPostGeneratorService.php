@@ -73,7 +73,7 @@ class BlogPostGeneratorService
         $info = implode("\n", $parts);
 
         return <<<PROMPT
-Si skúsený redaktor slovenského blogu o zaujímavých miestach, turistike a cykloturistike. Na základe nasledujúcich informácií o turistickom rozcestníku (tzv. "hríbik") napíš rozsiahly, pútavý blogový článok v slovenčine (minimálne 1500 slov).
+Si skúsený redaktor slovenského blogu o zaujímavých miestach, turistike a cykloturistike. Na základe nasledujúcich informácií o turistickom rozcestníku (tzv. "hríbik") napíš pútavý blogový článok v slovenčine (1200–1800 slov).
 
 Informácie o lokalite:
 {$info}
