@@ -22,8 +22,8 @@ class BlogPostGeneratorService
         $prompt = $this->buildPrompt($mushroom);
 
         $response = $this->httpClient->request('POST', self::API_URL, [
-            'timeout' => 300,
-            'max_duration' => 360,
+            'timeout' => 600,
+            'max_duration' => 660,
             'headers' => [
                 'x-api-key' => $this->apiKey,
                 'anthropic-version' => '2023-06-01',
@@ -31,7 +31,7 @@ class BlogPostGeneratorService
             ],
             'json' => [
                 'model' => self::MODEL,
-                'max_tokens' => 8192,
+                'max_tokens' => 16000,
                 'messages' => [
                     [
                         'role' => 'user',
