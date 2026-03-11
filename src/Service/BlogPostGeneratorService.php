@@ -88,11 +88,17 @@ Informácie o lokalite:
 7. Odporúčané vybavenie – tu prirodzene (nie reklame-štýlom) zmieň: pevnú turistickú obuv, batoh, mapu alebo GPS aplikáciu (napr. Mapy.cz, komoot), cyklomapu pre cyklistov, vhodné oblečenie do každého počasia, termosku
 8. Záver – motivačné zakončenie, výzva na návštevu
 
-Formátovanie HTML:
-- Každý odsek obaľ do <p>
-- Nadpisy sekcií obaľ do <h2>
-- Zoznamy obaľ do <ul><li>
-- Názvy miest, vrchov, trás obaľ do <strong>
+Formátovanie HTML – POVINNÉ, nepoužívaj div tagy:
+- Každý odsek textu MUSÍ byť obalený v <p>...</p>
+- Nadpis každej sekcie MUSÍ byť obalený v <h2>...</h2>
+- Zoznamy MUSIA byť obalené v <ul><li>...</li></ul>
+- Názvy miest, vrchov, trás obaľ do <strong>...</strong>
+- NIKDY nepoužívaj <div>, <span>, ani žiadne iné tagy
+
+Príklad správneho formátu:
+<h2>Popis lokality</h2>
+<p>Text odstavca...</p>
+<ul><li>Položka 1</li><li>Položka 2</li></ul>
 
 Vráť odpoveď VÝHRADNE ako JSON objekt v tomto formáte (bez akéhokoľvek iného textu):
 {
@@ -128,12 +134,36 @@ PROMPT;
         $post = new BlogPost();
         $post->setTitle($json['title'] ?? 'Lokalita ' . uniqid());
         $post->setShortDescription($json['shortDescription'] ?? '');
-        $post->setText($json['text'] ?? $raw);
+        $post->setText($this->fixHtml($json['text'] ?? $raw));
         $post->setTags($json['tags'] ?? []);
         $post->setPublished(false);
         $post->setPublishedAt($this->randomPublishTime());
 
         return $post;
+    }
+
+    private function fixHtml(string $html): string
+    {
+        // <div class="..."> → zachovaj obsah, zahoď div wrapper
+        $html = preg_replace('/<div[^>]*>/i', '', $html);
+        $html = str_replace('</div>', '', $html);
+
+        // Prázdne riadky medzi blokmi → <p>
+        $html = preg_replace('/\n{2,}/', "\n", trim($html));
+
+        // Holý text (riadok nezačínajúci tagom) → obaľ do <p>
+        $html = preg_replace('/^(?!<[hup])/m', '<p>', $html);
+        $html = preg_replace('/(?<!\>)$/m', '</p>', $html);
+
+        // Uprac zdvojené <p><p> a </p></p>
+        $html = preg_replace('/<p>\s*<p>/i', '<p>', $html);
+        $html = preg_replace('/<\/p>\s*<\/p>/i', '</p>', $html);
+
+        // Uprac <p> okolo blokových elementov
+        $html = preg_replace('/<p>\s*(<h[2-6]|<ul|<ol)/i', '$1', $html);
+        $html = preg_replace('/(</h[2-6]>|<\/ul>|<\/ol>)\s*<\/p>/i', '$1', $html);
+
+        return trim($html);
     }
 
     private function randomPublishTime(): \DateTimeInterface

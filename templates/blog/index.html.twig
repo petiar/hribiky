@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Blog o hubárstve – {{ 'site_name'|trans }}{% endblock %}
+{% block title %}Blog o turistike a zaujímavých miestach – {{ 'site_name'|trans }}{% endblock %}
 
 {% block ogtags %}
-    <meta name="description" content="Čítajte zaujímavé články o turistike, bicyklovaní a zaujímavých miestach na Slovensku aj v Čechách.">
-    <meta property="og:title" content="Blog – {{ 'site_name'|trans }}"/>
+    <meta name="description" content="Objavujte zaujímavé miesta, turistické a cykloturistické trasy na Slovensku a v Česku. Tipy, sprievodcovia a inšpirácia pre výlety do prírody.">
+    <meta property="og:title" content="Blog o turistike a zaujímavých miestach – {{ 'site_name'|trans }}"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="{{ url('blog_index') }}"/>
-    <meta property="og:description" content="Čítajte zaujímavé články o hubárstve, hubárskych lokalitách a tipoch na zber húb na Slovensku."/>
+    <meta property="og:description" content="Objavujte zaujímavé miesta, turistické a cykloturistické trasy na Slovensku a v Česku. Tipy, sprievodcovia a inšpirácia pre výlety do prírody."/>
     <meta property="og:site_name" content="{{ 'site_name'|trans }}"/>
     <link rel="canonical" href="{{ url('blog_index') }}"/>
 {% endblock %}
@@ -15,7 +15,7 @@
 {% block body %}
 <div class="container my-5">
     <h1 class="mb-2">Blog</h1>
-    <p class="text-muted mb-5">Zaujímavé miesta, tipy a príbehy zo sveta hubárstva.</p>
+    <p class="text-muted mb-5">Zaujímavé miesta, turistické trasy a tipy na výlety do prírody.</p>
 
     {% if posts is empty %}
         <p class="text-muted">Zatiaľ žiadne príspevky.</p>
@@ -45,9 +45,10 @@
                             {% endfor %}
                         </div>
                         {% endif %}
-                        <small class="text-muted mt-3">
-                            <i class="bi bi-calendar3"></i>
-                            {{ post.publishedAt ? post.publishedAt|date('d.m.Y') : '' }}
+                        <small class="text-muted mt-3 d-flex gap-3">
+                            <span><i class="bi bi-calendar3"></i> {{ post.publishedAt ? post.publishedAt|date('d.m.Y') : '' }}</span>
+                            {% set readingTime = (post.text|striptags|split(' ')|length / 200)|round %}
+                            <span><i class="bi bi-clock"></i> {{ readingTime < 1 ? 1 : readingTime }} min čítania</span>
                         </small>
                     </div>
                 </div>
