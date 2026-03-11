@@ -31,7 +31,7 @@ class BlogPostGeneratorService
             ],
             'json' => [
                 'model' => self::MODEL,
-                'max_tokens' => 16000,
+                'max_tokens' => 8192,
                 'messages' => [
                     [
                         'role' => 'user',
@@ -88,54 +88,51 @@ Informácie o lokalite:
 7. Odporúčané vybavenie – tu prirodzene (nie reklame-štýlom) zmieň: pevnú turistickú obuv, batoh, mapu alebo GPS aplikáciu (napr. Mapy.cz, komoot), cyklomapu pre cyklistov, vhodné oblečenie do každého počasia, termosku
 8. Záver – motivačné zakončenie, výzva na návštevu
 
-Formátovanie HTML – POVINNÉ, nepoužívaj div tagy:
-- Každý odsek textu MUSÍ byť obalený v <p>...</p>
-- Nadpis každej sekcie MUSÍ byť obalený v <h2>...</h2>
-- Zoznamy MUSIA byť obalené v <ul><li>...</li></ul>
+Formát odpovede – POVINNÝ XML (bez akéhokoľvek iného textu pred ani za):
+
+<article>
+  <title>Nadpis článku (obsahuj názov lokality a hlavnú aktivitu alebo atrakciu)</title>
+  <description>Krátky popis 2-3 vety pre Google snippet</description>
+  <tags>tag1,tag2,tag3,tag4,tag5</tags>
+  <text><![CDATA[Celý text článku v HTML]]></text>
+</article>
+
+Pravidlá pre HTML v tagu text:
+- Každý odsek textu obaľ do <p>...</p>
+- Nadpis každej sekcie obaľ do <h2>...</h2>
+- Zoznamy obaľ do <ul><li>...</li></ul>
 - Názvy miest, vrchov, trás obaľ do <strong>...</strong>
-- NIKDY nepoužívaj <div>, <span>, ani žiadne iné tagy
-
-Príklad správneho formátu:
-<h2>Popis lokality</h2>
-<p>Text odstavca...</p>
-<ul><li>Položka 1</li><li>Položka 2</li></ul>
-
-Vráť odpoveď VÝHRADNE ako JSON objekt v tomto formáte (bez akéhokoľvek iného textu):
-{
-  "title": "Nadpis článku (obsahuj názov lokality a hlavnú aktivitu alebo atrakciu)",
-  "shortDescription": "Krátky popis 2-3 vety pre Google snippet",
-  "text": "Celý text článku v HTML podľa štruktúry vyššie",
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
-}
+- Nepoužívaj <div>, <span>, ani iné tagy
 PROMPT;
     }
 
     private function parseResponse(string $raw): BlogPost
     {
-        // Odstráň ```json ... ``` obal ak existuje
-        $cleaned = preg_replace('/^```(?:json)?\s*/i', '', trim($raw));
-        $cleaned = preg_replace('/\s*```$/', '', trim($cleaned));
-
-        $json = json_decode($cleaned, true);
-
-        // Fallback: vytrhneme prvý JSON objekt z textu
-        if (!is_array($json)) {
-            preg_match('/\{.*\}/s', $cleaned, $matches);
-            $json = isset($matches[0]) ? json_decode($matches[0], true) : [];
-        }
-
-        if (!is_array($json) || empty($json)) {
+        // Vytrhneme <article>...</article> blok
+        if (!preg_match('/<article>.*<\/article>/s', $raw, $matches)) {
             throw new \RuntimeException(sprintf(
-                "Nepodarilo sa parsovať JSON odpoveď z API. Raw odpoveď (prvých 500 znakov):\n%s",
+                "Odpoveď neobsahuje <article> blok. Raw odpoveď (prvých 500 znakov):\n%s",
                 substr($raw, 0, 500)
             ));
         }
 
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($matches[0]);
+
+        if ($xml === false) {
+            throw new \RuntimeException(sprintf(
+                "Nepodarilo sa parsovať XML. Raw odpoveď (prvých 500 znakov):\n%s",
+                substr($raw, 0, 500)
+            ));
+        }
+
+        $tags = array_values(array_filter(array_map('trim', explode(',', (string) $xml->tags))));
+
         $post = new BlogPost();
-        $post->setTitle($json['title'] ?? 'Lokalita ' . uniqid());
-        $post->setShortDescription($json['shortDescription'] ?? '');
-        $post->setText($this->fixHtml($json['text'] ?? $raw));
-        $post->setTags($json['tags'] ?? []);
+        $post->setTitle(mb_substr((string) $xml->title, 0, 255) ?: 'Lokalita ' . uniqid());
+        $post->setShortDescription((string) $xml->description);
+        $post->setText($this->fixHtml((string) $xml->text));
+        $post->setTags($tags);
         $post->setPublished(false);
         $post->setPublishedAt($this->randomPublishTime());
 
@@ -144,24 +141,19 @@ PROMPT;
 
     private function fixHtml(string $html): string
     {
-        // <div class="..."> → zachovaj obsah, zahoď div wrapper
         $html = preg_replace('/<div[^>]*>/i', '', $html);
         $html = str_replace('</div>', '', $html);
 
-        // Prázdne riadky medzi blokmi → <p>
         $html = preg_replace('/\n{2,}/', "\n", trim($html));
 
-        // Holý text (riadok nezačínajúci tagom) → obaľ do <p>
         $html = preg_replace('/^(?!<[hup])/m', '<p>', $html);
         $html = preg_replace('/(?<!\>)$/m', '</p>', $html);
 
-        // Uprac zdvojené <p><p> a </p></p>
         $html = preg_replace('/<p>\s*<p>/i', '<p>', $html);
         $html = preg_replace('/<\/p>\s*<\/p>/i', '</p>', $html);
 
-        // Uprac <p> okolo blokových elementov
         $html = preg_replace('/<p>\s*(<h[2-6]|<ul|<ol)/i', '$1', $html);
-        $html = preg_replace('/(</h[2-6]>|<\/ul>|<\/ol>)\s*<\/p>/i', '$1', $html);
+        $html = preg_replace('~(<\/h[2-6]>|<\/ul>|<\/ol>)\s*<\/p>~i', '$1', $html);
 
         return trim($html);
     }
