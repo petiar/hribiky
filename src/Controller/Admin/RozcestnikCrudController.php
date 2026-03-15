@@ -3,10 +3,13 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Mushroom;
+use App\Form\MushroomArticleLinkType;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
@@ -58,6 +61,11 @@ class RozcestnikCrudController extends AbstractCrudController
                         'Czech Republic' => 'CZ',
                     ])
                     ->renderAsNativeWidget();
+                $fields[] = CollectionField::new('articleLinks', 'Články')
+                    ->setEntryType(MushroomArticleLinkType::class)
+                    ->allowAdd()
+                    ->allowDelete()
+                    ->setHelp('Interné blogposty alebo externé články súvisiace s týmto hríbikom.');
                 break;
             default:
                 $fields[] = TextareaField::new('description', 'Popis');
@@ -84,6 +92,37 @@ class RozcestnikCrudController extends AbstractCrudController
             ->setSortable(true);
 
         return $fields;
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->syncArticleLinkMushroom($entityInstance);
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->syncArticleLinkMushroom($entityInstance);
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    private function syncArticleLinkMushroom(Mushroom $mushroom): void
+    {
+        foreach ($mushroom->getArticleLinks() as $link) {
+            if ($link->getMushroom() !== $mushroom) {
+                $link->setMushroom($mushroom);
+            }
+
+            if ($link->getBlogPost() !== null) {
+                $url = $this->urlGenerator->generate(
+                    'blog_show',
+                    ['slug' => $link->getBlogPost()->getSlug()],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                );
+                $link->setTitle($link->getTitle() ?: $link->getBlogPost()->getTitle());
+                $link->setUrl($url);
+            }
+        }
     }
 
     public function configureFilters(Filters $filters): Filters

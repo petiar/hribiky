@@ -17,6 +17,28 @@ class BlogPostGeneratorService
     ) {
     }
 
+    public function generateDevPost(Mushroom $mushroom): BlogPost
+    {
+        $post = new BlogPost();
+        $post->setTitle('[DEV] ' . $mushroom->getTitle());
+        $post->setShortDescription('Toto je testovací článok vygenerovaný bez AI pre lokalitu ' . $mushroom->getTitle() . '.');
+        $post->setText(<<<HTML
+<h2>Lorem ipsum</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+<h2>Popis lokality</h2>
+<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+<h2>Turistika a cykloturistika</h2>
+<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+<h2>Záver</h2>
+<p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+HTML);
+        $post->setTags(['dev', 'test', 'lorem']);
+        $post->setPublished(false);
+        $post->setPublishedAt($this->randomPublishTime());
+
+        return $post;
+    }
+
     public function generateFromMushroom(Mushroom $mushroom): BlogPost
     {
         $prompt = $this->buildPrompt($mushroom);
@@ -73,7 +95,7 @@ class BlogPostGeneratorService
         $info = implode("\n", $parts);
 
         return <<<PROMPT
-Si skúsený redaktor slovenského blogu o zaujímavých miestach, turistike a cykloturistike. Na základe nasledujúcich informácií o turistickom rozcestníku (tzv. "hríbik") napíš pútavý blogový článok v slovenčine (1200–1800 slov).
+Si skúsený redaktor slovenského blogu o zaujímavých miestach, turistike a cykloturistike. Na základe nasledujúcich informácií o turistickom rozcestníku (tzv. "hríbik") napíš pútavý blogový článok v slovenčine (600–900 slov).
 
 Informácie o lokalite:
 {$info}
@@ -88,6 +110,7 @@ Informácie o lokalite:
 7. Odporúčané vybavenie – tu prirodzene (nie reklame-štýlom) zmieň: pevnú turistickú obuv, batoh, mapu alebo GPS aplikáciu (napr. Mapy.cz, komoot), cyklomapu pre cyklistov, vhodné oblečenie do každého počasia, termosku
 8. Záver – motivačné zakončenie, výzva na návštevu
 
+Ak sú v texte spomínané nejaké weby, uveď ich ako odkazy na tie weby, nech sa na ne dá kliknúť.
 Formát odpovede – POVINNÝ XML (bez akéhokoľvek iného textu pred ani za):
 
 <article>

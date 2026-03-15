@@ -92,7 +92,9 @@ class AccessLogCrudController extends AbstractCrudController
         if ($request->isMethod('POST')) {
             $existing = $em->getRepository(Blacklist::class)->findOneBy(['ipAddress' => $ip]);
             if (!$existing) {
-                $em->persist(new Blacklist($ip));
+                $blacklist = new Blacklist();
+                $blacklist->setIpAddress($ip);
+                $em->persist($blacklist);
                 $em->flush();
             }
 

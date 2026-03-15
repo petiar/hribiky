@@ -169,6 +169,11 @@ class BlogPost
         return $this;
     }
 
+    public function __toString(): string
+    {
+        return $this->title;
+    }
+
     public function removePhoto(Photo $photo): self
     {
         if ($this->photos->removeElement($photo)) {

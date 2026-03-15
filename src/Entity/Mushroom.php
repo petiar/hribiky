@@ -63,6 +63,9 @@ class Mushroom
     #[ORM\Column(type: 'boolean')]
     private bool $blogPostGenerated = false;
 
+    #[ORM\OneToMany(mappedBy: 'mushroom', targetEntity: MushroomArticleLink::class, cascade: ['persist', 'remove'])]
+    private Collection $articleLinks;
+
     public function getEditLink(): ?MushroomEditLink
     {
         return $this->editLink;
@@ -81,6 +84,7 @@ class Mushroom
         $this->createdAt = new \DateTime();
         $this->photos = new ArrayCollection();
         $this->updates = new ArrayCollection();
+        $this->articleLinks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -282,6 +286,33 @@ class Mushroom
         $this->blogPostGenerated = $blogPostGenerated;
 
         return $this;
+    }
+
+    public function getArticleLinks(): Collection
+    {
+        return $this->articleLinks;
+    }
+
+    public function addArticleLink(MushroomArticleLink $link): self
+    {
+        if (!$this->articleLinks->contains($link)) {
+            $this->articleLinks->add($link);
+            $link->setMushroom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArticleLink(MushroomArticleLink $link): self
+    {
+        $this->articleLinks->removeElement($link);
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->title;
     }
 
     public function getLastModified(): \DateTimeInterface

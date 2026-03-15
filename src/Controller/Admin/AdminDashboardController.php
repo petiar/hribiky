@@ -7,6 +7,7 @@ use App\Entity\Blacklist;
 use App\Entity\BlogPost;
 use App\Entity\Feedback;
 use App\Entity\Mushroom;
+use App\Entity\MushroomArticleLink;
 use App\Entity\MushroomComment;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -113,6 +114,7 @@ class AdminDashboardController extends AbstractDashboardController
                 MushroomComment::class
             ),
             MenuItem::linkToCrud('Blog', 'fa fa-pen', BlogPost::class),
+            MenuItem::linkToCrud('Články k hríbikom', 'fa fa-link', MushroomArticleLink::class),
             MenuItem::linkToCrud('Feedback', 'fa fa-comment', Feedback::class),
             MenuItem::linkToCrud(
                 'Access Log',
@@ -126,6 +128,8 @@ class AdminDashboardController extends AbstractDashboardController
 
     public function configureUserMenu(UserInterface $user): UserMenu
     {
+        \assert($user instanceof \App\Entity\User);
+
         // Usually it's better to call the parent method because that gives you a
         // user menu with some menu items already created ("sign out", "exit impersonation", etc.)
         // if you prefer to create the user menu from scratch, use: return UserMenu::new()->...

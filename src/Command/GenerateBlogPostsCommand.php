@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\MushroomArticleLink;
 use App\Entity\Photo;
 use App\Repository\BlogPostRepository;
 use App\Repository\MushroomRepository;
@@ -10,8 +11,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[AsCommand(
     name: 'app:generate-blog-posts',
@@ -24,16 +27,23 @@ class GenerateBlogPostsCommand extends Command
         private BlogPostRepository $blogPostRepository,
         private BlogPostGeneratorService $generator,
         private EntityManagerInterface $entityManager,
+        private UrlGeneratorInterface $urlGenerator,
     ) {
         parent::__construct();
+    }
+
+    protected function configure(): void
+    {
+        $this->addOption('dev', null, InputOption::VALUE_NONE, 'Použije lorem ipsum namiesto AI (šetrí tokeny)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $dev = (bool) $input->getOption('dev');
 
         $this->publishScheduled($io);
-        $this->generateNew($io);
+        $this->generateNew($io, $dev);
 
         return Command::SUCCESS;
     }
@@ -51,7 +61,7 @@ class GenerateBlogPostsCommand extends Command
         $io->success(sprintf('Publikovaných %d naplánovaných príspevkov.', count($posts)));
     }
 
-    private function generateNew(SymfonyStyle $io): void
+    private function generateNew(SymfonyStyle $io, bool $dev = false): void
     {
         $mushroom = $this->mushroomRepository->findOneWithoutBlogPost();
 
@@ -61,9 +71,14 @@ class GenerateBlogPostsCommand extends Command
         }
 
         $io->writeln(sprintf('Generujem blogpost pre: %s', $mushroom->getTitle()));
+        if ($dev) {
+            $io->writeln('<comment>[DEV] Používam lorem ipsum, AI sa nevolá.</comment>');
+        }
 
         try {
-            $blogPost = $this->generator->generateFromMushroom($mushroom);
+            $blogPost = $dev
+                ? $this->generator->generateDevPost($mushroom)
+                : $this->generator->generateFromMushroom($mushroom);
 
             $mushroomPhotos = $mushroom->getPhotos()->toArray();
             $io->writeln(sprintf('Hríbik má %d fotiek.', count($mushroomPhotos)));
@@ -80,6 +95,13 @@ class GenerateBlogPostsCommand extends Command
             }
 
             $this->entityManager->persist($blogPost);
+
+            $articleLink = new MushroomArticleLink();
+            $articleLink->setMushroom($mushroom);
+            $articleLink->setTitle($blogPost->getTitle());
+            $articleLink->setUrl($this->urlGenerator->generate('blog_show', ['slug' => $blogPost->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL));
+            $articleLink->setBlogPost($blogPost);
+            $this->entityManager->persist($articleLink);
 
             $mushroom->setBlogPostGenerated(true);
             $this->entityManager->flush();

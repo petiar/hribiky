@@ -7,6 +7,7 @@ use App\Service\FotoUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -15,7 +16,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class BlogPostCrudController extends AbstractCrudController
@@ -37,8 +37,10 @@ class BlogPostCrudController extends AbstractCrudController
             ->setHelp('Automaticky sa vygeneruje z názvu. Môžeš upraviť.');
         yield TextareaField::new('shortDescription', 'Krátky popis')
             ->hideOnIndex();
-        yield TextEditorField::new('text', 'Text')
-            ->hideOnIndex();
+        yield TextareaField::new('text', 'Text')
+            ->hideOnIndex()
+            ->setNumOfRows(30)
+            ->setHelp('HTML obsah článku. Používaj &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;&lt;li&gt;, &lt;strong&gt;.');
         yield ArrayField::new('tags', 'Tagy');
         yield BooleanField::new('published', 'Publikovaný');
         yield DateTimeField::new('publishedAt', 'Dátum publikácie');
@@ -82,12 +84,20 @@ class BlogPostCrudController extends AbstractCrudController
         return $crud->setDefaultSort(['createdAt' => 'DESC']);
     }
 
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addCssFile('https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css')
+            ->addJsFile('https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js')
+            ->addJsFile('js/quill-init.js');
+    }
+
     public function configureActions(Actions $actions): Actions
     {
         $viewOnSite = Action::new('viewOnSite', 'Zobraziť na webe', 'fa fa-eye')
             ->linkToUrl(fn(BlogPost $post) => '/blog/' . $post->getSlug())
             ->setHtmlAttributes(['target' => '_blank'])
-            ->displayIf(fn(BlogPost $post) => $post->getSlug() !== null);
+            ->displayIf(fn(BlogPost $post) => $post->getSlug() !== '');
 
         return $actions
             ->add(Crud::PAGE_INDEX, $viewOnSite)
