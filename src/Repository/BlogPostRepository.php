@@ -31,7 +31,9 @@ class BlogPostRepository extends ServiceEntityRepository
      */
     public function findRelated(BlogPost $post, int $limit = 3): array
     {
-        if (empty($post->getTags())) {
+        $tagSlugs = $post->getTags()->map(fn($t) => $t->getSlug())->toArray();
+
+        if (empty($tagSlugs)) {
             return $this->createQueryBuilder('b')
                 ->andWhere('b.published = true')
                 ->andWhere('b.id != :id')
@@ -42,20 +44,30 @@ class BlogPostRepository extends ServiceEntityRepository
                 ->getResult();
         }
 
-        $qb = $this->createQueryBuilder('b');
-        $orX = $qb->expr()->orX();
-        foreach ($post->getTags() as $i => $tag) {
-            $orX->add($qb->expr()->like('b.tags', ':tag' . $i));
-            $qb->setParameter('tag' . $i, '%' . $tag . '%');
-        }
-
-        return $qb
+        return $this->createQueryBuilder('b')
+            ->join('b.tags', 't')
             ->andWhere('b.published = true')
             ->andWhere('b.id != :id')
+            ->andWhere('t.slug IN (:slugs)')
             ->setParameter('id', $post->getId())
-            ->andWhere($orX)
+            ->setParameter('slugs', $tagSlugs)
             ->orderBy('b.publishedAt', 'DESC')
             ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return BlogPost[]
+     */
+    public function findByTag(string $tagSlug): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.tags', 't')
+            ->andWhere('b.published = true')
+            ->andWhere('t.slug = :slug')
+            ->setParameter('slug', $tagSlug)
+            ->orderBy('b.publishedAt', 'DESC')
             ->getQuery()
             ->getResult();
     }

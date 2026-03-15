@@ -3,14 +3,15 @@
 namespace App\Controller\Admin;
 
 use App\Entity\BlogPost;
+use App\Repository\TagRepository;
 use App\Service\FotoUploader;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -20,8 +21,10 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class BlogPostCrudController extends AbstractCrudController
 {
-    public function __construct(private FotoUploader $fotoUploader)
-    {
+    public function __construct(
+        private FotoUploader $fotoUploader,
+        private TagRepository $tagRepository,
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -41,7 +44,11 @@ class BlogPostCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->setNumOfRows(30)
             ->setHelp('HTML obsah článku. Používaj &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;&lt;li&gt;, &lt;strong&gt;.');
-        yield ArrayField::new('tags', 'Tagy');
+
+        yield TextField::new('tagsText', 'Tagy')
+            ->setHelp('Tagy oddeľuj čiarkou. Nové tagy sa automaticky vytvoria.')
+            ->formatValue(fn($v, $entity) => implode(', ', $entity->getTags()->map(fn($t) => $t->getName())->toArray()));
+
         yield BooleanField::new('published', 'Publikovaný');
         yield DateTimeField::new('publishedAt', 'Dátum publikácie');
         yield DateTimeField::new('createdAt', 'Vytvorený')
@@ -60,14 +67,34 @@ class BlogPostCrudController extends AbstractCrudController
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
+        $this->handleTags($entityInstance);
         $this->handleImageUpload($entityInstance);
         parent::persistEntity($entityManager, $entityInstance);
     }
 
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
+        $this->handleTags($entityInstance);
         $this->handleImageUpload($entityInstance);
         parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    private function handleTags(BlogPost $blogPost): void
+    {
+        $raw = $blogPost->getRawTagsText();
+
+        // Tagify môže poslať JSON array alebo čiarkami oddelený string
+        $decoded = json_decode($raw, true);
+        $names = is_array($decoded)
+            ? array_filter(array_map('trim', array_column($decoded, 'value')))
+            : array_filter(array_map('trim', explode(',', $raw)));
+
+        $tags = new ArrayCollection();
+        foreach ($names as $name) {
+            $tags->add($this->tagRepository->findOrCreate($name));
+        }
+
+        $blogPost->setTags($tags);
     }
 
     private function handleImageUpload(BlogPost $blogPost): void
@@ -89,7 +116,10 @@ class BlogPostCrudController extends AbstractCrudController
         return $assets
             ->addCssFile('https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css')
             ->addJsFile('https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js')
-            ->addJsFile('js/quill-init.js');
+            ->addJsFile('js/quill-init.js')
+            ->addCssFile('https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css')
+            ->addJsFile('https://cdn.jsdelivr.net/npm/@yaireo/tagify')
+            ->addJsFile('js/tagify-init.js');
     }
 
     public function configureActions(Actions $actions): Actions

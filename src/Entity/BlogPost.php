@@ -31,8 +31,9 @@ class BlogPost
     #[ORM\Column(type: 'boolean')]
     private bool $published = false;
 
-    #[ORM\Column(type: 'json')]
-    private array $tags = [];
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'blogPosts', cascade: ['persist'])]
+    #[ORM\JoinTable(name: 'blog_post_tag')]
+    private Collection $tags;
 
     #[ORM\Column(length: 255, unique: true)]
     private string $slug = '';
@@ -47,6 +48,7 @@ class BlogPost
     {
         $this->createdAt = new \DateTime();
         $this->photos = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -130,14 +132,51 @@ class BlogPost
         return $this;
     }
 
-    public function getTags(): array
+    public function getTags(): Collection
     {
         return $this->tags;
     }
 
-    public function setTags(array $tags): self
+    // Virtuálna property pre admin formulár (nie je mapovaná na DB)
+    private string $rawTagsText = '';
+
+    public function getTagsText(): string
     {
-        $this->tags = $tags;
+        return implode(', ', $this->tags->map(fn($t) => $t->getName())->toArray());
+    }
+
+    public function setTagsText(string $text): void
+    {
+        $this->rawTagsText = $text;
+    }
+
+    public function getRawTagsText(): string
+    {
+        return $this->rawTagsText;
+    }
+
+    public function setTags(iterable $tags): self
+    {
+        $this->tags->clear();
+        foreach ($tags as $tag) {
+            $this->addTag($tag);
+        }
+
+        return $this;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        $this->tags->removeElement($tag);
 
         return $this;
     }

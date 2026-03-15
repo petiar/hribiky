@@ -39,9 +39,9 @@
                         </h2>
                         <p class="card-text text-muted flex-grow-1">{{ post.shortDescription }}</p>
                         {% if post.tags is not empty %}
-                        <div class="mt-2">
+                        <div class="mt-2" style="position:relative;z-index:1;">
                             {% for tag in post.tags %}
-                            <span class="badge bg-secondary me-1">{{ tag }}</span>
+                            <a href="{{ path('blog_tag', {slug: tag.slug}) }}" class="badge bg-secondary me-1 text-decoration-none">{{ tag.name }}</a>
                             {% endfor %}
                         </div>
                         {% endif %}

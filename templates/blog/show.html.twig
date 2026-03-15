@@ -17,7 +17,7 @@
     <meta property="article:published_time" content="{{ post.publishedAt|date('c') }}"/>
     {% endif %}
     {% for tag in post.tags %}
-    <meta property="article:tag" content="{{ tag }}"/>
+    <meta property="article:tag" content="{{ tag.name }}"/>
     {% endfor %}
     <link rel="canonical" href="{{ url('blog_show', {slug: post.slug}) }}"/>
 
@@ -41,7 +41,7 @@
             "name": {{ 'site_name'|trans|json_encode|raw }},
             "url": {{ url('app_home')|json_encode|raw }}
         },
-        "keywords": {{ post.tags|join(', ')|json_encode|raw }}
+        "keywords": {{ post.tags|map(t => t.name)|join(', ')|json_encode|raw }}
     }
     </script>
 
@@ -62,13 +62,28 @@
                 "position": 2,
                 "name": "Blog",
                 "item": {{ url('blog_index')|json_encode|raw }}
+            }
+            {% if post.tags is not empty %},
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": {{ post.tags.first.name|json_encode|raw }},
+                "item": {{ url('blog_tag', {slug: post.tags.first.slug})|json_encode|raw }}
             },
+            {
+                "@type": "ListItem",
+                "position": 4,
+                "name": {{ post.title|json_encode|raw }},
+                "item": {{ url('blog_show', {slug: post.slug})|json_encode|raw }}
+            }
+            {% else %},
             {
                 "@type": "ListItem",
                 "position": 3,
                 "name": {{ post.title|json_encode|raw }},
                 "item": {{ url('blog_show', {slug: post.slug})|json_encode|raw }}
             }
+            {% endif %}
         ]
     }
     </script>
@@ -98,6 +113,11 @@
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ path('blog_index') }}">Blog</a></li>
+                    {% if post.tags is not empty %}
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('blog_tag', {slug: post.tags.first.slug}) }}">{{ post.tags.first.name }}</a>
+                    </li>
+                    {% endif %}
                     <li class="breadcrumb-item active" aria-current="page">{{ post.title }}</li>
                 </ol>
             </nav>
@@ -120,7 +140,7 @@
                 {% if post.tags is not empty %}
                 <span>
                     {% for tag in post.tags %}
-                    <span class="badge bg-secondary me-1">{{ tag }}</span>
+                    <a href="{{ path('blog_tag', {slug: tag.slug}) }}" class="badge bg-secondary me-1 text-decoration-none">{{ tag.name }}</a>
                     {% endfor %}
                 </span>
                 {% endif %}

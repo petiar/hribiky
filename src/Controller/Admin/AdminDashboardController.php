@@ -8,6 +8,7 @@ use App\Entity\BlogPost;
 use App\Entity\Feedback;
 use App\Entity\Mushroom;
 use App\Entity\MushroomArticleLink;
+use App\Entity\Tag;
 use App\Entity\MushroomComment;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -114,6 +115,7 @@ class AdminDashboardController extends AbstractDashboardController
                 MushroomComment::class
             ),
             MenuItem::linkToCrud('Blog', 'fa fa-pen', BlogPost::class),
+            MenuItem::linkToCrud('Tagy', 'fa fa-tag', Tag::class),
             MenuItem::linkToCrud('Články k hríbikom', 'fa fa-link', MushroomArticleLink::class),
             MenuItem::linkToCrud('Feedback', 'fa fa-comment', Feedback::class),
             MenuItem::linkToCrud(

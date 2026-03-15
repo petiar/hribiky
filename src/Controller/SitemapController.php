@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Repository\BlogPostRepository;
 use App\Repository\MushroomRepository;
+use App\Repository\TagRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,6 +17,7 @@ class SitemapController extends AbstractController
         private UrlGeneratorInterface $urlGenerator,
         private MushroomRepository $mushroomRepo,
         private BlogPostRepository $blogPostRepo,
+        private TagRepository $tagRepo,
     ) {}
 
     #[Route('sitemap.xml', name: 'sitemap')]
@@ -68,6 +70,19 @@ class SitemapController extends AbstractController
             $url->appendChild($xml->createElement('lastmod', $post->getPublishedAt()?->format('Y-m-d') ?? $post->getCreatedAt()->format('Y-m-d')));
             $url->appendChild($xml->createElement('changefreq', 'weekly'));
             $url->appendChild($xml->createElement('priority', '0.7'));
+            $urlset->appendChild($url);
+        }
+
+        // Tag stránky — len tagy, ktoré majú aspoň 1 publikovaný článok
+        foreach ($this->tagRepo->findAllWithPublishedPosts() as ['tag' => $tag, 'lastmod' => $lastmod]) {
+            $url = $xml->createElement('url');
+            $url->appendChild($xml->createElement(
+                'loc',
+                $this->urlGenerator->generate('blog_tag', ['slug' => $tag->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL)
+            ));
+            $url->appendChild($xml->createElement('lastmod', $lastmod->format('Y-m-d')));
+            $url->appendChild($xml->createElement('changefreq', 'weekly'));
+            $url->appendChild($xml->createElement('priority', '0.6'));
             $urlset->appendChild($url);
         }
 

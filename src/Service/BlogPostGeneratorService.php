@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\BlogPost;
 use App\Entity\Mushroom;
+use App\Repository\TagRepository;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class BlogPostGeneratorService
@@ -14,6 +15,7 @@ class BlogPostGeneratorService
     public function __construct(
         private HttpClientInterface $httpClient,
         private string $apiKey,
+        private TagRepository $tagRepository,
     ) {
     }
 
@@ -32,7 +34,9 @@ class BlogPostGeneratorService
 <h2>Záver</h2>
 <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 HTML);
-        $post->setTags(['dev', 'test', 'lorem']);
+        foreach (['dev', 'test', 'lorem'] as $tagName) {
+            $post->addTag($this->tagRepository->findOrCreate($tagName));
+        }
         $post->setPublished(false);
         $post->setPublishedAt($this->randomPublishTime());
 
@@ -149,15 +153,18 @@ PROMPT;
             ));
         }
 
-        $tags = array_values(array_filter(array_map('trim', explode(',', (string) $xml->tags))));
+        $tagNames = array_values(array_filter(array_map('trim', explode(',', (string) $xml->tags))));
 
         $post = new BlogPost();
         $post->setTitle(mb_substr((string) $xml->title, 0, 255) ?: 'Lokalita ' . uniqid());
         $post->setShortDescription((string) $xml->description);
         $post->setText($this->fixHtml((string) $xml->text));
-        $post->setTags($tags);
         $post->setPublished(false);
         $post->setPublishedAt($this->randomPublishTime());
+
+        foreach ($tagNames as $tagName) {
+            $post->addTag($this->tagRepository->findOrCreate($tagName));
+        }
 
         return $post;
     }
