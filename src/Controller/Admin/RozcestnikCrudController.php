@@ -3,9 +3,16 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Mushroom;
+use App\Entity\MushroomArticleLink;
+use App\Entity\Photo;
 use App\Form\MushroomArticleLinkType;
+use App\Repository\MushroomRepository;
+use App\Service\BlogPostGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -15,15 +22,20 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 
 class RozcestnikCrudController extends AbstractCrudController
 {
-
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
+        private BlogPostGeneratorService $blogPostGenerator,
+        private EntityManagerInterface $entityManager,
+        private AdminUrlGenerator $adminUrlGenerator,
+        private MushroomRepository $mushroomRepository,
     ) {
     }
 
@@ -46,6 +58,7 @@ class RozcestnikCrudController extends AbstractCrudController
                         return $value;
                     });
                 $fields[] = TextField::new('country', 'Krajina');
+                $fields[] = BooleanField::new('blogPostGenerated', 'Blog');
                 break;
             case Crud::PAGE_EDIT:
                 $fields[] = NumberField::new('latitude', 'Latitude')
@@ -92,6 +105,77 @@ class RozcestnikCrudController extends AbstractCrudController
             ->setSortable(true);
 
         return $fields;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $generateBlog = Action::new('generateBlog', 'Generovať blog', 'fa fa-robot')
+            ->linkToCrudAction('generateBlog')
+            ->displayIf(fn(Mushroom $m) => !$m->isBlogPostGenerated());
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $generateBlog)
+            ->add(Crud::PAGE_DETAIL, $generateBlog);
+    }
+
+    public function generateBlog(AdminContext $context): RedirectResponse
+    {
+        $id = $context->getRequest()->query->getInt('entityId');
+        $mushroom = $this->mushroomRepository->find($id);
+
+        if (!$mushroom) {
+            $this->addFlash('danger', 'Hríbik nenájdený.');
+
+            return $this->redirect($this->adminUrlGenerator
+                ->setController(self::class)
+                ->setAction(Crud::PAGE_INDEX)
+                ->generateUrl());
+        }
+
+        try {
+            $blogPost = $this->blogPostGenerator->generateFromMushroom($mushroom);
+
+            $mushroomPhotos = $mushroom->getPhotos()->toArray();
+            if (!empty($mushroomPhotos)) {
+                shuffle($mushroomPhotos);
+                $source = $mushroomPhotos[0];
+                $photo = new Photo();
+                $photo->setPath($source->getPath());
+                $photo->setOwner($source->getOwner());
+                $blogPost->addPhoto($photo);
+            }
+
+            $this->entityManager->persist($blogPost);
+
+            $articleLink = new MushroomArticleLink();
+            $articleLink->setMushroom($mushroom);
+            $articleLink->setTitle($blogPost->getTitle());
+            $articleLink->setUrl($this->urlGenerator->generate(
+                'blog_show',
+                ['slug' => $blogPost->getSlug()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ));
+            $articleLink->setBlogPost($blogPost);
+            $this->entityManager->persist($articleLink);
+
+            $mushroom->setBlogPostGenerated(true);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', sprintf(
+                'Blogpost „%s" bol vygenerovaný. Publikovaný bude o %s.',
+                $blogPost->getTitle(),
+                $blogPost->getPublishedAt()->format('H:i')
+            ));
+        } catch (\Throwable $e) {
+            $this->addFlash('danger', 'Chyba pri generovaní: ' . $e->getMessage());
+        }
+
+        $url = $this->adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl();
+
+        return $this->redirect($url);
     }
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
