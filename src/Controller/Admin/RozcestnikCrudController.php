@@ -159,11 +159,19 @@ class RozcestnikCrudController extends AbstractCrudController
             $this->entityManager->persist($articleLink);
 
             $mushroom->setBlogPostGenerated(true);
-            $this->entityManager->flush();
+            $this->entityManager->flush(); // 1st flush — BlogPost gets an ID
+
+            // Doctrine 3 only inserts ManyToMany join-table rows for PersistentCollection.
+            // refresh() reloads the entity so its tags become a proper PersistentCollection;
+            // applyPendingTags() then marks it dirty and the 2nd flush inserts the rows.
+            $this->entityManager->refresh($blogPost);
+            $this->blogPostGenerator->applyPendingTags($blogPost);
+            $this->entityManager->flush(); // 2nd flush — blog_post_tag rows inserted
 
             $this->addFlash('success', sprintf(
-                'Blogpost „%s" bol vygenerovaný. Publikovaný bude o %s.',
+                'Blogpost „%s" bol vygenerovaný s %d tagmi. Publikovaný bude o %s.',
                 $blogPost->getTitle(),
+                $blogPost->getTags()->count(),
                 $blogPost->getPublishedAt()->format('H:i')
             ));
         } catch (\Throwable $e) {

@@ -83,6 +83,12 @@ class BlogPostCrudController extends AbstractCrudController
     {
         $raw = $blogPost->getRawTagsText();
 
+        // Prázdny raw = tagsText nebol odoslaný (Tagify nesynchronizoval).
+        // Nechaj existujúce tagy nedotknuté, aby sa nezmazali omylom.
+        if ($raw === '') {
+            return;
+        }
+
         // Tagify môže poslať JSON array alebo čiarkami oddelený string
         $decoded = json_decode($raw, true);
         $names = is_array($decoded)

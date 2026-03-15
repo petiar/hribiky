@@ -104,7 +104,14 @@ class GenerateBlogPostsCommand extends Command
             $this->entityManager->persist($articleLink);
 
             $mushroom->setBlogPostGenerated(true);
-            $this->entityManager->flush();
+            $this->entityManager->flush(); // 1st flush — BlogPost gets an ID
+
+            // Doctrine 3: ManyToMany join-table rows are only written for PersistentCollection.
+            // Refresh gives the entity a proper PersistentCollection, then applyPendingTags()
+            // marks it dirty so the 2nd flush inserts the blog_post_tag rows.
+            $this->entityManager->refresh($blogPost);
+            $this->generator->applyPendingTags($blogPost);
+            $this->entityManager->flush(); // 2nd flush — blog_post_tag rows inserted
 
             $io->success(sprintf(
                 'Vygenerovaný blogpost "%s", bude publikovaný o %s.',

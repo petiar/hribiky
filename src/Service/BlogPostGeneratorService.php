@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\BlogPost;
 use App\Entity\Mushroom;
 use App\Repository\TagRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class BlogPostGeneratorService
@@ -12,11 +13,29 @@ class BlogPostGeneratorService
     private const API_URL = 'https://api.anthropic.com/v1/messages';
     private const MODEL = 'claude-sonnet-4-6';
 
+    /** @var string[] Tag names waiting to be applied after the first flush */
+    private array $pendingTagNames = [];
+
     public function __construct(
         private HttpClientInterface $httpClient,
         private string $apiKey,
         private TagRepository $tagRepository,
+        private LoggerInterface $logger,
     ) {
+    }
+
+    /**
+     * Must be called AFTER the BlogPost has been persisted and flushed (so it has an ID
+     * and Doctrine wraps its tags in a PersistentCollection). Doctrine ORM 3 only tracks
+     * ManyToMany join-table changes on PersistentCollection, not on the plain ArrayCollection
+     * that a freshly constructed entity carries.
+     */
+    public function applyPendingTags(BlogPost $post): void
+    {
+        foreach ($this->pendingTagNames as $tagName) {
+            $post->addTag($this->tagRepository->findOrCreate($tagName));
+        }
+        $this->pendingTagNames = [];
     }
 
     public function generateDevPost(Mushroom $mushroom): BlogPost
@@ -34,9 +53,7 @@ class BlogPostGeneratorService
 <h2>Záver</h2>
 <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 HTML);
-        foreach (['dev', 'test', 'lorem'] as $tagName) {
-            $post->addTag($this->tagRepository->findOrCreate($tagName));
-        }
+        $this->pendingTagNames = ['dev', 'test', 'lorem'];
         $post->setPublished(false);
         $post->setPublishedAt($this->randomPublishTime());
 
@@ -69,6 +86,10 @@ HTML);
 
         $data = $response->toArray();
         $raw = $data['content'][0]['text'] ?? '';
+
+        $this->logger->info('BlogPostGenerator: raw AI response (first 1000 chars)', [
+            'raw' => substr($raw, 0, 1000),
+        ]);
 
         return $this->parseResponse($raw);
     }
@@ -155,16 +176,21 @@ PROMPT;
 
         $tagNames = array_values(array_filter(array_map('trim', explode(',', (string) $xml->tags))));
 
+        $this->logger->info('BlogPostGenerator: parsed tags', [
+            'raw_tags' => (string) $xml->tags,
+            'tag_names' => $tagNames,
+        ]);
+
+        // Store for applyPendingTags() — tags must be added AFTER the first flush
+        // because Doctrine 3 only inserts ManyToMany join-table rows for PersistentCollection.
+        $this->pendingTagNames = $tagNames;
+
         $post = new BlogPost();
         $post->setTitle(mb_substr((string) $xml->title, 0, 255) ?: 'Lokalita ' . uniqid());
         $post->setShortDescription((string) $xml->description);
         $post->setText($this->fixHtml((string) $xml->text));
         $post->setPublished(false);
         $post->setPublishedAt($this->randomPublishTime());
-
-        foreach ($tagNames as $tagName) {
-            $post->addTag($this->tagRepository->findOrCreate($tagName));
-        }
 
         return $post;
     }

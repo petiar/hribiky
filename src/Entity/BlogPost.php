@@ -145,9 +145,9 @@ class BlogPost
         return implode(', ', $this->tags->map(fn($t) => $t->getName())->toArray());
     }
 
-    public function setTagsText(string $text): void
+    public function setTagsText(?string $text): void
     {
-        $this->rawTagsText = $text;
+        $this->rawTagsText = $text ?? '';
     }
 
     public function getRawTagsText(): string

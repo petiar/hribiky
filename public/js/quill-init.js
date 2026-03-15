@@ -32,11 +32,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Pred odoslaním formulára skopíruj obsah späť do textarea
     const form = textarea.closest('form');
     if (form) {
+        function getCleanHtml() {
+            return quill.getSemanticHTML().replace(/\u00A0/g, ' ');
+        }
         form.addEventListener('formdata', function () {
-            textarea.value = quill.getSemanticHTML();
+            textarea.value = getCleanHtml();
         });
         form.addEventListener('submit', function () {
-            textarea.value = quill.getSemanticHTML();
+            textarea.value = getCleanHtml();
         });
     }
 });
