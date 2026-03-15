@@ -22,9 +22,11 @@
 
 {% endblock %}
 
-{% block javascripts %}
+{% block mapscripts %}
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuiXVE5i-Kq_0YS1Nqc52abImgkcthR1U&libraries=marker&v=weekly&language=sk"
+            defer></script>
     <script>
-        // Twig prepis JSON dát z PHP
         const hribiky = {{ mushrooms|raw }};
     </script>
 {% endblock %}

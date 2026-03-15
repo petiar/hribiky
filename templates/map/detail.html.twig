@@ -50,6 +50,23 @@
                         ← {{ 'back_to_map'|trans }}
                     </a>
                 </div>
+                {% set visibleLinks = mushroom.articleLinks|filter(link => link.blogPost is null or link.blogPost.published) %}
+                {% if visibleLinks|length > 0 %}
+                    <div class="mt-5">
+                        <h4 class="mb-3">Články o tomto mieste</h4>
+                        <div class="list-group mb-4 shadow-sm">
+                            {% for link in visibleLinks %}
+                                <a href="{{ link.url }}" class="list-group-item list-group-item-action"
+                                   {% if not link.blogPost %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                    {{ link.title }}
+                                    {% if not link.blogPost %}
+                                        <span class="badge bg-secondary ms-2">externý odkaz</span>
+                                    {% endif %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Pravý stĺpec: fotky -->
@@ -80,24 +97,6 @@
                 {% endif %}
             </div>
         </div>
-
-        {% set visibleLinks = mushroom.articleLinks|filter(link => link.blogPost is null or link.blogPost.published) %}
-        {% if visibleLinks|length > 0 %}
-        <div class="mt-5">
-            <h4 class="mb-3">Články o tomto mieste</h4>
-            <div class="list-group mb-4 shadow-sm">
-                {% for link in visibleLinks %}
-                    <a href="{{ link.url }}" class="list-group-item list-group-item-action"
-                       {% if not link.blogPost %}target="_blank" rel="noopener noreferrer"{% endif %}>
-                        {{ link.title }}
-                        {% if not link.blogPost %}
-                            <span class="badge bg-secondary ms-2">externý odkaz</span>
-                        {% endif %}
-                    </a>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
 
         <div class="mt-5">
             {% if mushroom.updates|length > 0 %}
