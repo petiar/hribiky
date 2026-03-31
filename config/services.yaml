@@ -30,6 +30,12 @@ services:
     App\Service\FotoUploader:
         arguments:
             $uploadDir: '%photos_directory%'
+    App\Service\ThumbnailService:
+        arguments:
+            $uploadDir: '%photos_directory%'
+    App\Controller\MushroomController:
+        arguments:
+            $uploadDir: '%photos_directory%'
     App\Service\MailService:
         arguments:
             $logger: '@logger'
@@ -47,6 +53,9 @@ services:
     App\EventListener\BlacklistRequestListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 255 }
+    App\Controller\Admin\BlogPhotoController:
+        arguments:
+            $uploadDir: '%photos_directory%'
     App\Command\FetchTimelapseCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'

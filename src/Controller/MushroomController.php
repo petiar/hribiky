@@ -9,6 +9,7 @@ use App\Form\MushroomCommentType;
 use App\Repository\MushroomRepository;
 use App\Service\FotoUploader;
 use App\Service\MailService;
+use App\Service\ThumbnailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,11 @@ use Symfony\Component\Validator\Validation;
 
 class MushroomController extends AbstractController
 {
+    public function __construct(
+        private ThumbnailService $thumbnailService,
+        private string $uploadDir,
+    ) {}
+
     #[Route('/', name: 'app_home')]
     public function index(EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
     {
@@ -32,7 +38,11 @@ class MushroomController extends AbstractController
                 'description' => $mushroom->getDescription(),
                 'latitude' => $mushroom->getLatitude(),
                 'longitude' => $mushroom->getLongitude(),
-                'fotky' => array_map(fn ($fotka) => '/uploads/photos/' . basename($fotka->getPath()), $mushroom->getPhotos()->toArray()),
+                'fotky' => array_map(function ($fotka) {
+                    $filename = basename($fotka->getPath());
+                    $this->thumbnailService->ensure($filename);
+                    return $this->thumbnailService->publicUrl($filename);
+                }, $mushroom->getPhotos()->toArray()),
             ];
         }
         $mushroomsJson = $serializer->serialize($data, 'json');

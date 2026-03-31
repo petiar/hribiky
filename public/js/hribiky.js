@@ -9,6 +9,7 @@ window.addEventListener('load', () => {
 });
 
 const markers = [];
+let activeInfoWindow = null;
 
 function initMap() {
     const mapEl = document.getElementById("map");
@@ -50,34 +51,36 @@ function initMap() {
 
             markers.push(marker);
 
-            let imagesHtml = `<div class="slideshow-container" id="slideshow-${hrib.id}">`;
-            hrib.fotky.forEach((foto, index) => {
-                imagesHtml += `
-                <div class="slide" style="display:${index===0?'block':'none'};">
-                    <img src="${foto}" style="width:200px; height:auto;">
+            let imagesHtml = '';
+            if (hrib.fotky && hrib.fotky.length > 0) {
+                imagesHtml = `<div class="iw-photo-wrap"><div class="slideshow-container" id="slideshow-${hrib.id}">`;
+                hrib.fotky.forEach((foto, index) => {
+                    imagesHtml += `<div class="slide" style="display:${index===0?'block':'none'};"><img src="${foto}" class="iw-photo"></div>`;
+                });
+                if (hrib.fotky.length > 1) {
+                    imagesHtml += `<a class="prev" data-id="${hrib.id}">&#10094;</a><a class="next" data-id="${hrib.id}">&#10095;</a>`;
+                    imagesHtml += `<span class="iw-photo-count"><span class="iw-photo-current">1</span> / ${hrib.fotky.length}</span>`;
+                }
+                imagesHtml += `</div></div>`;
+            }
+
+            const rawDesc = hrib.description || '';
+            const shortDesc = rawDesc.length > 120 ? rawDesc.substring(0, 120) + '\u2026' : rawDesc;
+
+            let content = `<div class="infowindow">
+                ${imagesHtml}
+                <div class="iw-body">
+                    <h6 class="iw-title"><a href="/${hrib.id}">${hrib.title}</a></h6>
+                    ${shortDesc ? `<p class="iw-desc">${shortDesc}</p>` : ''}
+                    <a href="/${hrib.id}" class="iw-btn">Zobraziť detail &rarr;</a>
                 </div>
-            `;
-            });
-
-            if (hrib.fotky.length > 1) {
-                imagesHtml += `
-            <a class="prev" data-id="${hrib.id}">&#10094;</a>
-            <a class="next" data-id="${hrib.id}">&#10095;</a>
-            `
-            }
-            imagesHtml += `</div>`;
-
-            let content = `<div class="infowindow p-2 mt-2">
-                <h5><a href="/${hrib.id}">${hrib.title}</a></h5>
-                <p>${hrib.description || ''}</p>`;
-            if (hrib.fotky) {
-                content += imagesHtml;
-            }
-            content += `</div>`;
+            </div>`;
 
             const infowindow = new google.maps.InfoWindow({ content });
             marker.addListener("click", function() {
+                if (activeInfoWindow) activeInfoWindow.close();
                 infowindow.open({ anchor: marker, map });
+                activeInfoWindow = infowindow;
             });
         });
 
@@ -231,6 +234,7 @@ function showSlide(slideshowId, n) {
     slides.hide();
     $(slides[n]).show();
     $(`#${slideshowId}`).data('current', n);
+    $(`#${slideshowId}`).closest('.iw-photo-wrap').find('.iw-photo-current').text(n + 1);
 }
 
 $(document).on('click', '.prev, .next', function() {
