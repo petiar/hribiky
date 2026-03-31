@@ -62,6 +62,14 @@ class ThumbnailService
             return false;
         }
 
+        // Oprav rotáciu podľa EXIF (typický problém s fotkami z telefónu)
+        if ($type === IMAGETYPE_JPEG) {
+            $source = $this->fixOrientation($source, $sourcePath);
+            // Po rotácii sa mohli zameniť rozmery – aktualizujeme
+            $width  = imagesx($source);
+            $height = imagesy($source);
+        }
+
         $destPath = $thumbDir . '/' . basename($filename);
 
         if ($width <= self::THUMB_WIDTH) {
@@ -91,6 +99,23 @@ class ThumbnailService
             IMAGETYPE_PNG  => imagepng($image, $destPath, 7),
             IMAGETYPE_WEBP => imagewebp($image, $destPath, 85),
             default        => false,
+        };
+    }
+
+    private function fixOrientation(\GdImage $image, string $sourcePath): \GdImage
+    {
+        if (!function_exists('exif_read_data')) {
+            return $image;
+        }
+
+        $exif = @exif_read_data($sourcePath);
+        $orientation = $exif['Orientation'] ?? 1;
+
+        return match ((int) $orientation) {
+            3 => imagerotate($image, 180, 0),
+            6 => imagerotate($image, -90, 0),
+            8 => imagerotate($image, 90, 0),
+            default => $image,
         };
     }
 
