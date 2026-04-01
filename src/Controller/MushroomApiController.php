@@ -20,7 +20,6 @@ use Symfony\Component\Validator\Validation;
 #[Route('/api/mushrooms', name: 'api_mushrooms_')]
 class MushroomApiController extends AbstractController
 {
-
     #[Route('', name: '_index', methods: ['GET'])]
     public function index(EntityManagerInterface $em, Request $request, MushroomRepository $mushroomRepository): JsonResponse
     {
@@ -78,16 +77,24 @@ class MushroomApiController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(Mushroom $mushroom): JsonResponse
+    public function show(Mushroom $mushroom, Request $request): JsonResponse
     {
         if ($mushroom->isPublished()) {
+            $baseUrl = $request->getSchemeAndHttpHost();
+            $photos = $mushroom->getPhotos()->toArray();
+            $photosUrls = array_map(function ($photo) use ($baseUrl) {
+                return $baseUrl . '/uploads/photos/' . $photo->getPath();
+            }, $photos);
             return $this->json([
                 'id' => $mushroom->getId(),
+                'title' => $mushroom->getTitle(),
                 'name' => $mushroom->getName(),
                 'description' => $mushroom->getDescription(),
                 'latitude' => $mushroom->getLatitude(),
                 'longitude' => $mushroom->getLongitude(),
                 'altitude' => $mushroom->getAltitude(),
+                'photos' => $photosUrls,
+                'createdAt' => $mushroom->getCreatedAt(),
             ]);
         }
         return $this->json([]);
