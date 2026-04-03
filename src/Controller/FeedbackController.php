@@ -26,10 +26,7 @@ class FeedbackController extends AbstractController
 
             $this->addFlash('success', 'Ďakujeme za vašu spätnú väzbu!');
 
-            $subject = 'Nový feedback na Hríbiky.sk';
-            $mailService->send('emails/new_feedback.html.twig', $subject, 'petiar@gmail.com', [
-                'feedback' => $feedback,
-            ]);
+            $mailService->sendFeedbackAdmin($feedback);
             return $this->redirectToRoute('feedback');
         }
 

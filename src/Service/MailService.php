@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Feedback;
 use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
 use App\Entity\User;
@@ -97,6 +98,15 @@ class MailService
         $this->send();
     }
 
+    public function sendFeedbackAdmin(Feedback $feedback): void
+    {
+        $this->setSubject('Nový feedback na Hríbiky.sk');
+        $this->setRecipient($this->emailToMe);
+        $this->setTemplate('emails/new_feedback.html.twig');
+        $this->setContext(['feedback' => $feedback]);
+        $this->send();
+    }
+
     public function sendMushroomCommentAdmin(MushroomComment $mushroomComment): void
     {
         $this->setSubject('Nový komentár na Hríbiky.sk!');
@@ -144,9 +154,12 @@ class MailService
 
     public function isEmailAddressValid(): bool
     {
+        if ($this->recipient === '') {
+            return false;
+        }
         $validator = Validation::createValidator();
         $violations = $validator->validate(
-            $this->getRecipient(),
+            $this->recipient,
             new \Symfony\Component\Validator\Constraints\Email()
         );
         if (count($violations) === 0) {
