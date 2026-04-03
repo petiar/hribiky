@@ -85,6 +85,25 @@ class MushroomApiController extends AbstractController
             $photosUrls = array_map(function ($photo) use ($baseUrl) {
                 return $baseUrl . '/uploads/photos/' . $photo->getPath();
             }, $photos);
+
+            $comments = array_values(array_filter(
+                $mushroom->getUpdates()->toArray(),
+                fn($comment) => $comment->isPublished()
+            ));
+            $commentsData = array_map(function ($comment) use ($baseUrl) {
+                $commentPhotos = array_map(
+                    fn($photo) => $baseUrl . '/uploads/photos/' . $photo->getPath(),
+                    $comment->getPhotos()->toArray()
+                );
+                return [
+                    'id' => $comment->getId(),
+                    'name' => $comment->getName(),
+                    'description' => $comment->getDescription(),
+                    'photos' => $commentPhotos,
+                    'createdAt' => $comment->getCreatedAt(),
+                ];
+            }, $comments);
+
             return $this->json([
                 'id' => $mushroom->getId(),
                 'title' => $mushroom->getTitle(),
@@ -95,6 +114,7 @@ class MushroomApiController extends AbstractController
                 'altitude' => $mushroom->getAltitude(),
                 'photos' => $photosUrls,
                 'createdAt' => $mushroom->getCreatedAt(),
+                'comments' => $commentsData,
             ]);
         }
         return $this->json([]);
