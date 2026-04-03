@@ -18,6 +18,9 @@ class FotoUploader {
     public function uploadAndAttach(array $uploadedFiles, object $owner): void
     {
         foreach ($uploadedFiles as $file) {
+            if (is_array($file)) {
+                $file = $file[0];
+            }
             $newFilename = uniqid().'.'.$file->guessExtension();
             $file->move($this->uploadDir, $newFilename);
             $this->thumbnailService->generate($newFilename);
