@@ -23,7 +23,7 @@ class MailService
 
     private string $subject;
 
-    private string $recipient;
+    private string $recipient = '';
 
     private array $context;
 
