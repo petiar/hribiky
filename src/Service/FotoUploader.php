@@ -26,11 +26,13 @@ class FotoUploader {
             $foto = new Photo();
             $foto->setPath($newFilename);
             $foto->setOwner($owner::class);
-            if ($owner instanceof Mushroom ) {
+            if ($owner instanceof Mushroom) {
                 $foto->setMushroom($owner);
+                $owner->addFotka($foto);
             }
             if ($owner instanceof MushroomComment) {
                 $foto->setMushroomComment($owner);
+                $owner->addFotka($foto);
             }
             if ($owner instanceof BlogPost) {
                 $foto->setBlogPost($owner);
