@@ -145,12 +145,6 @@ class MushroomApiController extends AbstractController
         $mushroom->setSource('api');
 
         $files = $request->files->get('photos') ?? [];
-        if (!is_array($files)) {
-            $files = [$files];
-        }
-        if ($single = $request->files->get('photo')) {
-            $files[] = $single;
-        }
         if ($files) {
             $fotoUploader->uploadAndAttach($files, $mushroom);
         }
