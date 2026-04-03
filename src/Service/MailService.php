@@ -6,7 +6,8 @@ use App\Entity\Feedback;
 use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
 use App\Entity\User;
-use Doctrine\ORM\EntityManager;
+use App\Repository\MushroomRepository;
+use App\Service\MushroomApprovalService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -34,6 +35,8 @@ class MailService
         private LoggerInterface $logger,
         private EntityManagerInterface $entityManager,
         private MushroomEditLinkService $mushroomEditLinkService,
+        private MushroomRepository $mushroomRepository,
+        private MushroomApprovalService $mushroomApprovalService,
         private string $emailFrom,
         private string $emailFromName,
         private string $emailToMe,
@@ -89,12 +92,29 @@ class MailService
 
     public function sendMushroomAdmin(Mushroom $mushroom): void
     {
+        $emailCount = $mushroom->getEmail()
+            ? $this->mushroomRepository->countByEmail($mushroom->getEmail())
+            : 0;
+
+        $nearby = $this->mushroomRepository->findNearby(
+            $mushroom->getLatitude(),
+            $mushroom->getLongitude(),
+            50
+        );
+
+        $approvalUrl = $this->mushroomApprovalService->generateApprovalUrl($mushroom);
+
         $this->setSubject(
             sprintf('Nový hríbik (%s) na Hríbiky.sk!', $mushroom->getTitle())
         );
         $this->setRecipient($this->emailToMe);
         $this->setTemplate('emails/new_mushroom.html.twig');
-        $this->setContext(['mushroom' => $mushroom]);
+        $this->setContext([
+            'mushroom' => $mushroom,
+            'email_count' => $emailCount,
+            'nearby' => $nearby,
+            'approval_url' => $approvalUrl,
+        ]);
         $this->send();
     }
 

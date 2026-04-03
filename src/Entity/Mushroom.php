@@ -63,6 +63,9 @@ class Mushroom
     #[ORM\Column(type: 'boolean')]
     private bool $blogPostGenerated = false;
 
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $approvalToken = null;
+
     #[ORM\OneToMany(mappedBy: 'mushroom', targetEntity: MushroomArticleLink::class, cascade: ['persist', 'remove'])]
     private Collection $articleLinks;
 
@@ -306,6 +309,18 @@ class Mushroom
     public function removeArticleLink(MushroomArticleLink $link): self
     {
         $this->articleLinks->removeElement($link);
+
+        return $this;
+    }
+
+    public function getApprovalToken(): ?string
+    {
+        return $this->approvalToken;
+    }
+
+    public function setApprovalToken(?string $approvalToken): self
+    {
+        $this->approvalToken = $approvalToken;
 
         return $this;
     }

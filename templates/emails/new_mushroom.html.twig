@@ -4,10 +4,55 @@
 
 {% block body %}
 <p>Niekto pridal nový hríbik na schválenie!</p>
-<ul>
-    <li>Názov: {{ mushroom.title }}</li>
-    <li>Popis: {{ mushroom.description }}</li>
-</ul>
 
-<p>Tu pozri: {{ url('admin_rozcestnik_index') }}</p>
+<table style="width:100%; border-collapse:collapse; font-size:15px;">
+    <tr><td style="padding:6px 0; color:#888; width:140px;">Názov</td><td><strong>{{ mushroom.title }}</strong></td></tr>
+    <tr><td style="padding:6px 0; color:#888;">Druh</td><td>{{ mushroom.name }}</td></tr>
+    <tr><td style="padding:6px 0; color:#888;">Popis</td><td>{{ mushroom.description|default('—') }}</td></tr>
+    <tr><td style="padding:6px 0; color:#888;">GPS</td><td>{{ mushroom.latitude }}, {{ mushroom.longitude }}{% if mushroom.altitude %} ({{ mushroom.altitude }} m n.m.){% endif %}</td></tr>
+    <tr><td style="padding:6px 0; color:#888;">Krajina</td><td>{{ mushroom.country|default('—') }}</td></tr>
+    <tr><td style="padding:6px 0; color:#888;">Email</td><td>{{ mushroom.email|default('—') }}</td></tr>
+    <tr><td style="padding:6px 0; color:#888;">Zdroj</td><td>{{ mushroom.source|default('—') }}</td></tr>
+    <tr><td style="padding:6px 0; color:#888;">Pridané</td><td>{{ mushroom.createdAt|date('d.m.Y H:i') }}</td></tr>
+    <tr>
+        <td style="padding:6px 0; color:#888;">Hríbiky z tohto emailu</td>
+        <td>
+            {% if mushroom.email %}
+                <strong>{{ email_count }}</strong>
+                {% if email_count == 1 %}(iba tento){% elseif email_count > 5 %}⚠️ možný spam{% endif %}
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+{% if mushroom.photos|length > 0 %}
+<p style="margin-top:20px;"><strong>Fotky ({{ mushroom.photos|length }}):</strong></p>
+{% for photo in mushroom.photos %}
+    <img src="{{ url('app_homepage') }}uploads/photos/{{ photo.path }}" alt="foto" style="max-width:100%; max-height:300px; display:block; margin-bottom:10px; border-radius:6px;">
+{% endfor %}
+{% else %}
+<p style="margin-top:20px; color:#888;">Žiadne fotky.</p>
+{% endif %}
+
+<p style="margin-top:24px;"><strong>Hríbiky do 50m v okolí:</strong></p>
+{% if nearby|length > 0 %}
+<ul style="padding-left:18px;">
+{% for n in nearby %}
+    <li>
+        <a href="{{ url('mushroom_detail', {id: n.id}) }}">{{ n.title }}</a>
+        — {{ n.distance|round }}m
+    </li>
+{% endfor %}
+</ul>
+{% else %}
+<p style="color:#888;">Žiadne publikované hríbiky v okolí 50m.</p>
+{% endif %}
+
+<p style="margin-top:20px;">
+    <a href="{{ approval_url }}" class="button" style="background:#28a745;">✔ Schváliť hríbik</a>
+    &nbsp;
+    <a href="{{ url('admin_rozcestnik_index') }}" class="button">Zobraziť v admine</a>
+</p>
 {% endblock %}

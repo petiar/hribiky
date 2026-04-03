@@ -54,6 +54,16 @@ class MushroomRepository extends ServiceEntityRepository
         return $this->find($id);
     }
 
+    public function countByEmail(string $email): int
+    {
+        return (int) $this->createQueryBuilder('m')
+            ->select('COUNT(m.id)')
+            ->andWhere('m.email = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     /**
      * @return Mushroom[]
      */
