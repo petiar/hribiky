@@ -30,7 +30,7 @@
 {% if mushroom.photos|length > 0 %}
 <p style="margin-top:20px;"><strong>Fotky ({{ mushroom.photos|length }}):</strong></p>
 {% for photo in mushroom.photos %}
-    <img src="{{ url('app_homepage') }}uploads/photos/{{ photo.path }}" alt="foto" style="max-width:100%; max-height:300px; display:block; margin-bottom:10px; border-radius:6px;">
+    <img src="{{ url('app_home') }}uploads/photos/{{ photo.path }}" alt="foto" style="max-width:100%; max-height:300px; display:block; margin-bottom:10px; border-radius:6px;">
 {% endfor %}
 {% else %}
 <p style="margin-top:20px; color:#888;">Žiadne fotky.</p>
