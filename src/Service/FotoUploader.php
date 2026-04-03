@@ -8,8 +8,6 @@ use App\Entity\MushroomComment;
 use App\Entity\Photo;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\ThumbnailService;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-
 class FotoUploader {
     public function __construct(
         private string $uploadDir,
@@ -17,12 +15,9 @@ class FotoUploader {
         private ThumbnailService $thumbnailService,
     ) {}
 
-    public function uploadAndAttach(?array $uploadedFiles, object $owner): void
+    public function uploadAndAttach(array $uploadedFiles, object $owner): void
     {
-        foreach (($uploadedFiles ?? []) as $file) {
-            if (!$file instanceof UploadedFile) {
-                continue;
-            }
+        foreach ($uploadedFiles as $file) {
             $newFilename = uniqid().'.'.$file->guessExtension();
             $file->move($this->uploadDir, $newFilename);
             $this->thumbnailService->generate($newFilename);
