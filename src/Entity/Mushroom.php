@@ -36,8 +36,8 @@ class Mushroom
     #[ORM\Column(type: "float")]
     private float $longitude;
 
-    #[ORM\Column(type: "float", nullable: true)]
-    private ?float $altitude = null; // nadmorská výška
+    #[ORM\Column(type: "integer", nullable: true)]
+    private ?int $altitude = null; // nadmorská výška
 
     #[ORM\Column(type: "boolean")]
     private bool $published = false;
@@ -150,14 +150,14 @@ class Mushroom
         return $this;
     }
 
-    public function getAltitude(): ?float
+    public function getAltitude(): ?int
     {
         return $this->altitude;
     }
 
     public function setAltitude(?float $altitude): Mushroom
     {
-        $this->altitude = $altitude;
+        $this->altitude = $altitude !== null ? (int) round($altitude) : null;
 
         return $this;
     }

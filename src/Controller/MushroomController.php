@@ -119,7 +119,7 @@ class MushroomController extends AbstractController
     public function detail(int $id, EntityManagerInterface $em): Response
     {
         $mushroom = $em->getRepository(Mushroom::class)->find($id);
-        if (!$mushroom) {
+        if (!$mushroom || (!$mushroom->isPublished() && !$this->isGranted('ROLE_ADMIN'))) {
             throw $this->createNotFoundException('Rozcestník nenájdený');
         }
 
