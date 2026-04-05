@@ -27,6 +27,27 @@ class StaticPageController extends AbstractController
         return $this->render('static_page/contact.html.twig');
     }
 
+    #[Route('/privacy/{lang}', name: 'privacy', defaults: ['lang' => 'sk'])]
+    public function privacy(string $lang): Response
+    {
+        return $this->render('static_page/privacy.html.twig', [
+            'lang' => $this->resolvePrivacyLang($lang),
+        ]);
+    }
+
+    #[Route('/api/privacy/{lang}', name: 'api_privacy', defaults: ['lang' => 'sk'], methods: ['GET'])]
+    public function privacyApi(string $lang): Response
+    {
+        return $this->render(
+            sprintf('static_page/privacy_text.%s.html.twig', $this->resolvePrivacyLang($lang))
+        );
+    }
+
+    private function resolvePrivacyLang(string $lang): string
+    {
+        return in_array($lang, ['sk', 'cs', 'en']) ? $lang : 'sk';
+    }
+
     #[Route('/leaderboard', name: 'app_leaderboard', methods: ['GET'])]
     public function leaderboard(): Response
     {

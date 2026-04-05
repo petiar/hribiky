@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Súkromie — Hríbiky.sk{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="mb-3">
+                <a href="{{ path('privacy', {lang: 'sk'}) }}" class="btn btn-sm {{ lang == 'sk' ? 'btn-primary' : 'btn-outline-secondary' }}">SK</a>
+                <a href="{{ path('privacy', {lang: 'cs'}) }}" class="btn btn-sm {{ lang == 'cs' ? 'btn-primary' : 'btn-outline-secondary' }}">CS</a>
+                <a href="{{ path('privacy', {lang: 'en'}) }}" class="btn btn-sm {{ lang == 'en' ? 'btn-primary' : 'btn-outline-secondary' }}">EN</a>
+            </div>
+            {{ include('static_page/privacy_text.' ~ lang ~ '.html.twig') }}
+        </div>
+    </div>
+</div>
+{% endblock %}
