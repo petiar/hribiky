@@ -24,7 +24,7 @@
 
 {% block mapscripts %}
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuiXVE5i-Kq_0YS1Nqc52abImgkcthR1U&libraries=marker&v=weekly&language=sk"
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=marker&v=weekly&language=sk"
             defer></script>
     <script>
         const hribiky = {{ mushrooms|raw }};

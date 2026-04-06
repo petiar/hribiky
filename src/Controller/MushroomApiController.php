@@ -129,7 +129,7 @@ class MushroomApiController extends AbstractController
                     'status' => 'error',
                     'message' => sprintf('Missing required field: %s', $field),
                     'id' => null,
-                ]);
+                ], 422);
             }
         }
         $mushroom = new Mushroom();
