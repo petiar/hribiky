@@ -106,6 +106,7 @@ leaderboard.empty: "Zatím nemáme žádné přispěvatele. Buď první!"
 leaderboard.unknown_user: "Neznámý uživatel"
 leaderboard.reliable: "Spolehlivý přispěvatel"
 leaderboard.count: "%count% hříbků"
+leaderboard.comment_count: "%count% komentářů"
 leaderboard.note1: "Pokud se chceš dostat do tohoto seznamu, musíš při každém přidávání hříbku zadat svou e-mailovou adresu. A ideálně pořád stejnou – podle ní totiž vím, že jsi ten hříbek přidal právě ty. Neposílám žádný newsletter ani spam a adresy nikomu nepředávám, takže se nemusíš bát."
 leaderboard.note2: "Do počtu se započítávají jen schválené hříbky a žebříček se přepočítává jednou denně, takže pokud jsi právě přidal(a) hříbek, kterým se definitivně dostaneš do čela tabulky, buď trpělivý(á), chvíli to potrvá. Každopádně gratuluji a nepolevuj!"
 

@@ -19,9 +19,10 @@ class UserRepository extends ServiceEntityRepository
     public function findTopContributors(int $limit = 50): array
     {
         return $this->createQueryBuilder('u')
-            ->andWhere('u.mushroomCount > 0')
+            ->addSelect('(u.mushroomCount * 2 + COALESCE(u.commentCount, 0)) AS HIDDEN score')
+            ->andWhere('(u.mushroomCount > 0 OR u.commentCount > 0)')
             ->andWhere('u.name IS NOT NULL AND u.name <> \'\'')
-            ->orderBy('u.mushroomCount', 'DESC')
+            ->orderBy('score', 'DESC')
             ->addOrderBy('u.id', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()

@@ -17,7 +17,9 @@ class LeaderboardApiController extends AbstractController
 
         $data = array_map(fn($user) => [
             'name' => $user->getName(),
-            'count' => $user->getMushroomCount(),
+            'mushroom_count' => $user->getMushroomCount(),
+            'comment_count' => $user->getCommentCount(),
+            'score' => $user->getScore(),
         ], $contributors);
 
         return $this->json($data);

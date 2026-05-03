@@ -33,6 +33,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?int $mushroomCount = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $commentCount = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
@@ -122,6 +125,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->mushroomCount = $mushroomCount;
 
         return $this;
+    }
+
+    public function getCommentCount(): ?int
+    {
+        return $this->commentCount;
+    }
+
+    public function setCommentCount(?int $commentCount): static
+    {
+        $this->commentCount = $commentCount;
+
+        return $this;
+    }
+
+    public function getScore(): int
+    {
+        return ($this->mushroomCount ?? 0) * 2 + ($this->commentCount ?? 0);
     }
 
     public function getName(): ?string

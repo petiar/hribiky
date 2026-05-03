@@ -22,3 +22,7 @@
 
 .idea
 .idea/*
+
+.env
+.env.dev
+.env.test

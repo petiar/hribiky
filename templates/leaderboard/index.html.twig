@@ -17,14 +17,23 @@
                         {{ 'leaderboard.empty'|trans }}
                     </div>
                 {% else %}
-                    <ol class="list-group list-group-numbered shadow-sm">
+                    <ul class="list-group shadow-sm">
                         {% for user in contributors %}
                             {% set rank = loop.index %}
-                            {% set medal = rank == 1 ? '🥇' : (rank == 2 ? '🥈' : (rank == 3 ? '🥉' : '')) %}
 
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <div class="me-3 fs-4">{{ medal }}</div>
+                                    <div class="me-3 text-center" style="min-width: 2.5rem;">
+                                        {% if rank == 1 %}
+                                            <span class="fs-4">🥇</span>
+                                        {% elseif rank == 2 %}
+                                            <span class="fs-4">🥈</span>
+                                        {% elseif rank == 3 %}
+                                            <span class="fs-4">🥉</span>
+                                        {% else %}
+                                            <span class="text-muted fw-semibold">{{ rank }}.</span>
+                                        {% endif %}
+                                    </div>
 
                                     <div>
                                         <div class="fw-semibold">
@@ -35,16 +44,17 @@
                                         </div>
                                         <div class="text-muted small">
                                             {{ 'leaderboard.count'|trans({'%count%': user.mushroomCount}) }}
+                                            {% if user.commentCount %}
+                                                · {{ 'leaderboard.comment_count'|trans({'%count%': user.commentCount}) }}
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
 
-                                <span class="badge bg-primary rounded-pill px-3 py-2">
-                {{ user.mushroomCount }}
-              </span>
+                                <span class="badge bg-primary rounded-pill px-3 py-2">{{ user.score }}</span>
                             </li>
                         {% endfor %}
-                    </ol>
+                    </ul>
                 {% endif %}
 
                 <div class="text-muted small mt-3">
