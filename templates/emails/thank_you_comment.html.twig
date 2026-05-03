@@ -5,5 +5,12 @@
 {% block body %}
     <p>{{ 'hello'|trans }} {{ mushroom_comment.name }},</p>
     <p>{{ 'thank_you_body_comment'|trans|raw }}</p>
+
+    {% if edit_url %}
+        <p>{{ 'thank_you_edit_link_title'|trans }}</p>
+        <p>{{ 'thank_you_edit_link_description'|trans|raw }}</p>
+        <p><a href="{{ edit_url }}">{{ edit_url }}</a></p>
+    {% endif %}
+
     <p>Tvoje Hríbiky.sk</p>
 {% endblock %}

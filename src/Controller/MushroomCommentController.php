@@ -41,7 +41,7 @@ class MushroomCommentController extends AbstractController
             $entityManager->flush();
 
             $mailService->sendMushroomCommentAdmin($mushroomComment);
-            if ($mushroom->getEmail()) {
+            if ($mushroomComment->getEmail()) {
                 $mailService->sendMushroomCommentThankYou($mushroomComment);
             }
 

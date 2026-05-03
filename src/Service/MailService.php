@@ -8,6 +8,7 @@ use App\Entity\MushroomComment;
 use App\Entity\User;
 use App\Repository\MushroomRepository;
 use App\Service\MushroomApprovalService;
+use App\Service\MushroomCommentEditLinkService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -35,6 +36,7 @@ class MailService
         private LoggerInterface $logger,
         private EntityManagerInterface $entityManager,
         private MushroomEditLinkService $mushroomEditLinkService,
+        private MushroomCommentEditLinkService $mushroomCommentEditLinkService,
         private MushroomRepository $mushroomRepository,
         private MushroomApprovalService $mushroomApprovalService,
         private string $emailFrom,
@@ -85,8 +87,12 @@ class MailService
     {
         $this->setSubject('Poďakovanie z Hríbiky.sk');
         $this->setRecipient($mushroomComment->getEmail());
+        $editUrl = $this->mushroomCommentEditLinkService->create($mushroomComment);
         $this->setTemplate('emails/thank_you_comment.html.twig');
-        $this->setContext(['mushroom_comment' => $mushroomComment]);
+        $this->setContext([
+            'mushroom_comment' => $mushroomComment,
+            'edit_url' => $editUrl,
+        ]);
         $this->send();
     }
 
