@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 class Mushroom
@@ -31,9 +32,11 @@ class Mushroom
     private ?string $country = null;
 
     #[ORM\Column(type: "float")]
+    #[Assert\Range(min: -90, max: 90)]
     private float $latitude;
 
     #[ORM\Column(type: "float")]
+    #[Assert\Range(min: -180, max: 180)]
     private float $longitude;
 
     #[ORM\Column(type: "integer", nullable: true)]

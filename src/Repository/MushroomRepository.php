@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Mushroom;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 class MushroomRepository extends ServiceEntityRepository
@@ -18,26 +19,26 @@ class MushroomRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
 
         $sql = "
-        SELECT h.*,
-            (6371000 * acos(
-                cos(radians(:lat)) * cos(radians(h.latitude)) *
-                cos(radians(h.longitude) - radians(:lng)) +
-                sin(radians(:lat)) * sin(radians(h.latitude))
-            )) AS distance
-        FROM mushroom h
-        WHERE published = 1
-        HAVING distance < :radius
+        SELECT * FROM (
+            SELECT h.*,
+                (6371000 * acos(
+                    cos(radians(:lat)) * cos(radians(h.latitude)) *
+                    cos(radians(h.longitude) - radians(:lng)) +
+                    sin(radians(:lat)) * sin(radians(h.latitude))
+                )) AS distance
+            FROM mushroom h
+            WHERE published = 1
+        ) AS sub
+        WHERE distance < :radius
         ORDER BY distance ASC
     ";
 
         $stmt = $conn->prepare($sql);
-        $result = $stmt->executeQuery([
-            'lat' => $lat,
-            'lng' => $lng,
-            'radius' => $radius,
-        ]);
+        $stmt->bindValue('lat', $lat);
+        $stmt->bindValue('lng', $lng);
+        $stmt->bindValue('radius', (int) $radius, ParameterType::INTEGER);
 
-        return $result->fetchAllAssociative();
+        return $stmt->executeQuery()->fetchAllAssociative();
     }
 
     public function findOneWithoutBlogPost(): ?Mushroom
