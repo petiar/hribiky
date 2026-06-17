@@ -21,7 +21,7 @@ jobs:
         run: composer install --no-interaction --no-scripts
 
       - name: Vytvor .env
-        run: echo -e "APP_ENV=test\nDEFAULT_URI=http://localhost" > .env
+        run: echo "APP_ENV=test" > .env
 
       - name: Spustenie testov
         run: php bin/phpunit -c phpunit.dist.xml
