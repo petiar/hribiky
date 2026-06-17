@@ -18,7 +18,7 @@ jobs:
           extensions: pdo, pdo_sqlite, sqlite3
 
       - name: Inštalácia závislostí
-        run: composer install --no-interaction
+        run: composer install --no-interaction --no-scripts
 
       - name: Spustenie testov
         run: php bin/phpunit -c phpunit.dist.xml
