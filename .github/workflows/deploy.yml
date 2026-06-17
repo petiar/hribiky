@@ -23,6 +23,9 @@ jobs:
       - name: Vytvor .env
         run: echo "APP_ENV=test" > .env
 
+      - name: Inštalácia importmap assetov
+        run: php bin/console importmap:install
+
       - name: Spustenie testov
         run: php bin/phpunit -c phpunit.dist.xml
 
