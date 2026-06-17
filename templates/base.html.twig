@@ -100,7 +100,7 @@
                 </svg>
             </a> <span class="mb-3 mb-md-0 text-body-secondary">© {{ 'now' | date('Y') }} <a href="https://petiar.sk">Petiar</a></span>
         </div>
-        <ul class="nav col-md-6 justify-content-end">
+        <ul class="nav col-md-6 justify-content-end align-items-center">
             {% if (app.request.locale == 'sk') %}
             <li class="nav-item"><a href="https://hribiky.cz{{ app.request.pathInfo }}" class="nav-link px-2 text-body-secondary">Česky</a></li>
             {% else %}
@@ -108,6 +108,14 @@
             {% endif %}
             <li class="nav-item"><a href="{{ path('app_leaderboard') }}" class="nav-link px-2 text-body-secondary">Leaderboard</a></li>
             <li class="nav-item"><a href="{{ path('privacy') }}" class="nav-link px-2 text-body-secondary">Súkromie</a></li>
+            <li class="nav-item ms-2">
+                <a href="https://apps.apple.com/us/app/hr%C3%ADbiky/id6777217981" target="_blank" rel="noopener">
+                    <img src="{{ asset('images/appstore/black.svg') }}" alt="Stiahni na App Store" height="32" class="appstore-badge">
+                </a>
+            </li>
+            <li class="nav-item ms-2">
+                <a href="https://www.buymeacoffee.com/petiar" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me a Coffee" style="height: 32px !important;width: auto !important;"></a>
+            </li>
         </ul>
     </footer>
 </div>

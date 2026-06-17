@@ -372,6 +372,8 @@ h2.app-title{
     height: 100%;
 }
 
+body[data-bs-theme="dark"] .appstore-badge { filter: invert(1); }
+
 .cluster-bubble {
     position: absolute;
     bottom: 2px;          /* doladíš podľa toho, kde to chceš mať */
