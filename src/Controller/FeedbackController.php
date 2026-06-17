@@ -13,7 +13,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class FeedbackController extends AbstractController
 {
-    #[Route('/feedback', name: 'feedback')]
+    // Dočasne vypnuté – položka "Niečo nefunguje?" je odstránená z menu a route má hádzať 404.
+    // Kód ponechávame, možno feedback ešte niekedy použijeme (stačí odkomentovať Route atribúty).
+    // #[Route('/feedback', name: 'feedback')]
     public function feedback(Request $request, EntityManagerInterface $em, MailService $mailService): Response
     {
         $feedback = new Feedback();
@@ -35,7 +37,8 @@ class FeedbackController extends AbstractController
         ]);
     }
 
-    #[Route('/status', name: 'status')]
+    // Dočasne vypnuté spolu s feedback() – viď komentár vyššie.
+    // #[Route('/status', name: 'status')]
     public function status(EntityManagerInterface $em): Response
     {
         $feedbacks = $em->getRepository(Feedback::class)->findBy(['published' => 1], ['createdAt' => 'DESC']);
