@@ -1,6 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'contact'|trans }}{% endblock %}
+{% block title %}{{ 'contact'|trans }} – {{ 'site_name'|trans }}{% endblock %}
+
+{% block meta_description %}<meta name="description" content="Kontaktujte nás – Hríbiky.sk. Napíšte nám svoje postrehy, návrhy alebo otázky k mapovaniu turistických rozcestníkov.">{% endblock %}
+{% block og_title %}{{ 'contact'|trans }} – {{ 'site_name'|trans }}{% endblock %}
 
 {% block body %}
     <div class="container mt-3 col-md-6 offset-md-3">

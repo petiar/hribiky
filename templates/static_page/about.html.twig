@@ -1,6 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'about.title'|trans }}{% endblock %}
+{% block title %}{{ 'about.title'|trans }} – {{ 'site_name'|trans }}{% endblock %}
+
+{% block meta_description %}<meta name="description" content="Príbeh a poslanie projektu Hríbiky.sk – komunitné mapovanie turistických rozcestníkov na Slovensku a v Česku.">{% endblock %}
+{% block og_title %}{{ 'about.title'|trans }} – {{ 'site_name'|trans }}{% endblock %}
 
 {% block body %}
     <div class="container mt-3 col-md-6 offset-md-3">

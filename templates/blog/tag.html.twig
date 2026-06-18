@@ -1,14 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Články s tagom „{{ tag.name }}" – {{ 'site_name'|trans }}{% endblock %}
+{% block title %}Články s tagom „{{ tag.name }}“ – {{ 'site_name'|trans }}{% endblock %}
+
+{% block meta_description %}<meta name="description" content="Všetky blogové články s tagom {{ tag.name }}.">{% endblock %}
+{% block og_title %}Články s tagom „{{ tag.name }}“ – {{ 'site_name'|trans }}{% endblock %}
+{% block og_description %}Všetky blogové články s tagom {{ tag.name }}.{% endblock %}
 
 {% block ogtags %}
-    <meta name="description" content="Všetky blogové články s tagom {{ tag.name }}.">
-    <meta property="og:title" content="Články s tagom „{{ tag.name }}" – {{ 'site_name'|trans }}"/>
-    <meta property="og:type" content="website"/>
-    <meta property="og:url" content="{{ url('blog_tag', {slug: tag.slug}) }}"/>
-    <link rel="canonical" href="{{ url('blog_tag', {slug: tag.slug}) }}"/>
-
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",

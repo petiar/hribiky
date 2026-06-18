@@ -9,15 +9,13 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block meta_description %}<meta name="description" content="{{ mushroom.description|striptags }}">{% endblock %}
+{% block og_title %}{{ title }}{% endblock %}
+{% block og_type %}place{% endblock %}
+{% block og_description %}{{ mushroom.description|striptags }}{% endblock %}
+{% block og_image %}{% if mushroom.photos is defined and mushroom.photos|length > 0 %}{{ absolute_url(asset('uploads/photos/' ~ mushroom.photos.0.path)) }}{% else %}{{ absolute_url(asset('images/android-chrome-512x512.png')) }}{% endif %}{% endblock %}
+
 {% block ogtags %}
-    <meta property="og:title" content="{{ title }}"/>
-    <meta property="og:type" content="place"/>
-    <meta property="og:url" content="{{ url('mushroom_detail', { id: mushroom.id}) }}"/>
-    {% if mushroom.photos is defined and mushroom.photos|length > 0 %}
-    <meta property="og:image" content="{{ absolute_url(asset('uploads/photos/' ~ mushroom.photos.0.path)) }}"/>
-    {% endif %}
-    <meta property="og:description" content="{{ mushroom.description }}"/>
-    <meta property="og:site_name" content="{{ 'site_name'|trans }}"/>
     <meta property="place:location:latitude" content="{{ mushroom.latitude }}">
     <meta property="place:location:longitude" content="{{ mushroom.longitude }}">
 {% endblock %}
