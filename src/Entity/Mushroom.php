@@ -63,7 +63,7 @@ class Mushroom
     #[ORM\OneToOne(mappedBy: 'mushroom', targetEntity: MushroomEditLink::class, cascade: ['remove'])]
     private ?MushroomEditLink $editLink = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $blogPostGenerated = false;
 
     #[ORM\Column(length: 64, nullable: true, unique: true)]
