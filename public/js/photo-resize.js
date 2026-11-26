@@ -104,5 +104,21 @@ window.HribikyPhotos = (function () {
         return formData;
     }
 
+    /**
+     * Upozorní hneď po výbere, ak je fotiek viac, ako server prijme (input[data-max-files]).
+     * Výber zruší, aby sa formulár s priveľa fotkami neodoslal.
+     */
+    document.addEventListener('change', function (event) {
+        const input = event.target;
+        if (!(input instanceof HTMLInputElement) || input.type !== 'file' || !input.dataset.maxFiles) {
+            return;
+        }
+        const max = parseInt(input.dataset.maxFiles, 10);
+        if (input.files && input.files.length > max) {
+            alert('Môžeš pridať najviac ' + max + ' fotiek. Vybral si ' + input.files.length + ', vyber ich prosím menej.');
+            input.value = '';
+        }
+    });
+
     return { resize: resize, buildFormData: buildFormData, MAX_DIMENSION: MAX_DIMENSION };
 })();

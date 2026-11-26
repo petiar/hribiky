@@ -4,9 +4,11 @@ namespace App\Tests\Api;
 
 use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
+use App\Service\FotoUploader;
 use App\Service\ImageOptimizer;
 use App\Tests\Service\TestImages;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -145,11 +147,107 @@ class PhotoUploadApiTest extends WebTestCase
         $this->assertStringContainsString('IMG_7777.jpg', json_decode($this->client->getResponse()->getContent(), true)['errors'][0]);
     }
 
+    // --- Počet fotiek (limit 5, ako v appke) ---
+
+    /**
+     * Komentár z appky: všetky bežné tvary poľa s fotkami sa musia uložiť celé.
+     * Predtým sa čítalo len „photo“ a z photo[] sa uložila len prvá fotka.
+     */
+    #[DataProvider('commentPhotoFields')]
+    public function testApiCommentStoresAllPhotos(string $field, bool $asArray, int $count): void
+    {
+        $mushroomId = $this->createMushroom();
+        $files = $this->smallPhotos($count);
+
+        $this->client->request('POST', '/api/mushrooms_comments', ['name' => 'Tester', 'mushroom_id' => $mushroomId], [
+            $field => $asArray ? $files : $files[0],
+        ], ['HTTP_API-KEY' => self::VALID_KEY]);
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->em->clear();
+        $comment = $this->em->find(MushroomComment::class, json_decode($this->client->getResponse()->getContent(), true)['id']);
+        $this->assertCount($count, $comment->getPhotos());
+    }
+
+    public static function commentPhotoFields(): array
+    {
+        return [
+            'photo (jedna)' => ['photo', false, 1],
+            'photo[] (viac)' => ['photo', true, 3],
+            'photos (jedna)' => ['photos', false, 1],
+            'photos[] (5)' => ['photos', true, 5],
+        ];
+    }
+
+    public function testApiCommentTooManyPhotosReturns422AndSavesNothing(): void
+    {
+        $mushroomId = $this->createMushroom();
+
+        $this->client->request('POST', '/api/mushrooms_comments', ['name' => 'Tester', 'mushroom_id' => $mushroomId], [
+            'photos' => $this->smallPhotos(FotoUploader::MAX_FILES + 1),
+        ], ['HTTP_API-KEY' => self::VALID_KEY]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('too_many_photos', $data['code']);
+        $this->assertSame(0, $this->em->getRepository(MushroomComment::class)->count([]));
+    }
+
+    public function testApiMushroomAcceptsFivePhotosButNotSix(): void
+    {
+        $this->client->request('POST', '/api/mushrooms', $this->mushroomFields(), [
+            'photos' => $this->smallPhotos(FotoUploader::MAX_FILES),
+        ], ['HTTP_API-KEY' => self::VALID_KEY]);
+        $this->assertResponseStatusCodeSame(201);
+        $this->em->clear();
+        $mushroom = $this->em->find(Mushroom::class, json_decode($this->client->getResponse()->getContent(), true)['id']);
+        $this->assertCount(FotoUploader::MAX_FILES, $mushroom->getPhotos());
+
+        $this->client->request('POST', '/api/mushrooms', $this->mushroomFields(), [
+            'photos' => $this->smallPhotos(FotoUploader::MAX_FILES + 1),
+        ], ['HTTP_API-KEY' => self::VALID_KEY]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('too_many_photos', json_decode($this->client->getResponse()->getContent(), true)['code']);
+        $this->assertSame(1, $this->em->getRepository(Mushroom::class)->count([]));
+    }
+
+    public function testWebCommentTooManyPhotosShowsMessage(): void
+    {
+        $this->client->request('POST', '/rozcestnik-update', ['mushroom_comment' => ['name' => 'Tester']], [
+            'mushroom_comment' => ['photos' => $this->smallPhotos(FotoUploader::MAX_FILES + 1)],
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertContains('Môžeš pridať najviac 5 fotiek.', json_decode($this->client->getResponse()->getContent(), true)['errors']);
+    }
+
+    public function testFlattenFilesHandlesAllShapes(): void
+    {
+        [$a, $b, $c] = $this->smallPhotos(3);
+
+        $this->assertSame([$a, $b, $c], FotoUploader::flattenFiles($a, [$b, [$c]], null, 'text'));
+        $this->assertSame([], FotoUploader::flattenFiles(null, []));
+    }
+
     // --- Pomocné metódy ---
 
     private function mushroomFields(): array
     {
         return ['title' => 'Test', 'name' => 'Tester', 'latitude' => '48.1486', 'longitude' => '17.1077'];
+    }
+
+    /**
+     * @return UploadedFile[]
+     */
+    private function smallPhotos(int $count): array
+    {
+        $files = [];
+        for ($i = 1; $i <= $count; $i++) {
+            $path = TestImages::jpeg($this->sourceDir . '/p' . $i . '-' . uniqid() . '.jpg', 120, 90);
+            $files[] = new UploadedFile($path, 'foto' . $i . '.jpg', 'image/jpeg', null, true);
+        }
+
+        return $files;
     }
 
     private function failedUpload(string $name, int $error): UploadedFile

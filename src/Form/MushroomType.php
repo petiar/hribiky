@@ -49,6 +49,10 @@ class MushroomType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
+                    new Assert\Count(
+                        max: FotoUploader::MAX_FILES,
+                        maxMessage: 'Môžeš pridať najviac {{ limit }} fotiek.',
+                    ),
                     new Assert\All(constraints: [
                         new Assert\File(
                             maxSize: FotoUploader::MAX_FILE_SIZE,
