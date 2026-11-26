@@ -2,6 +2,8 @@
 
 namespace App\Tests\Controller;
 
+use App\Entity\AccessLog;
+use App\Entity\Blacklist;
 use App\Entity\BlogPost;
 use App\Entity\Mushroom;
 use App\Entity\User;
@@ -45,7 +47,8 @@ class AdminSmokeTest extends WebTestCase
         $crawler = $this->client->request('GET', '/admin');
 
         $this->assertResponseIsSuccessful();
-        $hrefs = $crawler->filter('.menu a')->each(fn($a) => strtok((string) $a->attr('href'), '?'));
+        // EasyAdmin 5: .ea-sidebar-item-link (EasyAdmin 4: .menu a)
+        $hrefs = $crawler->filter('.ea-sidebar-item-link, .menu a')->each(fn($a) => strtok((string) $a->attr('href'), '?'));
         foreach (['/admin/rozcestnik', '/admin/rozcestnik-update', '/admin/blog-post', '/admin/tag', '/admin/mushroom-article-link',
                   '/admin/feedback', '/admin/access-log', '/admin/blacklist', '/admin/user'] as $section) {
             $this->assertContains($section, $hrefs, "V menu chýba odkaz na $section");
@@ -87,6 +90,47 @@ class AdminSmokeTest extends WebTestCase
             $this->client->request('GET', $url);
             $this->assertResponseIsSuccessful("Stránka $url");
         }
+    }
+
+    /**
+     * Vlastné akcie: v EasyAdmin 5 vyžadujú #[AdminRoute], bez neho celá sekcia padala s 500.
+     */
+    public function testBlockIpActionFromAccessLog(): void
+    {
+        $this->em->createQuery('DELETE FROM App\Entity\Blacklist b')->execute();
+        // Iné testy vytvárajú záznamy automaticky — nech je testovací na prvej strane zoznamu.
+        $this->em->createQuery('DELETE FROM App\Entity\AccessLog l')->execute();
+        $log = new AccessLog('203.0.113.7', Mushroom::class, 1, '/1', 'UA');
+        $this->em->persist($log);
+        $this->em->flush();
+
+        // Odkaz na akciu je v zozname
+        $crawler = $this->client->request('GET', '/admin/access-log');
+        $this->assertResponseIsSuccessful();
+        $url = '/admin/access-log/' . $log->getId() . '/block-ip';
+        $this->assertCount(1, $crawler->filter('a[href^="' . $url . '"]'), 'V zozname chýba akcia „Zablokovať IP“.');
+
+        // Potvrdzovacia stránka a zablokovanie
+        $this->client->request('GET', $url);
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString('203.0.113.7', $this->client->getResponse()->getContent());
+
+        $this->client->request('POST', $url);
+        $this->assertResponseRedirects();
+        $this->assertNotNull($this->em->getRepository(Blacklist::class)->findOneBy(['ipAddress' => '203.0.113.7']));
+    }
+
+    public function testGenerateBlogActionIsLinkedFromMushroomList(): void
+    {
+        // Samotné generovanie volá AI — tu len overíme, že akcia má route a odkaz v zozname.
+        $mushroom = (new Mushroom())->setTitle('Test')->setName('Tester')->setLatitude(48.1)->setLongitude(17.1);
+        $this->em->persist($mushroom);
+        $this->em->flush();
+
+        $crawler = $this->client->request('GET', '/admin/rozcestnik');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(1, $crawler->filter('a[href^="/admin/rozcestnik/' . $mushroom->getId() . '/generate-blog"]'), 'V zozname chýba akcia „Generovať blog“.');
     }
 
     /**
