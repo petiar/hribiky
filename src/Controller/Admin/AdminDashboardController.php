@@ -2,14 +2,8 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\AccessLog;
 use App\Entity\Blacklist;
-use App\Entity\BlogPost;
 use App\Entity\Feedback;
-use App\Entity\Mushroom;
-use App\Entity\MushroomArticleLink;
-use App\Entity\Tag;
-use App\Entity\MushroomComment;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -108,23 +102,15 @@ class AdminDashboardController extends AbstractDashboardController
     {
         return [
             MenuItem::linkToDashboard('Dashboard', 'fa fa-home'),
-            MenuItem::linkToCrud('Hríbiky', 'fa fa-tags', Mushroom::class),
-            MenuItem::linkToCrud(
-                'Aktualizácie',
-                'fa fa-file-text',
-                MushroomComment::class
-            ),
-            MenuItem::linkToCrud('Blog', 'fa fa-pen', BlogPost::class),
-            MenuItem::linkToCrud('Tagy', 'fa fa-tag', Tag::class),
-            MenuItem::linkToCrud('Články k hríbikom', 'fa fa-link', MushroomArticleLink::class),
-            MenuItem::linkToCrud('Feedback', 'fa fa-comment', Feedback::class),
-            MenuItem::linkToCrud(
-                'Access Log',
-                'fa fa-history',
-                AccessLog::class
-            ),
-            MenuItem::linkToCrud('Blacklist', 'fa fa-stop', Blacklist::class),
-            MenuItem::linkToCrud('Užívatelia', 'fa fa-user', User::class),
+            MenuItem::linkTo(RozcestnikCrudController::class, 'Hríbiky', 'fa fa-tags'),
+            MenuItem::linkTo(RozcestnikUpdateCrudController::class, 'Aktualizácie', 'fa fa-file-text'),
+            MenuItem::linkTo(BlogPostCrudController::class, 'Blog', 'fa fa-pen'),
+            MenuItem::linkTo(TagCrudController::class, 'Tagy', 'fa fa-tag'),
+            MenuItem::linkTo(MushroomArticleLinkCrudController::class, 'Články k hríbikom', 'fa fa-link'),
+            MenuItem::linkTo(FeedbackCrudController::class, 'Feedback', 'fa fa-comment'),
+            MenuItem::linkTo(AccessLogCrudController::class, 'Access Log', 'fa fa-history'),
+            MenuItem::linkTo(BlacklistCrudController::class, 'Blacklist', 'fa fa-stop'),
+            MenuItem::linkTo(UserCrudController::class, 'Užívatelia', 'fa fa-user'),
         ];
     }
 

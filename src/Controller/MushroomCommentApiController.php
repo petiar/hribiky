@@ -82,7 +82,7 @@
              return $this->json(['status' => 'error'] + $error + ['id' => null], $error['code'] === 'photo_too_large' ? 413 : 400);
          }
 
-         $mushroom = $entityManager->getRepository(Mushroom::class)->findOneBy(['id' => $request->get('mushroom_id')]);
+         $mushroom = $entityManager->getRepository(Mushroom::class)->findOneBy(['id' => $request->request->get('mushroom_id')]);
 
          $mushroomComment = new MushroomComment();
          $mushroomComment->setDescription($request->request->get('description'));
