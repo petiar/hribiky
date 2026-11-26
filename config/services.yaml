@@ -56,9 +56,11 @@ services:
     App\EventListener\BlacklistRequestListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 255 }
-    App\Controller\Admin\BlogPhotoController:
-        arguments:
-            $uploadDir: '%photos_directory%'
     App\Command\FetchTimelapseCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+when@test:
+    parameters:
+        # Testy nesmú zapisovať do skutočného public/uploads.
+        photos_directory: '%kernel.project_dir%/var/test-uploads/photos'

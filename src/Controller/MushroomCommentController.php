@@ -6,6 +6,7 @@ use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
 use App\Form\MushroomCommentType;
 use App\Service\FotoUploader;
+use App\Service\UploadLimits;
 use App\Service\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,13 +17,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class MushroomCommentController extends AbstractController
 {
     #[Route('/rozcestnik-update', name: 'rozcestnik_update_create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader, MailService $mailService): JsonResponse
+    public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader, MailService $mailService, UploadLimits $uploadLimits): JsonResponse
     {
         $mushroomComment = new MushroomComment();
         $form = $this->createForm(MushroomCommentType::class, $mushroomComment, [
             'attr' => ['id' => 'form_rozcestnik_update'],
         ]);
         $form->handleRequest($request);
+
+        if ($form->isSubmitted() && ($invalid = $uploadLimits->findInvalidFile($form->get('photos')->getData() ?? []))) {
+            return new JsonResponse(['success' => false, 'errors' => [$uploadLimits->webError($invalid)]], 413);
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $mushroomId = $form->get('rozcestnik_id')->getData();
@@ -48,9 +53,15 @@ class MushroomCommentController extends AbstractController
             return new JsonResponse(['success' => true]);
         }
 
+        $errors = [];
+        foreach ($form->getErrors(true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        // 400 — predtým 200, a JavaScript potom ukázal „Komentár bol pridaný“, hoci sa nič neuložilo.
         return new JsonResponse([
             'success' => false,
-            'errors' => (string) $form->getErrors(true, false)
-        ]);
+            'errors' => $errors ?: ['Formulár sa nepodarilo odoslať. Skús to znova.'],
+        ], 400);
     }
 }

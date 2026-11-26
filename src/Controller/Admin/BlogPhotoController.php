@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\BlogPost;
 use App\Entity\Photo;
 use App\Service\FotoUploader;
+use App\Service\UploadLimits;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,7 +19,7 @@ class BlogPhotoController extends AbstractController
     public function __construct(
         private FotoUploader $fotoUploader,
         private EntityManagerInterface $em,
-        private string $uploadDir,
+        private UploadLimits $uploadLimits,
     ) {}
 
     #[Route('/admin/blog-post/{id}/photos', name: 'admin_blog_photo_list', methods: ['GET'])]
@@ -49,10 +50,14 @@ class BlogPhotoController extends AbstractController
             return $this->json(['error' => 'Žiadne súbory'], 400);
         }
 
+        if ($invalid = $this->uploadLimits->findInvalidFile($files)) {
+            return $this->json(['error' => $this->uploadLimits->webError($invalid)], 413);
+        }
+
         $photos = [];
         foreach ($files as $file) {
-            $filename = uniqid() . '.' . $file->guessExtension();
-            $file->move($this->uploadDir, $filename);
+            // Rovnaká úprava ako pri ostatných fotkách: zmenšenie, bez EXIF, náhľad.
+            $filename = $this->fotoUploader->store($file);
 
             $photo = new Photo();
             $photo->setPath($filename);

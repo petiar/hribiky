@@ -8,6 +8,7 @@ use App\Form\MushroomType;
 use App\Repository\MushroomRepository;
 use App\Service\FotoUploader;
 use App\Service\MushroomApiFormatter;
+use App\Service\UploadLimits;
 use App\Service\MailService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,7 +73,7 @@ class MushroomApiController extends AbstractController
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
-    public function add(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, FotoUploader $fotoUploader, MailService $mailService): JsonResponse
+    public function add(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, FotoUploader $fotoUploader, MailService $mailService, UploadLimits $uploadLimits): JsonResponse
     {
         foreach (['title', 'latitude', 'longitude', 'name'] as $field) {
             if (!$request->request->has($field)) {
@@ -82,6 +83,17 @@ class MushroomApiController extends AbstractController
                     'id' => null,
                 ], 422);
             }
+        }
+
+        // photos[] aj photos (jeden súbor)
+        $files = $request->files->get('photos') ?? [];
+        $files = is_array($files) ? $files : [$files];
+
+        // Priveľká alebo neúplne nahraná fotka — predtým tu server spadol s 500 a hríbik sa neuložil.
+        if ($invalid = $uploadLimits->findInvalidFile($files)) {
+            $error = $uploadLimits->apiError($invalid);
+
+            return $this->json(['status' => 'error'] + $error + ['id' => null], $error['code'] === 'photo_too_large' ? 413 : 400);
         }
         $mushroom = new Mushroom();
         $mushroom->setTitle($request->request->get('title'));
@@ -95,7 +107,6 @@ class MushroomApiController extends AbstractController
         $mushroom->setPublished(0);
         $mushroom->setSource('api');
 
-        $files = $request->files->get('photos') ?? [];
         if ($files) {
             $fotoUploader->uploadAndAttach($files, $mushroom);
         }

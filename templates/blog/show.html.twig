@@ -156,10 +156,12 @@
                 <div class="row g-2">
                     {% for photo in post.photos %}
                     <div class="col-6 col-md-4">
-                        <img src="{{ asset('uploads/photos/' ~ photo.path) }}"
-                             alt="{{ post.title }}"
-                             class="img-fluid rounded"
-                             loading="lazy">
+                        <a href="{{ asset('uploads/photos/' ~ photo.path) }}" target="_blank" rel="noopener">
+                            <img src="{{ asset(photo_thumb(photo.path)) }}"
+                                 alt="{{ post.title }}"
+                                 class="img-fluid rounded"
+                                 loading="lazy">
+                        </a>
                     </div>
                     {% endfor %}
                 </div>
@@ -174,7 +176,7 @@
                     <div class="col-md-4">
                         <div class="card h-100 shadow-sm">
                             {% if rel.photos|length > 0 %}
-                            <img src="{{ asset('uploads/photos/' ~ rel.photos.first.path) }}"
+                            <img src="{{ asset(photo_thumb(rel.photos.first.path)) }}"
                                  class="card-img-top"
                                  alt="{{ rel.title }}"
                                  style="height:140px;object-fit:cover;"

@@ -7,6 +7,7 @@
  use App\Repository\MushroomCommentRepository;
  use App\Service\FotoUploader;
  use App\Service\MushroomApiFormatter;
+ use App\Service\UploadLimits;
  use App\Service\MailService;
  use Doctrine\ORM\EntityManagerInterface;
  use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,7 +50,7 @@
      }
 
      #[Route('', name: 'create', methods: ['POST'])]
-     public function add(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, FotoUploader $fotoUploader, MailService $mailService): JsonResponse
+     public function add(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, FotoUploader $fotoUploader, MailService $mailService, UploadLimits $uploadLimits): JsonResponse
      {
          foreach (['name', 'mushroom_id'] as $field) {
              if (!$request->request->has($field)) {
@@ -59,6 +60,13 @@
                      'id' => null,
                  ]);
              }
+         }
+
+         // Priveľká alebo neúplne nahraná fotka — predtým tu server spadol s 500.
+         if ($invalid = $uploadLimits->findInvalidFile([$request->files->get('photo')])) {
+             $error = $uploadLimits->apiError($invalid);
+
+             return $this->json(['status' => 'error'] + $error + ['id' => null], $error['code'] === 'photo_too_large' ? 413 : 400);
          }
 
          $mushroom = $entityManager->getRepository(Mushroom::class)->findOneBy(['id' => $request->get('mushroom_id')]);

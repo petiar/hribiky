@@ -109,7 +109,7 @@
                                 <div class="row mt-3">
                                     {% for foto in update.photos %}
                                         <div class="col-6 col-md-3 mb-3">
-                                            <img src="{{ asset('uploads/photos/' ~ foto.path) }}"
+                                            <img src="{{ asset(photo_thumb(foto.path)) }}"
                                                  class="img-fluid rounded shadow-sm update-foto"
                                                  alt="Update foto"
                                                  data-bs-toggle="modal"

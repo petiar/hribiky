@@ -48,15 +48,11 @@ class MushroomType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
-                    new Assert\All([
-                        new Assert\File([
-                            'maxSize' => '8M',
-                            'mimeTypes' => [
-                                'image/jpeg',
-                                'image/png',
-                                'image/gif',
-                            ],
-                        ]),
+                    new Assert\All(constraints: [
+                        new Assert\File(
+                            maxSize: '8M',
+                            mimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+                        ),
                     ]),
                 ],
                 'label' => 'Fotky',

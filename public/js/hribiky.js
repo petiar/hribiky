@@ -165,12 +165,13 @@ function initMap() {
         }
     });
 
-    $("#addForm").on("submit", function(e) {
+    $("#addForm").on("submit", async function(e) {
         e.preventDefault();
         const submitButton = $('#rozcestnikFormSubmitButton');
         const originalText = disableButton( submitButton );
         const form = $('#addForm')[0];
-        const formData = new FormData(form);
+        // Fotky sa pred odoslaním zmenšia v prehliadači (public/js/photo-resize.js).
+        const formData = await buildUploadFormData(form);
         $.ajax({
             url: '/rozcestnik/create',
             type: 'POST',
@@ -184,22 +185,18 @@ function initMap() {
                 enableButton( submitButton, originalText );
             },
             error: function(xhr) {
-                let msg = 'Chyba pri odoslaní formulára.';
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    msg += '\n' + xhr.responseJSON.errors;
-                }
-                alert(msg);
+                alert(formErrorMessage(xhr));
                 enableButton( submitButton, originalText );
             }
         });
     });
 
-    $("#addRozcestnikUpdateForm").on("submit", function(e) {
+    $("#addRozcestnikUpdateForm").on("submit", async function(e) {
         e.preventDefault();
         const submitButton = $('#rozcestnikUpdateFormSubmitButton');
         const originalText = disableButton( submitButton );
         const form = $('#addRozcestnikUpdateForm')[0];
-        const formData = new FormData(form);
+        const formData = await buildUploadFormData(form);
 
         $.ajax({
             url: '/rozcestnik-update',
@@ -214,12 +211,8 @@ function initMap() {
                 enableButton( submitButton, originalText);
             },
             error: function(xhr) {
-                let msg = 'Chyba pri odoslaní formulára.';
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    msg += '\n' + xhr.responseJSON.errors;
-                }
-                alert(msg);
-                form.reset();
+                // Formulár nemažeme — používateľ by prišiel o napísaný text.
+                alert(formErrorMessage(xhr));
                 enableButton( submitButton, originalText);
             }
         });
@@ -256,6 +249,32 @@ function openAddForm(lat, lng) {
 
     const modalB = new bootstrap.Modal(document.getElementById('addModal'));
     modalB.show();
+}
+
+/** FormData so zmenšenými fotkami; ak photo-resize.js nie je k dispozícii, bežné FormData. */
+async function buildUploadFormData(form) {
+    if (window.HribikyPhotos) {
+        try {
+            return await window.HribikyPhotos.buildFormData(form);
+        } catch (e) {
+            // zmenšenie nesmie zablokovať odoslanie
+        }
+    }
+    return new FormData(form);
+}
+
+/** Zrozumiteľná chybová správa z odpovede servera (errors môže byť pole aj text). */
+function formErrorMessage(xhr) {
+    let msg = 'Chyba pri odoslaní formulára.';
+    const data = xhr.responseJSON;
+    if (data && data.errors) {
+        msg += '\n' + (Array.isArray(data.errors) ? data.errors.join('\n') : data.errors);
+    } else if (data && data.error) {
+        msg += '\n' + data.error;
+    } else if (xhr.status === 0) {
+        msg += '\nSkontroluj pripojenie na internet a skús to znova.';
+    }
+    return msg;
 }
 
 function disableButton(el) {

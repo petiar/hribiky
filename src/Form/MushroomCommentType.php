@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class MushroomCommentType extends AbstractType
 {
@@ -41,6 +42,14 @@ class MushroomCommentType extends AbstractType
                 'mapped' => false,
                 'multiple' => true,
                 'required' => false,
+                'constraints' => [
+                    new Assert\All(constraints: [
+                        new Assert\File(
+                            maxSize: '8M',
+                            mimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+                        ),
+                    ]),
+                ],
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('rozcestnik_id', HiddenType::class, [

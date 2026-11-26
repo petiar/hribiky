@@ -10,6 +10,7 @@ use App\Repository\MushroomRepository;
 use App\Service\FotoUploader;
 use App\Service\MailService;
 use App\Service\ThumbnailService;
+use App\Service\UploadLimits;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,12 +78,16 @@ class MushroomController extends AbstractController
     }
 
     #[Route('/rozcestnik/create', name: 'rozcestnik_create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader, MailService $mailService ): JsonResponse
+    public function create(Request $request, EntityManagerInterface $entityManager, FotoUploader $fotoUploader, MailService $mailService, UploadLimits $uploadLimits): JsonResponse
     {
         $mushroom = new Mushroom();
         $form = $this->createForm(MushroomType::class, $mushroom);
 
         $form->handleRequest($request);
+
+        if ($form->isSubmitted() && ($invalid = $uploadLimits->findInvalidFile($form->get('photos')->getData() ?? []))) {
+            return $this->json(['success' => false, 'errors' => [$uploadLimits->webError($invalid)]], 413);
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $uploadedFiles = $form->get('photos')->getData();
