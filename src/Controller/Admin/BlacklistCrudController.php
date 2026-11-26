@@ -15,7 +15,7 @@ class BlacklistCrudController extends AbstractCrudController
         return Blacklist::class;
     }
 
-    public function createEntity(string $entityFqcn)
+    public function createEntity(string $entityFqcn): object
     {
         $request = $this->getContext()->getRequest();
         $ip = $request->query->get('ip');

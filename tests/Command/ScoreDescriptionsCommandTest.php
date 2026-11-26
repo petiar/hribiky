@@ -37,7 +37,7 @@ class ScoreDescriptionsCommandTest extends KernelTestCase
         $mushroom = $this->createMushroom();
         $http = new MockHttpClient([$this->aiResponse('<score>7</score>')]);
 
-        $this->runCommand($http);
+        $this->runScoring($http);
 
         $mushroom = $this->reload($mushroom);
         $this->assertSame(7, $mushroom->getDescriptionScore());
@@ -52,13 +52,13 @@ class ScoreDescriptionsCommandTest extends KernelTestCase
         $http = new MockHttpClient(fn() => $this->aiResponse('Neviem ohodnotiť.'));
 
         for ($run = 1; $run <= 3; $run++) {
-            $this->runCommand($http);
+            $this->runScoring($http);
             $this->assertSame($run, $this->reload($mushroom)->getDescriptionScoreAttempts());
         }
         $this->assertSame(3, $http->getRequestsCount());
 
         // Štvrtý beh už hríbik neposiela na AI.
-        $display = $this->runCommand($http);
+        $display = $this->runScoring($http);
 
         $this->assertSame(3, $http->getRequestsCount());
         $this->assertStringContainsString('Žiadne hríbiky na ohodnotenie', $display);
@@ -70,12 +70,12 @@ class ScoreDescriptionsCommandTest extends KernelTestCase
         $mushroom = $this->createMushroom();
         $http = new MockHttpClient([new MockResponse('{"error":"unauthorized"}', ['http_code' => 401])]);
 
-        $this->runCommand($http);
+        $this->runScoring($http);
 
         $this->assertSame(1, $this->reload($mushroom)->getDescriptionScoreAttempts());
     }
 
-    private function runCommand(MockHttpClient $http): string
+    private function runScoring(MockHttpClient $http): string
     {
         $scorer = new MushroomDescriptionScorerService($http, 'test-key', new NullLogger());
         $command = new ScoreDescriptionsCommand(

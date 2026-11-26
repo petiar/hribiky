@@ -16,7 +16,7 @@ class FeedbackType extends AbstractType
     public function __construct(private TranslatorInterface $translator)
     {}
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('text', TextareaType::class, [
@@ -29,7 +29,7 @@ class FeedbackType extends AbstractType
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Feedback::class,

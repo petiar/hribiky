@@ -53,7 +53,7 @@ class OptimizePhotosCommandTest extends KernelTestCase
         $big = $this->addPhoto('big.jpg', fn($p) => TestImages::jpeg($p, 3000, 2000, quality: 95));
         $before = md5_file($big);
 
-        $tester = $this->runCommand([]);
+        $tester = $this->runOptimize([]);
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
         $this->assertSame($before, md5_file($big), 'Bez --force sa súbor nesmie zmeniť.');
@@ -69,7 +69,7 @@ class OptimizePhotosCommandTest extends KernelTestCase
         $ok = $this->addPhoto('ok.jpg', fn($p) => TestImages::jpeg($p, 800, 600));
         $okHash = md5_file($ok);
 
-        $tester = $this->runCommand(['--force' => true]);
+        $tester = $this->runOptimize(['--force' => true]);
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
         // Veľká → zmenšená
@@ -86,10 +86,10 @@ class OptimizePhotosCommandTest extends KernelTestCase
     public function testSecondRunSkipsEverything(): void
     {
         $big = $this->addPhoto('big.jpg', fn($p) => TestImages::jpeg($p, 3000, 2000));
-        $this->runCommand(['--force' => true]);
+        $this->runOptimize(['--force' => true]);
         $hash = md5_file($big);
 
-        $tester = $this->runCommand(['--force' => true]);
+        $tester = $this->runOptimize(['--force' => true]);
 
         $this->assertSame($hash, md5_file($big), 'Druhý beh nesmie fotku znova ukladať.');
         $this->assertMatchesRegularExpression('/upravené\s+0/u', $tester->getDisplay());
@@ -102,7 +102,7 @@ class OptimizePhotosCommandTest extends KernelTestCase
             $paths[] = $this->addPhoto($name, fn($p) => TestImages::jpeg($p, 2500, 1500));
         }
 
-        $this->runCommand(['--force' => true, '--limit' => 2]);
+        $this->runOptimize(['--force' => true, '--limit' => 2]);
 
         $resized = array_filter($paths, fn($p) => getimagesize($p)[0] === 2000);
         $this->assertCount(2, $resized);
@@ -113,7 +113,7 @@ class OptimizePhotosCommandTest extends KernelTestCase
         $this->addPhotoRecord('chyba-na-disku.jpg');
         $text = $this->addPhoto('nie-obrazok.jpg', fn($p) => file_put_contents($p, 'text') ? $p : $p);
 
-        $tester = $this->runCommand(['--force' => true]);
+        $tester = $this->runOptimize(['--force' => true]);
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
         $this->assertStringContainsString('chyba-na-disku.jpg', $tester->getDisplay());
@@ -129,7 +129,7 @@ class OptimizePhotosCommandTest extends KernelTestCase
         $this->em->persist((new Photo())->setPath('spolocna.jpg')->setOwner(BlogPost::class)->setBlogPost($post));
         $this->em->flush();
 
-        $tester = $this->runCommand(['--force' => true]);
+        $tester = $this->runOptimize(['--force' => true]);
 
         $this->assertMatchesRegularExpression('/upravené\s+1/u', $tester->getDisplay());
         $this->assertSame(2000, getimagesize($path)[0]);
@@ -137,7 +137,7 @@ class OptimizePhotosCommandTest extends KernelTestCase
 
     // --- Pomocné metódy ---
 
-    private function runCommand(array $options): CommandTester
+    private function runOptimize(array $options): CommandTester
     {
         $loader = new ImageLoader();
         $command = new OptimizePhotosCommand(

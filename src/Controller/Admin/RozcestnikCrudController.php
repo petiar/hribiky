@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -51,8 +52,8 @@ class RozcestnikCrudController extends AbstractCrudController
             case Crud::PAGE_INDEX:
                 $fields[] = TextareaField::new('description', 'Popis')
                     ->formatValue(function ($value, $entity) {
-                        if (strlen($value) > 80) {
-                            return substr($value, 0, 80).'…';
+                        if (mb_strlen($value ?? '') > 80) {
+                            return mb_substr($value, 0, 80).'…';
                         }
 
                         return $value;
@@ -118,9 +119,12 @@ class RozcestnikCrudController extends AbstractCrudController
             ->add(Crud::PAGE_DETAIL, $generateBlog);
     }
 
+    // EasyAdmin 5: vlastné akcie musia mať #[AdminRoute]; ID je súčasťou URL.
+    #[AdminRoute(path: '/{entityId}/generate-blog', name: 'generate_blog')]
     public function generateBlog(AdminContext $context): RedirectResponse
     {
-        $id = $context->getRequest()->query->getInt('entityId');
+        $request = $context->getRequest();
+        $id = (int) ($request->attributes->get('entityId') ?? $request->query->get('entityId'));
         $mushroom = $this->mushroomRepository->find($id);
 
         if (!$mushroom) {

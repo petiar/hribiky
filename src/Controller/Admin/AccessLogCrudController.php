@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -80,9 +81,11 @@ class AccessLogCrudController extends AbstractCrudController
             ->disable(Action::NEW);
     }
 
+    // EasyAdmin 5: vlastné akcie musia mať #[AdminRoute]; ID je súčasťou URL.
+    #[AdminRoute(path: '/{entityId}/block-ip', name: 'block_ip')]
     public function blockIp(AdminUrlGenerator $urlGenerator, EntityManagerInterface $em, Request $request): Response
     {
-        $id = $request->query->get('entityId');
+        $id = $request->attributes->get('entityId') ?? $request->query->get('entityId');
         $log = $em->getRepository(AccessLog::class)->find($id);
 
         if (!$log) {
