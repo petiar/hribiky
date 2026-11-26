@@ -28,8 +28,9 @@ class ApiKey
     {
         $this->email = $email;
         $this->keyValue = $keyValue;
-        $this->createdAt = new \DateTimeImmutable();
-        $this->validUntil = (new \DateTimeImmutable())->modify('+1 year');
+        // Stĺpce sú typu „datetime“ (mutable) — Doctrine DBAL 4 DateTimeImmutable odmietne.
+        $this->createdAt = new \DateTime();
+        $this->validUntil = (new \DateTime())->modify('+1 year');
     }
 
     public function getId(): ?int
