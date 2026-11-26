@@ -1,0 +1,9 @@
+framework:
+    rate_limiter:
+        # Formulár spätnej väzby (/feedback): najviac 5 správ za hodinu z jednej IP adresy.
+        feedback:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
+            # symfony/lock nie je nainštalovaný; pri takomto objeme ho netreba.
+            lock_factory: null

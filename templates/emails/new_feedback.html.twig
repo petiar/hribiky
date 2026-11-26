@@ -4,6 +4,9 @@
 
 {% block body %}
 <p>{{ 'email.new_feedback.description'|trans }}</p>
-<p>{{ feedback.text }}</p>
+<p>{{ feedback.text|nl2br }}</p>
+{% if feedback.email %}
+<p>Odpovedať: <a href="mailto:{{ feedback.email }}">{{ feedback.email }}</a></p>
+{% endif %}
 <p>{{ 'email.new_feedback.click_here'|trans}} {{ url('admin_feedback_index') }}</p>
 {% endblock %}

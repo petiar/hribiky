@@ -1,18 +1,34 @@
-{# templates/feedback/form.html.twig #}
+{# templates/feedback/form.html.twig — spätná väzba / podpora (odkaz aj z App Store) #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'feedback.title'|trans }}{% endblock %}
+{% block title %}{{ 'feedback.title'|trans }} – {{ 'site_name'|trans }}{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ 'feedback.meta_description'|trans }}">{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {# Skryté pole proti spamu — mimo obrazovky (nie display:none, to niektoré roboty preskočia). #}
+    <style>.hp-field { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }</style>
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5 col-lg-6 offset-lg-3 col-md-10 offset-md-1">
+    <div class="container mt-5 mb-5 col-lg-6 offset-lg-3 col-md-10 offset-md-1">
         <h1>{{ 'feedback.title'|trans }}</h1>
-        <a class="btn btn-outline-secondary mt-3 mb-3" href="{{ path('status') }}">{{ 'feedback.check_progress'|trans }}</a>
-        {% for flash in app.flashes('success') %}
-            <div class="alert alert-success">{{ flash }}</div>
-        {% endfor %}
+
+        {# Potvrdenie / chybu (flash) vypisuje base.html.twig nad obsahom. #}
+
         <p>{{ 'feedback.description'|trans }}</p>
-        {{ form_start(form) }}
-        {{ form_widget(form) }}
+
+        {{ form_start(form, {attr: {id: 'feedbackForm', novalidate: 'novalidate'}}) }}
+            {{ form_row(form.text) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.website) }}
+            {{ form_widget(form.started) }}
+            {{ form_row(form.submit) }}
         {{ form_end(form) }}
+
+        <p class="text-muted mt-4 small">
+            {{ 'feedback.email_alternative'|trans }}
+            <a href="mailto:{{ 'contact_email'|trans }}">{{ 'contact_email'|trans }}</a>
+        </p>
     </div>
 {% endblock %}

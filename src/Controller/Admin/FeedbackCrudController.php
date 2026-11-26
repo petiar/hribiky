@@ -8,6 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
@@ -25,11 +26,12 @@ class FeedbackCrudController extends AbstractCrudController
         return [
             TextareaField::new('text', 'Text')
                 ->formatValue(function ($value, $entity) {
-                    if (strlen($value) > 80) {
-                        return substr($value, 0, 80) . '…';
+                    if (mb_strlen($value ?? '') > 80) {
+                        return mb_substr($value, 0, 80) . '…';
                     }
                     return $value;
                 }),
+            EmailField::new('email', 'E-mail'),
             ChoiceField::new('status', 'Status')
                 ->setChoices(array_combine(
                     array_map(fn($case) => $case->labelKey(), FeedbackStatus::cases()),
