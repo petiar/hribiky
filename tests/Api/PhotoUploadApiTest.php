@@ -64,7 +64,14 @@ class PhotoUploadApiTest extends WebTestCase
 
     public function testApiValidPhotoIsStoredOptimized(): void
     {
-        $photo = TestImages::jpeg($this->sourceDir . '/IMG.jpg', 4000, 3000);
+        // Väčšia ako 2000 px (overí zmenšenie), ale s nízkou kvalitou, aby sa zmestila pod limit PHP.
+        // Testovací klient simuluje upload_max_filesize — na GitHube je predvolených 2 MB.
+        $photo = TestImages::jpeg($this->sourceDir . '/IMG.jpg', 2600, 1950, quality: 40); // ~1,1 MB
+        $this->assertLessThan(UploadedFile::getMaxFilesize(), filesize($photo), sprintf(
+            'Predpoklad testu: fotka (%d B) musí byť menšia ako upload_max_filesize (%d B).',
+            filesize($photo),
+            UploadedFile::getMaxFilesize()
+        ));
 
         $this->client->request('POST', '/api/mushrooms', $this->mushroomFields(), [
             'photos' => [new UploadedFile($photo, 'IMG.jpg', 'image/jpeg', null, true)],
