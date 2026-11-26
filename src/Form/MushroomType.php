@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Mushroom;
+use App\Service\FotoUploader;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -50,7 +51,7 @@ class MushroomType extends AbstractType
                 'constraints' => [
                     new Assert\All(constraints: [
                         new Assert\File(
-                            maxSize: '8M',
+                            maxSize: FotoUploader::MAX_FILE_SIZE,
                             mimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
                         ),
                     ]),

@@ -11,6 +11,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FotoUploader
 {
+    /**
+     * Najväčšia povolená fotka vo webových formulároch (pred zmenšením).
+     * Web fotky zmenšuje už v prehliadači (~1 MB); toto je poistka, ak zmenšenie zlyhá.
+     * PHP na serveri povoľuje 256 MB (upload_max_filesize).
+     */
+    public const MAX_FILE_SIZE = '20M';
+
     public function __construct(
         private string $uploadDir,
         private EntityManagerInterface $entityManager,
