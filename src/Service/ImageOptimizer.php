@@ -22,6 +22,35 @@ class ImageOptimizer
     }
 
     /**
+     * Potrebuje fotka úpravu? true = väčšia ako MAX_DIMENSION alebo obsahuje EXIF (JPEG);
+     * false = už je v poriadku (opakované ukladanie by len zhoršovalo kvalitu);
+     * null = nejde o podporovaný obrázok.
+     */
+    public function needsOptimization(string $path): ?bool
+    {
+        $info = @getimagesize($path);
+        if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
+            return null;
+        }
+
+        if (max($info[0], $info[1]) > self::MAX_DIMENSION) {
+            return true;
+        }
+
+        return $info[2] === IMAGETYPE_JPEG && $this->hasExif($path);
+    }
+
+    /**
+     * EXIF v JPEG je v segmente APP1 s hlavičkou „Exif\0\0“ na začiatku súboru.
+     */
+    private function hasExif(string $path): bool
+    {
+        $head = (string) @file_get_contents($path, false, null, 0, 128 * 1024);
+
+        return str_contains($head, "Exif\0\0");
+    }
+
+    /**
      * Upraví súbor na mieste. Vráti false, ak nejde o podporovaný obrázok
      * alebo úprava zlyhala — vtedy súbor ostane nezmenený.
      */
