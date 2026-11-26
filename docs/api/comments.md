@@ -74,11 +74,14 @@ Pridá komentár k hríbiku. Komentár sa uloží ako **neschválený** a zobraz
 | `name` | text | áno | Meno autora |
 | `description` | text | nie | Text komentára |
 | `email` | text | nie | E-mail autora. Nezobrazuje sa, ale započítava sa do rebríčka. |
-| `photo` | súbor | nie | **Jedna** fotka (pole sa volá `photo`, nie `photos[]` ako pri hríbiku) |
+| `photos[]` | súbor(y) | nie | Fotky, **najviac 5**. Prijíma sa aj `photo`, `photo[]` a `photos` (jeden súbor). Pred odoslaním ich zmenši (viď [README](README.md#veľkosť-fotiek)). |
+
+> **Zmena:** do novembra 2026 sa čítalo len pole `photo` a z `photo[]` sa uložila iba prvá fotka. Teraz sa uložia všetky (najviac 5).
 
 ### Odpovede
 
 - `201 Created`: `{"status": "ok", "id": 32}`
+- `422`: viac ako 5 fotiek, `code: "too_many_photos"`. Komentár sa **neuloží**.
 - `413`: fotka alebo celý request je priveľký, `code` je `photo_too_large` alebo `request_too_large`. Komentár sa **neuloží**.
 - **`200 OK`** pri chýbajúcom povinnom poli: `{"status": "error", "message": "Missing required field: mushroom_id", "id": null}`. Na rozdiel od hríbikov tu **nie je** status `422`, chybu treba rozpoznať podľa `"status": "error"` v tele.
 
@@ -91,5 +94,6 @@ curl -X POST https://hribiky.sk/api/mushrooms_comments \
   -F "name=Jana" \
   -F "email=jana@example.com" \
   -F "description=Značka je už opravená." \
-  -F "photo=@foto.jpg"
+  -F "photos[]=@foto1.jpg" \
+  -F "photos[]=@foto2.jpg"
 ```

@@ -18,6 +18,26 @@ class FotoUploader
      */
     public const MAX_FILE_SIZE = '20M';
 
+    /** Najviac fotiek k jednému hríbiku alebo komentáru (web aj API) — rovnako ako v mobilnej appke. */
+    public const MAX_FILES = 5;
+
+    /**
+     * Zoznam nahraných súborov z ľubovoľnej kombinácie polí (photo, photo[], photos, photos[]).
+     *
+     * @return UploadedFile[]
+     */
+    public static function flattenFiles(mixed ...$values): array
+    {
+        $files = [];
+        array_walk_recursive($values, function ($value) use (&$files) {
+            if ($value instanceof UploadedFile) {
+                $files[] = $value;
+            }
+        });
+
+        return $files;
+    }
+
     public function __construct(
         private string $uploadDir,
         private EntityManagerInterface $entityManager,
@@ -42,10 +62,8 @@ class FotoUploader
 
     public function uploadAndAttach(array $uploadedFiles, object $owner): void
     {
-        foreach ($uploadedFiles as $file) {
-            if (is_array($file)) {
-                $file = $file[0];
-            }
+        // Všetky súbory, aj vnorené (photo[]) — predtým sa z poľa uložil len prvý.
+        foreach (self::flattenFiles($uploadedFiles) as $file) {
             $newFilename = $this->store($file);
 
             $foto = new Photo();

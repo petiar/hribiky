@@ -62,8 +62,21 @@
              }
          }
 
+         // Fotky v ľubovoľnom tvare: photo, photo[], photos, photos[].
+         // Predtým sa čítalo len „photo“ a z poľa photo[] sa uložila len prvá fotka.
+         $files = FotoUploader::flattenFiles($request->files->get('photo'), $request->files->get('photos'));
+
+         if (count($files) > FotoUploader::MAX_FILES) {
+             return $this->json([
+                 'status' => 'error',
+                 'code' => 'too_many_photos',
+                 'message' => sprintf('Too many photos (max %d).', FotoUploader::MAX_FILES),
+                 'id' => null,
+             ], 422);
+         }
+
          // Priveľká alebo neúplne nahraná fotka — predtým tu server spadol s 500.
-         if ($invalid = $uploadLimits->findInvalidFile([$request->files->get('photo')])) {
+         if ($invalid = $uploadLimits->findInvalidFile($files)) {
              $error = $uploadLimits->apiError($invalid);
 
              return $this->json(['status' => 'error'] + $error + ['id' => null], $error['code'] === 'photo_too_large' ? 413 : 400);
@@ -79,8 +92,8 @@
          $mushroomComment->setMushroom($mushroom);
          $mushroomComment->setSource('api');
 
-         if ($file = $request->files->get('photo')) {
-             $fotoUploader->uploadAndAttach([$file], $mushroomComment);
+         if ($files) {
+             $fotoUploader->uploadAndAttach($files, $mushroomComment);
          }
          $entityManager->persist($mushroomComment);
          $entityManager->flush();

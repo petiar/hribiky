@@ -55,6 +55,7 @@ Formát chýb **nie je jednotný**. Appka sa má rozhodovať podľa HTTP status 
 | Fotka je väčšia ako limit servera na jeden súbor | `413` | `{"status": "error", "code": "photo_too_large", "message": "Photo \"IMG_1.jpg\" is too large (max 8 MB).", "id": null}` |
 | Fotku sa nepodarilo nahrať (prerušený prenos) | `400` | `{"status": "error", "code": "photo_upload_failed", "message": "…", "id": null}` |
 | Celý request (všetky fotky spolu) je väčší ako limit servera | `413` | `{"status": "error", "code": "request_too_large", "message": "Request is too large (max 8 MB in total)…", "id": null}` |
+| Viac ako 5 fotiek k hríbiku alebo komentáru | `422` | `{"status": "error", "code": "too_many_photos", "message": "Too many photos (max 5).", "id": null}` |
 | Neočakávaná chyba servera | `500` | HTML stránka |
 
 Pole `code` (ak je v odpovedi) je stabilný identifikátor chyby, podľa ktorého môže appka zobraziť vlastnú, preloženú hlášku. Text v `message` sa môže meniť.

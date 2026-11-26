@@ -86,8 +86,16 @@ class MushroomApiController extends AbstractController
         }
 
         // photos[] aj photos (jeden súbor)
-        $files = $request->files->get('photos') ?? [];
-        $files = is_array($files) ? $files : [$files];
+        $files = FotoUploader::flattenFiles($request->files->get('photos'));
+
+        if (count($files) > FotoUploader::MAX_FILES) {
+            return $this->json([
+                'status' => 'error',
+                'code' => 'too_many_photos',
+                'message' => sprintf('Too many photos (max %d).', FotoUploader::MAX_FILES),
+                'id' => null,
+            ], 422);
+        }
 
         // Priveľká alebo neúplne nahraná fotka — predtým tu server spadol s 500 a hríbik sa neuložil.
         if ($invalid = $uploadLimits->findInvalidFile($files)) {

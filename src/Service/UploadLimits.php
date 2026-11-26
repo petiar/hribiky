@@ -36,11 +36,8 @@ class UploadLimits
      */
     public function findInvalidFile(iterable $files): ?UploadedFile
     {
-        foreach ($files as $file) {
-            if (is_array($file)) {
-                $file = $file[0] ?? null;
-            }
-            if ($file instanceof UploadedFile && !$file->isValid()) {
+        foreach (FotoUploader::flattenFiles($files) as $file) {
+            if (!$file->isValid()) {
                 return $file;
             }
         }
