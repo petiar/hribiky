@@ -22,9 +22,21 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            # Pri chybe sa deploy zastaví a v GitHub Actions bude červený
+            # (predtým pokračoval ďalej a web mohol skončiť napoly aktualizovaný).
+            set -e
             cd ${{ secrets.DEPLOY_PATH }}
             git pull origin main
             composer install --no-dev --optimize-autoloader --no-interaction
             php bin/console cache:clear
             php bin/console doctrine:migrations:migrate --no-interaction
             php bin/console assets:install public
+            # JavaScript/CSS z assets/ (AssetMapper, Stimulus, Turbo) — na produkcii sa musia skompilovať
+            # do public/assets, inak vracajú 404.
+            php bin/console asset-map:compile
+            # PHP-FPM drží v pamäti (opcache) staré verzie súborov a zmeny nekontroluje — po update
+            # balíkov to zhodilo celý web. Jednorazový skript s náhodným názvom opcache vyčistí.
+            RESET="opcache-reset-$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n').php"
+            echo '<?php if (function_exists("opcache_reset")) { opcache_reset(); } echo "ok";' > "public/$RESET"
+            curl -fsS --max-time 30 "https://hribiky.sk/$RESET" || echo "Upozornenie: opcache sa nepodarilo vyčistiť"
+            rm -f "public/$RESET"
