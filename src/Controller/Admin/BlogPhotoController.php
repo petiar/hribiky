@@ -18,7 +18,6 @@ class BlogPhotoController extends AbstractController
     public function __construct(
         private FotoUploader $fotoUploader,
         private EntityManagerInterface $em,
-        private string $uploadDir,
     ) {}
 
     #[Route('/admin/blog-post/{id}/photos', name: 'admin_blog_photo_list', methods: ['GET'])]
@@ -51,8 +50,8 @@ class BlogPhotoController extends AbstractController
 
         $photos = [];
         foreach ($files as $file) {
-            $filename = uniqid() . '.' . $file->guessExtension();
-            $file->move($this->uploadDir, $filename);
+            // Rovnaká úprava ako pri ostatných fotkách: zmenšenie, bez EXIF, náhľad.
+            $filename = $this->fotoUploader->store($file);
 
             $photo = new Photo();
             $photo->setPath($filename);

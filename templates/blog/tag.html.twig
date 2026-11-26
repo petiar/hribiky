@@ -61,7 +61,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm">
                     {% if post.photos is defined and post.photos|length > 0 %}
-                    <img src="{{ asset('uploads/photos/' ~ post.photos.first.path) }}"
+                    <img src="{{ asset(photo_thumb(post.photos.first.path)) }}"
                          class="card-img-top"
                          alt="{{ post.title }}"
                          style="height:200px;object-fit:cover;"

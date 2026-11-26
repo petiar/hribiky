@@ -7,7 +7,10 @@ class ThumbnailService
     public const THUMB_WIDTH = 400;
     private const THUMB_SUBDIR = 'thumbs';
 
-    public function __construct(private string $uploadDir) {}
+    public function __construct(
+        private string $uploadDir,
+        private ImageLoader $imageLoader,
+    ) {}
 
     public function thumbExists(string $filename): bool
     {
@@ -44,79 +47,32 @@ class ThumbnailService
             mkdir($thumbDir, 0755, true);
         }
 
-        $info = @getimagesize($sourcePath);
-        if (!$info) {
+        // Načíta a otočí podľa EXIF (typický problém s fotkami z telefónu).
+        $loaded = $this->imageLoader->load($sourcePath);
+        if ($loaded === null) {
             return false;
         }
 
-        [$width, $height, $type] = $info;
-
-        $source = match ($type) {
-            IMAGETYPE_JPEG => @imagecreatefromjpeg($sourcePath),
-            IMAGETYPE_PNG  => @imagecreatefrompng($sourcePath),
-            IMAGETYPE_WEBP => @imagecreatefromwebp($sourcePath),
-            default        => false,
-        };
-
-        if (!$source) {
-            return false;
-        }
-
-        // Oprav rotáciu podľa EXIF (typický problém s fotkami z telefónu)
-        if ($type === IMAGETYPE_JPEG) {
-            $source = $this->fixOrientation($source, $sourcePath);
-            // Po rotácii sa mohli zameniť rozmery – aktualizujeme
-            $width  = imagesx($source);
-            $height = imagesy($source);
-        }
-
+        [$source, $type] = $loaded;
+        $width = imagesx($source);
+        $height = imagesy($source);
         $destPath = $thumbDir . '/' . basename($filename);
 
         if ($width <= self::THUMB_WIDTH) {
-            $result = $this->saveImage($source, $destPath, $type);
-            imagedestroy($source);
+            $result = $this->imageLoader->save($source, $destPath, $type);
             return $result;
         }
 
         $newHeight = (int) round($height * self::THUMB_WIDTH / $width);
         $thumb = imagescale($source, self::THUMB_WIDTH, $newHeight, IMG_BICUBIC);
-        imagedestroy($source);
 
         if (!$thumb) {
             return false;
         }
 
-        $result = $this->saveImage($thumb, $destPath, $type);
-        imagedestroy($thumb);
+        $result = $this->imageLoader->save($thumb, $destPath, $type);
 
         return $result;
-    }
-
-    private function saveImage(\GdImage $image, string $destPath, int $type): bool
-    {
-        return match ($type) {
-            IMAGETYPE_JPEG => imagejpeg($image, $destPath, 85),
-            IMAGETYPE_PNG  => imagepng($image, $destPath, 7),
-            IMAGETYPE_WEBP => imagewebp($image, $destPath, 85),
-            default        => false,
-        };
-    }
-
-    private function fixOrientation(\GdImage $image, string $sourcePath): \GdImage
-    {
-        if (!function_exists('exif_read_data')) {
-            return $image;
-        }
-
-        $exif = @exif_read_data($sourcePath);
-        $orientation = $exif['Orientation'] ?? 1;
-
-        return match ((int) $orientation) {
-            3 => imagerotate($image, 180, 0),
-            6 => imagerotate($image, -90, 0),
-            8 => imagerotate($image, 90, 0),
-            default => $image,
-        };
     }
 
     private function thumbPath(string $filename): string

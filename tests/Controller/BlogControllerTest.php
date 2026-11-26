@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Controller\BlogController;
 use App\Entity\BlogPost;
+use App\Entity\Photo;
 use App\Entity\Tag;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -128,6 +129,21 @@ class BlogControllerTest extends WebTestCase
         $this->assertStringNotContainsString('Neschválený', $crawler->text());
     }
 
+    // --- Náhľady fotiek ---
+
+    public function testCardsUseThumbnailWhenAvailable(): void
+    {
+        $this->createPostWithPhoto('S nahladom', 'nahlad-test.jpg', withThumb: true);
+        $this->createPostWithPhoto('Bez nahladu', 'bez-nahladu-test.jpg', withThumb: false);
+
+        $crawler = $this->client->request('GET', '/blog');
+        $srcs = $crawler->filter('.card-img-top')->each(fn(Crawler $img) => $img->attr('src'));
+
+        $this->assertContains('/uploads/photos/thumbs/nahlad-test.jpg', array_map(fn($s) => strtok($s, '?'), $srcs));
+        // Bez náhľadu sa použije originál (nič sa nerozbije).
+        $this->assertContains('/uploads/photos/bez-nahladu-test.jpg', array_map(fn($s) => strtok($s, '?'), $srcs));
+    }
+
     // --- Stránky tagov ---
 
     public function testTagPagePaginatesOnlyPostsWithThatTag(): void
@@ -183,6 +199,27 @@ class BlogControllerTest extends WebTestCase
     }
 
     // --- Pomocné metódy ---
+
+    private function createPostWithPhoto(string $title, string $filename, bool $withThumb): void
+    {
+        $dir = static::getContainer()->getParameter('photos_directory');
+        @mkdir($dir . '/thumbs', 0777, true);
+        touch($dir . '/' . $filename);
+        $withThumb ? touch($dir . '/thumbs/' . $filename) : @unlink($dir . '/thumbs/' . $filename);
+
+        $post = (new BlogPost())
+            ->setTitle($title)
+            ->setSlug('clanok-' . uniqid())
+            ->setShortDescription('Popis')
+            ->setText('Text')
+            ->setPublished(true)
+            ->setPublishedAt(new \DateTime('2026-01-01'));
+        $photo = (new Photo())->setPath($filename)->setOwner(BlogPost::class)->setBlogPost($post);
+        $this->em->persist($post);
+        $this->em->persist($photo);
+        $this->em->flush();
+        $this->em->clear();
+    }
 
     /** Vytvorí $count publikovaných článkov; „Článok N“ je tým novší, čím vyššie N. */
     private function createPosts(int $count, ?Tag $tag = null): void

@@ -7,13 +7,31 @@ use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
 use App\Entity\Photo;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\ThumbnailService;
-class FotoUploader {
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+class FotoUploader
+{
     public function __construct(
         private string $uploadDir,
         private EntityManagerInterface $entityManager,
         private ThumbnailService $thumbnailService,
+        private ImageOptimizer $imageOptimizer,
     ) {}
+
+    /**
+     * Uloží nahraný súbor: presun do uploads, zmenšenie a odstránenie EXIF, náhľad.
+     * Vráti názov uloženého súboru.
+     */
+    public function store(UploadedFile $file): string
+    {
+        $newFilename = uniqid() . '.' . $file->guessExtension();
+        $file->move($this->uploadDir, $newFilename);
+
+        $this->imageOptimizer->optimize($this->uploadDir . '/' . $newFilename);
+        $this->thumbnailService->generate($newFilename);
+
+        return $newFilename;
+    }
 
     public function uploadAndAttach(array $uploadedFiles, object $owner): void
     {
@@ -21,9 +39,7 @@ class FotoUploader {
             if (is_array($file)) {
                 $file = $file[0];
             }
-            $newFilename = uniqid().'.'.$file->guessExtension();
-            $file->move($this->uploadDir, $newFilename);
-            $this->thumbnailService->generate($newFilename);
+            $newFilename = $this->store($file);
 
             $foto = new Photo();
             $foto->setPath($newFilename);
