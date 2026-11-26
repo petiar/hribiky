@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Mushroom;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 class MushroomRepository extends ServiceEntityRepository
@@ -12,6 +13,41 @@ class MushroomRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Mushroom::class);
+    }
+
+    /**
+     * Publikované hríbiky pre GET /api/mushrooms, od najnovšieho, aj s fotkami.
+     *
+     * Fotky a edit link sa načítajú v tom istom dotaze (fetch join) — inak by sa pre každý
+     * hríbik spravil samostatný dotaz (pri stovkách hríbikov stovky dotazov).
+     *
+     * @param int|null $limit null = všetky
+     * @return Mushroom[]
+     */
+    public function findPublishedForApi(int $sinceId = 0, ?int $limit = null): array
+    {
+        $qb = $this->createQueryBuilder('m')
+            ->addSelect('p', 'el')
+            ->leftJoin('m.photos', 'p')
+            // editLink je inverzná strana OneToOne — Doctrine ju nevie načítať lenivo a inak
+            // by ju dotiahol samostatným dotazom pre každý hríbik.
+            ->leftJoin('m.editLink', 'el')
+            ->andWhere('m.published = true')
+            ->orderBy('m.id', 'DESC')
+            ->addOrderBy('p.id', 'ASC');
+
+        if ($sinceId > 0) {
+            $qb->andWhere('m.id > :since')->setParameter('since', $sinceId);
+        }
+
+        if ($limit === null) {
+            return $qb->getQuery()->getResult();
+        }
+
+        // S fetch joinom by LIMIT obmedzil riadky (hríbik × fotka), nie hríbiky — Paginator to rieši.
+        $qb->setMaxResults($limit);
+
+        return iterator_to_array(new Paginator($qb->getQuery(), fetchJoinCollection: true), false);
     }
 
     /**

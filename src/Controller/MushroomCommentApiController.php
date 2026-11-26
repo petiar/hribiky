@@ -6,6 +6,7 @@
  use App\Entity\MushroomComment;
  use App\Repository\MushroomCommentRepository;
  use App\Service\FotoUploader;
+ use App\Service\MushroomApiFormatter;
  use App\Service\MailService;
  use Doctrine\ORM\EntityManagerInterface;
  use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,43 +19,18 @@
  class MushroomCommentApiController extends AbstractController
  {
      #[Route('', name: '_index', methods: ['GET'])]
-     public function index(EntityManagerInterface $em, Request $request, MushroomCommentRepository $mushroomCommentRepository): JsonResponse
+     public function index(Request $request, MushroomCommentRepository $mushroomCommentRepository, MushroomApiFormatter $formatter): JsonResponse
      {
          $sinceId = $request->query->getInt('since_id', 0);
-         $limit = $request->query->getInt('limit', 100);
+         // Bez parametra (alebo limit=0) vráti všetky publikované komentáre.
+         // Pôvodne bol predvolený limit 100 a appka tak nevidela staršie komentáre.
+         $limit = $request->query->getInt('limit', 0);
          $mushroomId = $request->query->getInt('mushroom_id', 0);
 
-         $query = $mushroomCommentRepository->createQueryBuilder('m');
-         if ($sinceId) {
-             $query->where('m.id > :sinceId')
-                 ->setParameter('sinceId', $sinceId);
-         }
-         if ($mushroomId) {
-             $query->andWhere('m.mushroom = :mushroomId')
-                 ->setParameter('mushroomId', $mushroomId);
-         }
-         $query->andWhere('m.published = 1')
-             ->orderBy('m.id', 'DESC')
-             ->setMaxResults($limit);
-
-         $mushroomsComments = $query->getQuery()->getResult();
+         $comments = $mushroomCommentRepository->findPublishedForApi($sinceId, $mushroomId, $limit > 0 ? $limit : null);
 
          $baseUrl = $request->getSchemeAndHttpHost();
-
-         $data = [];
-         foreach ($mushroomsComments as $comment) {
-             $photos = $comment->getPhotos()->toArray();
-             $photosUrls = array_map(function ($photo) use ($baseUrl) {
-                 return $baseUrl . '/uploads/photos/' . $photo->getPath();
-             }, $photos);
-             $data[] = [
-                 'id' => $comment->getId(),
-                 'name' => $comment->getName(),
-                 'description' => $comment->getDescription(),
-                 'photos' => $photosUrls,
-                 'createdAt' => $comment->getCreatedAt(),
-             ];
-         }
+         $data = array_map(fn(MushroomComment $comment) => $formatter->comment($comment, $baseUrl), $comments);
 
          return $this->json($data);
      }

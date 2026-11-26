@@ -31,9 +31,11 @@ Zoznam **schválených** hríbikov, zoradený od najnovšieho (`id` zostupne).
 | Parameter | Typ | Predvolené | Popis |
 |---|---|---|---|
 | `since_id` | `int` | – | Vráti len hríbiky s `id` **väčším** ako táto hodnota (na synchronizáciu) |
-| `limit` | `int` | `100` | Maximálny počet záznamov |
+| `limit` | `int` | bez obmedzenia | Maximálny počet záznamov. Bez parametra (alebo `0`) vráti **všetky** hríbiky. |
 
-> **Pozor pri synchronizácii:** aj so `since_id` sú výsledky zoradené od najnovšieho a orezané na `limit`. Ak od posledného `since_id` pribudlo viac hríbikov ako `limit`, vrátia sa len tie najnovšie a staršie z nich sa **nevrátia**. Ak počet výsledkov dosiahne `limit`, zopakuj volanie s väčším limitom alebo urob plnú synchronizáciu.
+> **Zmena:** do novembra 2026 bol predvolený limit `100`, takže appka bez parametra `limit` nedostala staršie hríbiky. Teraz sa bez `limit` vracajú všetky.
+
+Na synchronizáciu **neposielaj `limit`**: `?since_id=<najvyššie známe id>` vráti všetky novšie hríbiky. Ak `limit` pošleš, výsledky sú zoradené od najnovšieho a orezané. Ak od posledného `since_id` pribudlo viac hríbikov ako `limit`, staršie z nich sa **nevrátia**.
 
 ### Odpoveď `200 OK`
 

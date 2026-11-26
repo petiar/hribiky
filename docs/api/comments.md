@@ -26,9 +26,11 @@ Zoznam **schválených** komentárov, zoradený od najnovšieho (`id` zostupne).
 |---|---|---|---|
 | `mushroom_id` | `int` | – | Len komentáre k danému hríbiku |
 | `since_id` | `int` | – | Len komentáre s `id` **väčším** ako táto hodnota |
-| `limit` | `int` | `100` | Maximálny počet záznamov |
+| `limit` | `int` | bez obmedzenia | Maximálny počet záznamov. Bez parametra (alebo `0`) vráti **všetky** komentáre. |
 
-Pri `since_id` platí rovnaké obmedzenie ako pri hríbikoch: vrátia sa najnovšie záznamy orezané na `limit` (viď [mushrooms.md](mushrooms.md#get-apimushrooms)).
+> **Zmena:** do novembra 2026 bol predvolený limit `100`. Teraz sa bez `limit` vracajú všetky komentáre.
+
+Na synchronizáciu platí to isté ako pri hríbikoch: **neposielaj `limit`**, `?since_id=<najvyššie známe id>` vráti všetky novšie komentáre (viď [mushrooms.md](mushrooms.md#get-apimushrooms)).
 
 ### Odpoveď `200 OK`
 

@@ -7,6 +7,7 @@ use App\Entity\Photo;
 use App\Form\MushroomType;
 use App\Repository\MushroomRepository;
 use App\Service\FotoUploader;
+use App\Service\MushroomApiFormatter;
 use App\Service\MailService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,41 +22,17 @@ use Symfony\Component\Validator\Validation;
 class MushroomApiController extends AbstractController
 {
     #[Route('', name: '_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $em, Request $request, MushroomRepository $mushroomRepository): JsonResponse
+    public function index(Request $request, MushroomRepository $mushroomRepository, MushroomApiFormatter $formatter): JsonResponse
     {
         $sinceId = $request->query->getInt('since_id', 0);
-        $limit = $request->query->getInt('limit', 100);
+        // Bez parametra (alebo limit=0) vráti všetky publikované hríbiky.
+        // Pôvodne bol predvolený limit 100 a appka tak nevidela staršie hríbiky.
+        $limit = $request->query->getInt('limit', 0);
 
-        $mushrooms = $sinceId > 0
-            ? $mushroomRepository->createQueryBuilder('m')
-                ->where('m.id > :since')
-                ->setParameter('since', $sinceId)
-                ->andWhere('m.published = 1')
-                ->orderBy('m.id', 'DESC')
-                ->setMaxResults($limit)
-                ->getQuery()->getResult()
-            : $mushroomRepository->findBy(['published' => 1], ['id' => 'DESC'], $limit);
+        $mushrooms = $mushroomRepository->findPublishedForApi($sinceId, $limit > 0 ? $limit : null);
 
         $baseUrl = $request->getSchemeAndHttpHost();
-
-        $data = [];
-        foreach ($mushrooms as $mushroom) {
-            $photos = $mushroom->getPhotos()->toArray();
-            $photosUrls = array_map(function ($photo) use ($baseUrl) {
-                return $baseUrl . '/uploads/photos/' . $photo->getPath();
-            }, $photos);
-            $data[] = [
-                'id' => $mushroom->getId(),
-                'title' => $mushroom->getTitle(),
-                'name' => $mushroom->getName(),
-                'description' => $mushroom->getDescription(),
-                'latitude' => $mushroom->getLatitude(),
-                'longitude' => $mushroom->getLongitude(),
-                'altitude' => $mushroom->getAltitude(),
-                'photos' => $photosUrls,
-                'createdAt' => $mushroom->getCreatedAt(),
-            ];
-        }
+        $data = array_map(fn(Mushroom $mushroom) => $formatter->mushroom($mushroom, $baseUrl), $mushrooms);
 
         return $this->json($data);
     }
@@ -77,44 +54,18 @@ class MushroomApiController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(Mushroom $mushroom, Request $request): JsonResponse
+    public function show(Mushroom $mushroom, Request $request, MushroomApiFormatter $formatter): JsonResponse
     {
         if ($mushroom->isPublished()) {
             $baseUrl = $request->getSchemeAndHttpHost();
-            $photos = $mushroom->getPhotos()->toArray();
-            $photosUrls = array_map(function ($photo) use ($baseUrl) {
-                return $baseUrl . '/uploads/photos/' . $photo->getPath();
-            }, $photos);
 
             $comments = array_values(array_filter(
                 $mushroom->getUpdates()->toArray(),
                 fn($comment) => $comment->isPublished()
             ));
-            $commentsData = array_map(function ($comment) use ($baseUrl) {
-                $commentPhotos = array_map(
-                    fn($photo) => $baseUrl . '/uploads/photos/' . $photo->getPath(),
-                    $comment->getPhotos()->toArray()
-                );
-                return [
-                    'id' => $comment->getId(),
-                    'name' => $comment->getName(),
-                    'description' => $comment->getDescription(),
-                    'photos' => $commentPhotos,
-                    'createdAt' => $comment->getCreatedAt(),
-                ];
-            }, $comments);
 
-            return $this->json([
-                'id' => $mushroom->getId(),
-                'title' => $mushroom->getTitle(),
-                'name' => $mushroom->getName(),
-                'description' => $mushroom->getDescription(),
-                'latitude' => $mushroom->getLatitude(),
-                'longitude' => $mushroom->getLongitude(),
-                'altitude' => $mushroom->getAltitude(),
-                'photos' => $photosUrls,
-                'createdAt' => $mushroom->getCreatedAt(),
-                'comments' => $commentsData,
+            return $this->json($formatter->mushroom($mushroom, $baseUrl) + [
+                'comments' => array_map(fn($comment) => $formatter->comment($comment, $baseUrl), $comments),
             ]);
         }
         return $this->json([]);
