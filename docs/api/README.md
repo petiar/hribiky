@@ -52,7 +52,28 @@ Formát chýb **nie je jednotný**. Appka sa má rozhodovať podľa HTTP status 
 | `nearby` bez súradníc | `400` | `{"error": "Missing coordinates"}` |
 | `POST /api/mushrooms`, chýba povinné pole | `422` | `{"status": "error", "message": "Missing required field: title", "id": null}` |
 | `POST /api/mushrooms_comments`, chýba povinné pole | **`200`** | `{"status": "error", "message": "Missing required field: mushroom_id", "id": null}` |
+| Fotka je väčšia ako limit servera na jeden súbor | `413` | `{"status": "error", "code": "photo_too_large", "message": "Photo \"IMG_1.jpg\" is too large (max 8 MB).", "id": null}` |
+| Fotku sa nepodarilo nahrať (prerušený prenos) | `400` | `{"status": "error", "code": "photo_upload_failed", "message": "…", "id": null}` |
+| Celý request (všetky fotky spolu) je väčší ako limit servera | `413` | `{"status": "error", "code": "request_too_large", "message": "Request is too large (max 8 MB in total)…", "id": null}` |
 | Neočakávaná chyba servera | `500` | HTML stránka |
+
+Pole `code` (ak je v odpovedi) je stabilný identifikátor chyby, podľa ktorého môže appka zobraziť vlastnú, preloženú hlášku. Text v `message` sa môže meniť.
+
+### Veľkosť fotiek
+
+Server má limit na jeden súbor aj na celý request a fotky z telefónu (3–7 MB) ho môžu prekročiť. **Fotky pred odoslaním zmenši** na najviac 2000 px na dlhšej strane (JPEG, kvalita ~0,85). Vyjde to okolo 1 MB a nahrávanie so slabým signálom je oveľa rýchlejšie. Web to robí rovnako (`public/js/photo-resize.js`). V React Native napr.:
+
+```ts
+import * as ImageManipulator from 'expo-image-manipulator';
+
+const resized = await ImageManipulator.manipulateAsync(
+  uri,
+  [{ resize: width >= height ? { width: 2000 } : { height: 2000 } }], // len ak je fotka väčšia
+  { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG },
+);
+```
+
+Server každú fotku aj tak zmenší na najviac 2000 px, otočí podľa EXIF a odstráni z nej metadáta (GPS, model telefónu).
 
 ## Konvencie
 

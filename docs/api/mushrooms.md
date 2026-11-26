@@ -179,7 +179,7 @@ Pridá nový hríbik. Hríbik sa uloží ako **neschválený** a zobrazí sa až
 | `altitude` | číslo | nie | Nadmorská výška v metroch (zaokrúhli sa na celé) |
 | `email` | text | nie | E-mail autora. Nezobrazuje sa, ale **podľa neho sa hríbik započíta do rebríčka**, preto je dobré posielať vždy ten istý. |
 | `country` | text | nie | Kód krajiny (max. 16 znakov), napr. `SK` |
-| `photos[]` | súbor(y) | nie | Fotky, pole môže obsahovať viac súborov |
+| `photos[]` | súbor(y) | nie | Fotky, pole môže obsahovať viac súborov (funguje aj `photos` s jedným súborom). Pred odoslaním ich zmenši (viď [README](README.md#veľkosť-fotiek)). |
 
 `latitude`, `longitude` a `altitude` musia byť číselné hodnoty. Nečíselná hodnota spôsobí chybu servera (`500`).
 
@@ -187,6 +187,8 @@ Pridá nový hríbik. Hríbik sa uloží ako **neschválený** a zobrazí sa až
 
 - `201 Created`: `{"status": "ok", "id": 206}`
 - `422`: chýba povinné pole, napr. `{"status": "error", "message": "Missing required field: latitude", "id": null}`
+- `413`: fotka alebo celý request je priveľký, `code` je `photo_too_large` alebo `request_too_large` (viď [README](README.md#chybové-odpovede)). Hríbik sa **neuloží**, odošli ho znova s menšími fotkami.
+- `400`: fotku sa nepodarilo nahrať, `code: "photo_upload_failed"`
 
 ### Príklad (curl)
 
