@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\BlogPost;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 class BlogPostRepository extends ServiceEntityRepository
@@ -58,18 +59,45 @@ class BlogPostRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return BlogPost[]
+     * Jedna stránka publikovaných článkov s daným tagom, od najnovšieho.
+     *
+     * @return Paginator<BlogPost>
      */
-    public function findByTag(string $tagSlug): array
+    public function findByTagPage(string $tagSlug, int $page, int $perPage): Paginator
     {
-        return $this->createQueryBuilder('b')
+        $query = $this->createQueryBuilder('b')
             ->join('b.tags', 't')
             ->andWhere('b.published = true')
             ->andWhere('t.slug = :slug')
             ->setParameter('slug', $tagSlug)
             ->orderBy('b.publishedAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('b.id', 'DESC')
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage)
+            ->getQuery();
+
+        // Join slúži len na filter (tagy sa nenačítavajú), preto fetchJoinCollection netreba.
+        return new Paginator($query, fetchJoinCollection: false);
+    }
+
+    /**
+     * Jedna stránka publikovaných článkov, od najnovšieho.
+     * count($paginator) vráti celkový počet publikovaných článkov.
+     *
+     * @return Paginator<BlogPost>
+     */
+    public function findPublishedPage(int $page, int $perPage): Paginator
+    {
+        $query = $this->createQueryBuilder('b')
+            ->andWhere('b.published = :pub')
+            ->setParameter('pub', true)
+            ->orderBy('b.publishedAt', 'DESC')
+            ->addOrderBy('b.id', 'DESC') // stabilné poradie pri rovnakom dátume
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage)
+            ->getQuery();
+
+        return new Paginator($query, fetchJoinCollection: false);
     }
 
     /**

@@ -1,0 +1,51 @@
+{#
+    Stránkovanie (Bootstrap 5).
+    Parametre:
+      page        — aktuálna stránka (1..totalPages)
+      totalPages  — počet stránok
+      route       — názov route
+      params      — ďalšie parametre route (nepovinné)
+    Stránka 1 nemá ?page=1, aby neexistovali dve URL s rovnakým obsahom.
+    Pri mnohých stránkach sa zobrazí prvá, posledná a okolie aktuálnej (± 2), medzery ako „…“.
+#}
+{% set params = params|default({}) %}
+{% if totalPages > 1 %}
+    {% set window = 2 %}
+    <nav aria-label="Stránkovanie" class="mt-5">
+        <ul class="pagination justify-content-center flex-wrap">
+            <li class="page-item {{ page <= 1 ? 'disabled' }}">
+                {% if page > 1 %}
+                    <a class="page-link" rel="prev"
+                       href="{{ path(route, page - 1 > 1 ? params|merge({page: page - 1}) : params) }}">&laquo; Novšie</a>
+                {% else %}
+                    <span class="page-link">&laquo; Novšie</span>
+                {% endif %}
+            </li>
+
+            {% set lastShown = 0 %}
+            {% for p in 1..totalPages %}
+                {% if p == 1 or p == totalPages or (p >= page - window and p <= page + window) %}
+                    {% if lastShown and p > lastShown + 1 %}
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                    {% endif %}
+                    {% if p == page %}
+                        <li class="page-item active" aria-current="page"><span class="page-link">{{ p }}</span></li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path(route, p > 1 ? params|merge({page: p}) : params) }}">{{ p }}</a>
+                        </li>
+                    {% endif %}
+                    {% set lastShown = p %}
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {{ page >= totalPages ? 'disabled' }}">
+                {% if page < totalPages %}
+                    <a class="page-link" rel="next" href="{{ path(route, params|merge({page: page + 1})) }}">Staršie &raquo;</a>
+                {% else %}
+                    <span class="page-link">Staršie &raquo;</span>
+                {% endif %}
+            </li>
+        </ul>
+    </nav>
+{% endif %}

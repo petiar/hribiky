@@ -17,9 +17,9 @@ Odpovede sa **len rozširujú**: existujúce polia sa nemenia, neodoberajú a ne
 
 Pre aplikáciu z toho vyplýva:
 
-- Neznáme kľúče ignoruj. `JSONDecoder` to robí štandardne.
-- Nové polia dekóduj ako voliteľné (`decodeIfPresent`) alebo s predvolenou hodnotou. Aplikácia tak zvládne aj server, ktorý ich ešte nemá.
-- Neznámy `type` odznaku nesmie zhodiť dekódovanie celej odpovede, lebo v budúcnosti môžu pribudnúť nové odznaky. Nepoužívaj preto pre `type` striktný Swift `enum`, alebo pridaj prípad pre neznámu hodnotu (viď príklad nižšie).
+- Neznáme kľúče ignoruj. V JavaScripte sa to deje samo, len ich nevaliduj ako chybu (napr. pri `zod` nepoužívaj `.strict()`).
+- Nové polia ber ako voliteľné (`?` v type, `?? []` pri čítaní). Aplikácia tak zvládne aj server, ktorý ich ešte nemá.
+- Neznámy `type` odznaku nesmie rozbiť zobrazenie, lebo v budúcnosti môžu pribudnúť nové odznaky. Pri `switch` vždy maj vetvu `default` (viď príklad nižšie).
 
 ---
 
@@ -143,115 +143,88 @@ Sú dva druhy odznakov:
 
 Poznámky:
 
-- `value` je v JSON číslo, ale môže prísť ako celé (`2`) aj desatinné (`5.29`). V Swifte ho dekóduj ako `Double?`, ten zvládne oba prípady.
+- `value` je v JSON číslo, ale môže prísť ako celé (`2`) aj desatinné (`5.29`). V JavaScripte je to v oboch prípadoch `number`.
 - `label` a `description` sú zatiaľ **len po slovensky**, aj na `hribiky.cz`. Ak aplikácia potrebuje iný jazyk, preklad si môže urobiť sama podľa `type`.
 
 ## Ikony
 
 - Ikony sú **SVG** (64×64, kruhové), `Content-Type: image/svg+xml`.
-- URL obsahuje verziu assetu ako query parameter (`?0.98.3`). Keď sa ikona zmení, zmení sa aj URL, takže ikonu môžeš cachovať podľa celej URL natrvalo.
-- iOS (`UIImage`, `AsyncImage`) nevie zobraziť SVG zo vzdialenej URL priamo, potrebuješ knižnicu (napr. SVGKit alebo SDWebImageSVGCoder). Prípadne treba na serveri doplniť PNG verzie.
+- URL obsahuje verziu assetov ako query parameter (napr. `?0.98.4`). Keď sa ikona zmení, zmení sa aj URL, takže ikonu môžeš cachovať podľa celej URL natrvalo.
+- **React (web):** `<img src={badge.icon_url} />` zobrazí SVG priamo.
+- **React Native:** `<Image>` SVG nezobrazí, treba knižnicu, napr. `react-native-svg` (`<SvgUri uri={badge.icon_url} />`) alebo `expo-image`. Prípadne treba na serveri doplniť PNG verzie.
 
 ---
 
-## Príklad modelov (Swift)
+## Typy (TypeScript)
 
-```swift
-import Foundation
-
-struct LeaderboardEntry: Decodable {
-    let name: String
-    let mushroomCount: Int
-    let commentCount: Int
-    let score: Int
-    let badges: [UserBadge]
-
-    enum CodingKeys: String, CodingKey {
-        case name, score, badges
-        case mushroomCount = "mushroom_count"
-        case commentCount = "comment_count"
-    }
-
-    init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        name = try c.decode(String.self, forKey: .name)
-        mushroomCount = try c.decodeIfPresent(Int.self, forKey: .mushroomCount) ?? 0
-        commentCount = try c.decodeIfPresent(Int.self, forKey: .commentCount) ?? 0
-        score = try c.decode(Int.self, forKey: .score)
-        // Starší server pole badges nemá → prázdny zoznam.
-        badges = try c.decodeIfPresent([UserBadge].self, forKey: .badges) ?? []
-    }
+```ts
+export interface LeaderboardEntry {
+  name: string;
+  mushroom_count: number;
+  comment_count: number;
+  score: number;
+  /** Pridané s odznakmi — starší server ho nemá, preto voliteľné. */
+  badges?: UserBadge[];
 }
 
-struct UserBadge: Decodable {
-    let type: BadgeType
-    let label: String
-    let iconUrl: URL
-    let value: Double?
-    let awardedAt: Date
+/** Známe typy + `string`, aby nový odznak na serveri nerozbil appku. */
+export type BadgeType =
+  | 'Vyskar' | 'Krtko' | 'Cestovatel' | 'Rozpravac'
+  | 'Fotograf' | 'Kronikar' | 'SezonnyZberatel' | 'Vytrvalec'
+  | (string & {});
 
-    enum CodingKeys: String, CodingKey {
-        case type, label, value
-        case iconUrl = "icon_url"
-        case awardedAt = "awarded_at"
-    }
+export interface UserBadge {
+  type: BadgeType;
+  label: string;
+  icon_url: string;
+  value: number | null;
+  /** ISO 8601, napr. "2026-09-03T21:43:54+00:00" — `new Date(awarded_at)` */
+  awarded_at: string;
 }
 
-struct BadgeDefinition: Decodable {
-    let type: BadgeType
-    let label: String
-    let description: String
-    let isTrophy: Bool
-    let iconUrl: URL
+export interface BadgeDefinition {
+  type: BadgeType;
+  label: string;
+  description: string;
+  is_trophy: boolean;
+  icon_url: string;
+}
+```
 
-    enum CodingKeys: String, CodingKey {
-        case type, label, description
-        case isTrophy = "is_trophy"
-        case iconUrl = "icon_url"
-    }
+### Použitie
+
+```ts
+const BASE_URL = 'https://hribiky.sk';
+
+export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
+  const res = await fetch(`${BASE_URL}/api/leaderboard`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const entries: LeaderboardEntry[] = await res.json();
+  return entries.map(e => ({ ...e, badges: e.badges ?? [] }));
 }
 
-/// Neznámy typ (nový odznak na serveri) nezhodí dekódovanie.
-enum BadgeType: Decodable, Hashable {
-    case vyskar, krtko, cestovatel, rozpravac, fotograf, kronikar, sezonnyZberatel, vytrvalec
-    case unknown(String)
-
-    init(from decoder: Decoder) throws {
-        let raw = try decoder.singleValueContainer().decode(String.self)
-        switch raw {
-        case "Vyskar": self = .vyskar
-        case "Krtko": self = .krtko
-        case "Cestovatel": self = .cestovatel
-        case "Rozpravac": self = .rozpravac
-        case "Fotograf": self = .fotograf
-        case "Kronikar": self = .kronikar
-        case "SezonnyZberatel": self = .sezonnyZberatel
-        case "Vytrvalec": self = .vytrvalec
-        default: self = .unknown(raw)
-        }
-    }
+export async function fetchBadgeDefinitions(): Promise<BadgeDefinition[]> {
+  const res = await fetch(`${BASE_URL}/api/leaderboard/badges`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
-
-// Dekódovanie
-let decoder = JSONDecoder()
-decoder.dateDecodingStrategy = .iso8601
-// let entries = try decoder.decode([LeaderboardEntry].self, from: data)
-// let definitions = try decoder.decode([BadgeDefinition].self, from: data)
 ```
 
 ### Formátovanie `value` podľa typu (príklad)
 
-```swift
-func formattedValue(_ badge: UserBadge) -> String? {
-    guard let v = badge.value else { return nil }
-    switch badge.type {
-    case .vyskar, .krtko: return "\(Int(v)) m n. m."
-    case .cestovatel:     return String(format: "%.0f km", v / 1000)
-    case .rozpravac:      return String(format: "%.1f / 10", v)
-    case .fotograf:       return "\(Int(v)) fotiek"
-    case .kronikar:       return "\(Int(v)) komentárov"
-    case .vytrvalec:      return "\(Int(v)) týždňov"
-    case .sezonnyZberatel, .unknown: return nil
-    }
+```ts
+export function formatBadgeValue(badge: UserBadge): string | null {
+  const v = badge.value;
+  if (v === null) return null;
+  switch (badge.type) {
+    case 'Vyskar':
+    case 'Krtko':      return `${Math.round(v)} m n. m.`;
+    case 'Cestovatel': return `${Math.round(v / 1000)} km`;
+    case 'Rozpravac':  return `${v.toFixed(1)} / 10`;
+    case 'Fotograf':   return `${Math.round(v)} fotiek`;
+    case 'Kronikar':   return `${Math.round(v)} komentárov`;
+    case 'Vytrvalec':  return `${Math.round(v)} týždňov`;
+    default:           return null; // SezonnyZberatel a neznáme typy
+  }
 }
 ```

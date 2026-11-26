@@ -94,6 +94,28 @@
                 </li>
             </ul>
 
+            {# Vyhľadávanie v hríbikoch a blogu #}
+            <form class="d-flex ms-lg-3 my-2 my-lg-0 position-relative" role="search" action="{{ path('search') }}" method="get" id="navbarSearch"
+                  data-suggest-url="{{ path('search_suggest') }}"
+                  data-label-mushrooms="{{ 'search.mushrooms'|trans }}"
+                  data-label-blog="{{ 'search.blog'|trans }}"
+                  data-label-all="{{ 'search.show_all'|trans }}"
+                  data-label-none="{{ 'search.suggest_none'|trans }}">
+                <div class="input-group">
+                    <input type="search" name="q" class="form-control" id="navbarSearchInput"
+                           placeholder="{{ 'search.placeholder'|trans }}" aria-label="{{ 'search.placeholder'|trans }}"
+                           value="{{ app.request.attributes.get('_route') == 'search' ? app.request.query.get('q') }}"
+                           autocomplete="off" role="combobox" aria-autocomplete="list"
+                           aria-expanded="false" aria-controls="navbarSearchSuggestions">
+                    <button class="btn btn-outline-secondary" type="submit" aria-label="{{ 'search.submit'|trans }}">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+                {# Návrhy (autocomplete) — plní public/js/search-autocomplete.js #}
+                <div class="dropdown-menu w-100 shadow search-suggestions" id="navbarSearchSuggestions" role="listbox"
+                     aria-label="{{ 'search.placeholder'|trans }}"></div>
+            </form>
+
             {# Prepínač svetlý / tmavý režim #}
             <div class="ms-lg-3">
                 <button id="themeToggle" class="btn btn-outline-secondary d-flex align-items-center" type="button">
@@ -185,5 +207,6 @@
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     {% block mapscripts %}{% endblock %}
     <script src="{{ asset('js/hribiky.js') }}"></script>
+    <script src="{{ asset('js/search-autocomplete.js') }}" defer></script>
 </body>
 </html>

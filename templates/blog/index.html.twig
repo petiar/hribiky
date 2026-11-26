@@ -1,9 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Blog o turistike a zaujímavých miestach – {{ 'site_name'|trans }}{% endblock %}
+{% set pageSuffix = page > 1 ? ' – strana ' ~ page : '' %}
+{% set pageUrl = app.request.schemeAndHttpHost ~ path('blog_index', page > 1 ? {page: page} : {}) %}
+
+{% block title %}Blog o turistike a zaujímavých miestach{{ pageSuffix }} – {{ 'site_name'|trans }}{% endblock %}
+{# Každá stránka má vlastný canonical (vrátane ?page=N), inak by Google ďalšie stránky ignoroval. #}
+{% block canonical %}<link rel="canonical" href="{{ pageUrl }}"/>{% endblock %}
+{% block og_url %}{{ pageUrl }}{% endblock %}
 
 {% block meta_description %}<meta name="description" content="Objavujte zaujímavé miesta, turistické a cykloturistické trasy na Slovensku a v Česku. Tipy, sprievodcovia a inšpirácia pre výlety do prírody.">{% endblock %}
-{% block og_title %}Blog o turistike a zaujímavých miestach – {{ 'site_name'|trans }}{% endblock %}
+{% block og_title %}Blog o turistike a zaujímavých miestach{{ pageSuffix }} – {{ 'site_name'|trans }}{% endblock %}
 {% block og_description %}Objavujte zaujímavé miesta, turistické a cykloturistické trasy na Slovensku a v Česku. Tipy, sprievodcovia a inšpirácia pre výlety do prírody.{% endblock %}
 
 {% block body %}
@@ -49,6 +55,8 @@
             </div>
             {% endfor %}
         </div>
+
+        {{ include('blog/_pagination.html.twig', {page: page, totalPages: totalPages, route: 'blog_index'}) }}
     {% endif %}
 </div>
 {% endblock %}

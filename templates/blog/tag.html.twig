@@ -1,9 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Články s tagom „{{ tag.name }}“ – {{ 'site_name'|trans }}{% endblock %}
+{% set pageSuffix = page > 1 ? ' – strana ' ~ page : '' %}
+{% set pageUrl = app.request.schemeAndHttpHost ~ path('blog_tag', page > 1 ? {slug: tag.slug, page: page} : {slug: tag.slug}) %}
+
+{% block title %}Články s tagom „{{ tag.name }}“{{ pageSuffix }} – {{ 'site_name'|trans }}{% endblock %}
+{# Každá stránka má vlastný canonical (vrátane ?page=N), inak by Google ďalšie stránky ignoroval. #}
+{% block canonical %}<link rel="canonical" href="{{ pageUrl }}"/>{% endblock %}
+{% block og_url %}{{ pageUrl }}{% endblock %}
 
 {% block meta_description %}<meta name="description" content="Všetky blogové články s tagom {{ tag.name }}.">{% endblock %}
-{% block og_title %}Články s tagom „{{ tag.name }}“ – {{ 'site_name'|trans }}{% endblock %}
+{% block og_title %}Články s tagom „{{ tag.name }}“{{ pageSuffix }} – {{ 'site_name'|trans }}{% endblock %}
 {% block og_description %}Všetky blogové články s tagom {{ tag.name }}.{% endblock %}
 
 {% block ogtags %}
@@ -86,6 +92,8 @@
             </div>
             {% endfor %}
         </div>
+
+        {{ include('blog/_pagination.html.twig', {page: page, totalPages: totalPages, route: 'blog_tag', params: {slug: tag.slug}}) }}
     {% endif %}
 
     <div class="mt-5 pt-3 border-top">

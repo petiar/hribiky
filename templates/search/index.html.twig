@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ query is not empty ? 'search.title_for'|trans({'%query%': query}) : 'search.title'|trans }} – {{ 'site_name'|trans }}{% endblock %}
+{# Stránky s výsledkami vyhľadávania nemajú byť v indexe vyhľadávačov. #}
+{% block robots %}<meta name="robots" content="noindex,follow">{% endblock %}
+
+{% macro snippet(text) %}
+    {%- set plain = text|default('')|striptags|replace({'&nbsp;': ' '})|trim -%}
+    {{- plain|length > 180 ? plain|slice(0, 180)|trim ~ '…' : plain -}}
+{% endmacro %}
+
+{% block body %}
+<div class="container my-5">
+    <h1 class="mb-4">{{ 'search.title'|trans }}</h1>
+
+    <form action="{{ path('search') }}" method="get" role="search" class="mb-5" id="searchPageForm" style="max-width: 640px;">
+        <div class="input-group">
+            <input type="search" name="q" value="{{ query }}" class="form-control form-control-lg"
+                   placeholder="{{ 'search.placeholder'|trans }}" aria-label="{{ 'search.placeholder'|trans }}" autofocus>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i>&nbsp;{{ 'search.submit'|trans }}</button>
+        </div>
+    </form>
+
+    {% if query is empty %}
+        {# Prázdny dotaz — len formulár. #}
+    {% elseif not queryValid %}
+        <p class="text-muted">{{ 'search.too_short'|trans({'%min%': minLength}) }}</p>
+    {% elseif mushrooms is empty and posts is empty %}
+        <p class="text-muted">{{ 'search.no_results'|trans({'%query%': query}) }}</p>
+    {% else %}
+        {% if mushrooms is not empty %}
+            <section class="mb-5" id="vysledky-hribiky">
+                <h2 class="h4 mb-3">{{ 'search.mushrooms'|trans }} <span class="text-muted">({{ mushrooms|length }}{{ mushroomsTruncated ? '+' }})</span></h2>
+                <div class="list-group">
+                    {% for mushroom in mushrooms %}
+                        <a href="{{ path('mushroom_detail', {id: mushroom.id}) }}" class="list-group-item list-group-item-action search-result">
+                            <div class="fw-semibold">{{ mushroom.title }}</div>
+                            {% if mushroom.description %}
+                                <div class="text-muted small">{{ _self.snippet(mushroom.description) }}</div>
+                            {% endif %}
+                            {% if mushroom.altitude %}
+                                <div class="text-muted small"><i class="bi bi-triangle"></i> {{ mushroom.altitude }} m n. m.</div>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if mushroomsTruncated %}
+                    <p class="text-muted small mt-2">{{ 'search.truncated'|trans({'%limit%': limit}) }}</p>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        {% if posts is not empty %}
+            <section id="vysledky-blog">
+                <h2 class="h4 mb-3">{{ 'search.blog'|trans }} <span class="text-muted">({{ posts|length }}{{ postsTruncated ? '+' }})</span></h2>
+                <div class="list-group">
+                    {% for post in posts %}
+                        <a href="{{ path('blog_show', {slug: post.slug}) }}" class="list-group-item list-group-item-action search-result">
+                            <div class="fw-semibold">{{ post.title }}</div>
+                            <div class="text-muted small">{{ _self.snippet(post.shortDescription) }}</div>
+                            {% if post.publishedAt %}
+                                <div class="text-muted small"><i class="bi bi-calendar3"></i> {{ post.publishedAt|date('d.m.Y') }}</div>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if postsTruncated %}
+                    <p class="text-muted small mt-2">{{ 'search.truncated'|trans({'%limit%': limit}) }}</p>
+                {% endif %}
+            </section>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

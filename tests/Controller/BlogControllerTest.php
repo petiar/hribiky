@@ -1,0 +1,227 @@
+<?php
+
+namespace App\Tests\Controller;
+
+use App\Controller\BlogController;
+use App\Entity\BlogPost;
+use App\Entity\Tag;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
+
+class BlogControllerTest extends WebTestCase
+{
+    private const PER_PAGE = BlogController::POSTS_PER_PAGE;
+
+    private KernelBrowser $client;
+    private EntityManagerInterface $em;
+
+    protected function setUp(): void
+    {
+        $this->client = static::createClient();
+        $this->em = static::getContainer()->get('doctrine')->getManager();
+        $this->em->createQuery('DELETE FROM App\Entity\Photo p')->execute();
+        $this->em->getConnection()->executeStatement('DELETE FROM blog_post_tag');
+        $this->em->createQuery('DELETE FROM App\Entity\BlogPost b')->execute();
+        $this->em->createQuery('DELETE FROM App\Entity\Tag t')->execute();
+    }
+
+    public function testFirstPageShowsNewestPostsAndLinkToNextPage(): void
+    {
+        $this->createPosts(self::PER_PAGE + 3);
+
+        $crawler = $this->client->request('GET', '/blog');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(self::PER_PAGE, $this->countCards($crawler));
+        // Najnovší článok je prvý.
+        $this->assertSame('Článok 15', $crawler->filter('.card-title a')->first()->text());
+        $this->assertSame('/blog?page=2', $crawler->filter('a[rel="next"]')->attr('href'));
+        $this->assertCount(0, $crawler->filter('a[rel="prev"]'));
+    }
+
+    public function testSecondPageShowsRemainingPosts(): void
+    {
+        $this->createPosts(self::PER_PAGE + 3);
+
+        $crawler = $this->client->request('GET', '/blog?page=2');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(3, $this->countCards($crawler));
+        $this->assertSame('Článok 3', $crawler->filter('.card-title a')->first()->text());
+        // Odkaz späť na prvú stránku je bez ?page=1.
+        $this->assertSame('/blog', $crawler->filter('a[rel="prev"]')->attr('href'));
+        $this->assertCount(0, $crawler->filter('a[rel="next"]'));
+    }
+
+    public function testEachPageHasOwnCanonicalAndTitle(): void
+    {
+        $this->createPosts(self::PER_PAGE + 1);
+
+        $first = $this->client->request('GET', '/blog');
+        $this->assertStringEndsWith('/blog', $first->filter('link[rel="canonical"]')->attr('href'));
+        $this->assertStringNotContainsString('strana', $first->filter('title')->text());
+
+        $second = $this->client->request('GET', '/blog?page=2');
+        $this->assertStringEndsWith('/blog?page=2', $second->filter('link[rel="canonical"]')->attr('href'));
+        $this->assertStringContainsString('strana 2', $second->filter('title')->text());
+    }
+
+    public function testPageOneRedirectsToBlogIndex(): void
+    {
+        $this->createPosts(1);
+
+        $this->client->request('GET', '/blog?page=1');
+
+        $this->assertResponseRedirects('/blog', 301);
+    }
+
+    #[DataProvider('invalidPageProvider')]
+    public function testInvalidPageReturns404(string $page): void
+    {
+        $this->createPosts(self::PER_PAGE + 1); // 2 stránky
+
+        $this->client->request('GET', '/blog?page=' . $page);
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public static function invalidPageProvider(): array
+    {
+        return [
+            'za koncom' => ['3'],
+            'nula' => ['0'],
+            'záporná' => ['-1'],
+        ];
+    }
+
+    public function testNoPaginationWhenPostsFitOnOnePage(): void
+    {
+        $this->createPosts(self::PER_PAGE);
+
+        $crawler = $this->client->request('GET', '/blog');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(self::PER_PAGE, $this->countCards($crawler));
+        $this->assertCount(0, $crawler->filter('.pagination'));
+    }
+
+    public function testEmptyBlogStillWorks(): void
+    {
+        $crawler = $this->client->request('GET', '/blog');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString('Zatiaľ žiadne príspevky', $crawler->text());
+    }
+
+    public function testUnpublishedPostsAreNotCounted(): void
+    {
+        $this->createPosts(self::PER_PAGE);
+        $this->createPost('Neschválený', new \DateTime('+1 day'), published: false);
+
+        $crawler = $this->client->request('GET', '/blog');
+
+        // 12 publikovaných sa zmestí na jednu stránku — neschválený nesmie pridať druhú.
+        $this->assertCount(0, $crawler->filter('.pagination'));
+        $this->assertStringNotContainsString('Neschválený', $crawler->text());
+    }
+
+    // --- Stránky tagov ---
+
+    public function testTagPagePaginatesOnlyPostsWithThatTag(): void
+    {
+        $tatry = $this->createTag('Tatry', 'tatry');
+        $this->createPosts(self::PER_PAGE + 2, $tatry);
+        $this->createPosts(5); // bez tagu — nesmú sa započítať
+
+        $first = $this->client->request('GET', '/blog/tag/tatry');
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(self::PER_PAGE, $this->countCards($first));
+        // Počet v perexe je celkový, nie len na tejto stránke.
+        $this->assertStringContainsString('14 článkov s týmto tagom', $first->text());
+        $this->assertSame('/blog/tag/tatry?page=2', $first->filter('a[rel="next"]')->attr('href'));
+
+        $second = $this->client->request('GET', '/blog/tag/tatry?page=2');
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(2, $this->countCards($second));
+        $this->assertSame('/blog/tag/tatry', $second->filter('a[rel="prev"]')->attr('href'));
+    }
+
+    public function testTagPageHasOwnCanonicalAndTitle(): void
+    {
+        $tatry = $this->createTag('Tatry', 'tatry');
+        $this->createPosts(self::PER_PAGE + 1, $tatry);
+
+        $second = $this->client->request('GET', '/blog/tag/tatry?page=2');
+
+        $this->assertStringEndsWith('/blog/tag/tatry?page=2', $second->filter('link[rel="canonical"]')->attr('href'));
+        $this->assertStringContainsString('„Tatry“ – strana 2', $second->filter('title')->text());
+    }
+
+    public function testTagPageOneRedirectsAndOutOfRangeReturns404(): void
+    {
+        $tatry = $this->createTag('Tatry', 'tatry');
+        $this->createPosts(3, $tatry);
+
+        $this->client->request('GET', '/blog/tag/tatry?page=1');
+        $this->assertResponseRedirects('/blog/tag/tatry', 301);
+
+        $this->client->request('GET', '/blog/tag/tatry?page=2');
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testTagWithoutPostsStillWorks(): void
+    {
+        $this->createTag('Prázdny', 'prazdny');
+
+        $crawler = $this->client->request('GET', '/blog/tag/prazdny');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(0, $crawler->filter('.pagination'));
+    }
+
+    // --- Pomocné metódy ---
+
+    /** Vytvorí $count publikovaných článkov; „Článok N“ je tým novší, čím vyššie N. */
+    private function createPosts(int $count, ?Tag $tag = null): void
+    {
+        for ($i = 1; $i <= $count; $i++) {
+            $this->createPost('Článok ' . $i, new \DateTime(sprintf('2026-01-01 +%d days', $i)), tag: $tag);
+        }
+        $this->em->flush();
+    }
+
+    private function createTag(string $name, string $slug): Tag
+    {
+        $tag = (new Tag())->setName($name)->setSlug($slug);
+        $this->em->persist($tag);
+        $this->em->flush();
+
+        return $tag;
+    }
+
+    private function createPost(string $title, \DateTime $publishedAt, bool $published = true, ?Tag $tag = null): void
+    {
+        $post = (new BlogPost())
+            ->setTitle($title)
+            ->setSlug('clanok-' . uniqid())
+            ->setShortDescription('Krátky popis')
+            ->setText('<p>Text článku</p>')
+            ->setPublished($published)
+            ->setPublishedAt($publishedAt);
+
+        if ($tag !== null) {
+            $post->setTags([$tag]);
+        }
+
+        $this->em->persist($post);
+        $this->em->flush();
+    }
+
+    private function countCards(Crawler $crawler): int
+    {
+        return $crawler->filter('.card-title')->count();
+    }
+}

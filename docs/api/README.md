@@ -1,6 +1,6 @@
 # Hríbiky API
 
-REST API pre mobilnú aplikáciu Hríbiky (iOS). Popisuje **skutočné správanie servera** vrátane jeho nekonzistencií, aby sa appka dala napísať správne.
+REST API pre mobilnú aplikáciu Hríbiky (React). Popisuje **skutočné správanie servera** vrátane jeho nekonzistencií, aby sa appka dala napísať správne.
 
 - **Base URL:** `https://hribiky.sk` (to isté API beží aj na `https://hribiky.cz`)
 - **Formát:** JSON (UTF-8), pokiaľ nie je uvedené inak
@@ -17,6 +17,7 @@ REST API pre mobilnú aplikáciu Hríbiky (iOS). Popisuje **skutočné správani
 | `GET` | `/api/mushrooms_comments` | áno | Zoznam komentárov | [comments.md](comments.md#get-apimushrooms_comments) |
 | `GET` | `/api/mushrooms_comments/{id}` | áno | Detail komentára | [comments.md](comments.md#get-apimushrooms_commentsid) |
 | `POST` | `/api/mushrooms_comments` | áno | Pridanie komentára | [comments.md](comments.md#post-apimushrooms_comments) |
+| `GET` | `/api/search` | nie | Vyhľadávanie v hríbikoch a blogu | [search.md](search.md) |
 | `GET` | `/api/leaderboard` | nie | Rebríček prispievateľov s odznakmi | [leaderboard.md](leaderboard.md#get-apileaderboard) |
 | `GET` | `/api/leaderboard/badges` | nie | Zoznam všetkých odznakov | [leaderboard.md](leaderboard.md#get-apileaderboardbadges) |
 | `GET` | `/api/privacy/{lang}` | nie | Text zásad ochrany súkromia (HTML) | [nižšie](#get-apiprivacylang) |
@@ -57,9 +58,9 @@ Formát chýb **nie je jednotný**. Appka sa má rozhodovať podľa HTTP status 
 
 - **Moderovanie:** nové hríbiky a komentáre z API sú **neschválené** (`published = false`). Vo výpisoch sa objavia až po schválení administrátorom. `POST` preto vráti `id`, ale `GET /…/{id}` na tento záznam vráti `[]`, kým nie je schválený.
 - **Dátumy:**
-  - `createdAt` (camelCase) v hríbikoch a komentároch je ISO 8601 s časovou zónou, napr. `2026-05-02T14:49:00+00:00`. V Swifte stačí `JSONDecoder.dateDecodingStrategy = .iso8601`.
+  - `createdAt` (camelCase) v hríbikoch a komentároch je ISO 8601 s časovou zónou, napr. `2026-05-02T14:49:00+00:00`. V JavaScripte stačí `new Date(createdAt)`.
   - **Výnimka:** `/api/mushrooms/nearby` vracia `created_at` (snake_case) vo formáte `2026-05-02 14:49:00` bez časovej zóny, v čase servera.
-- **Názvy polí** sú zmiešané: `createdAt` v camelCase, ostatné v snake_case (`mushroom_count`, `icon_url`, …). Mapuj ich explicitne cez `CodingKeys`.
+- **Názvy polí** sú zmiešané: `createdAt` v camelCase, ostatné v snake_case (`mushroom_count`, `icon_url`, …). V typoch ich používaj presne tak, ako prídu.
 - **Fotky** sa vracajú ako pole absolútnych URL (`https://hribiky.sk/uploads/photos/<súbor>.jpg`).
 - **Súradnice** sú WGS84 v stupňoch (`latitude` −90 až 90, `longitude` −180 až 180), desatinná bodka. **Nadmorská výška** (`altitude`) je celé číslo v metroch alebo `null`.
 
@@ -67,9 +68,9 @@ Formát chýb **nie je jednotný**. Appka sa má rozhodovať podľa HTTP status 
 
 Odpovede sa **len rozširujú**: existujúce polia sa nemenia, neodoberajú a nemenia typ. Staršie verzie appky preto fungujú ďalej. Pre appku z toho vyplýva:
 
-- Neznáme kľúče ignoruj. `JSONDecoder` to robí štandardne.
-- Polia, ktoré pribudli neskôr, dekóduj ako voliteľné (`decodeIfPresent`) alebo s predvolenou hodnotou.
-- Pri výpočtových hodnotách (napr. typ odznaku) počítaj s tým, že môžu pribudnúť nové, a neznámu hodnotu nenechaj zhodiť dekódovanie.
+- Neznáme kľúče ignoruj. V JavaScripte sa to deje samo, len ich nevaliduj ako chybu (napr. pri `zod` nepoužívaj `.strict()`).
+- Polia, ktoré pribudli neskôr, ber ako voliteľné (`?` v type, `?? predvolená` pri čítaní).
+- Pri vymenovaných hodnotách (napr. typ odznaku) počítaj s tým, že môžu pribudnúť nové. Pri `switch` maj vždy vetvu `default`.
 
 ## `GET /api/privacy/{lang}`
 
