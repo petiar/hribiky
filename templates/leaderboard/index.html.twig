@@ -48,6 +48,19 @@
                                                 · {{ 'leaderboard.comment_count'|trans({'%count%': user.commentCount}) }}
                                             {% endif %}
                                         </div>
+                                        {% set badges = badgesByUserId[user.id] ?? [] %}
+                                        {% if badges is not empty %}
+                                            <div class="mt-1">
+                                                {% for badge in badges %}
+                                                    <img src="{{ asset('images/badges/' ~ badge.type.iconSlug() ~ '.svg') }}"
+                                                         alt="{{ badge.type.label }}"
+                                                         title="{{ badge.type.label }}"
+                                                         data-bs-toggle="tooltip"
+                                                         data-bs-placement="top"
+                                                         width="24" height="24" class="me-1 rounded-circle">
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
 
@@ -62,8 +75,34 @@
                     <p>{{ 'leaderboard.note2'|trans }}</p>
                 </div>
 
+                {% if badgeTypes is defined and badgeTypes is not empty %}
+                    <div class="mt-4">
+                        <h2 class="h6 text-uppercase text-muted mb-3">{{ 'leaderboard.badges_heading'|trans }}</h2>
+                        <div class="row row-cols-1 row-cols-sm-2 g-3">
+                            {% for type in badgeTypes %}
+                                <div class="col d-flex align-items-center gap-2">
+                                    <img src="{{ asset('images/badges/' ~ type.iconSlug() ~ '.svg') }}"
+                                         alt="{{ type.label }}" width="32" height="32" class="rounded-circle flex-shrink-0">
+                                    <div>
+                                        <div class="fw-semibold small">{{ type.label }}</div>
+                                        <div class="text-muted small">{{ type.description }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+                new bootstrap.Tooltip(el);
+            });
+        });
+    </script>
 {% endblock %}
 

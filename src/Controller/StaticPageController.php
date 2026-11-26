@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Enum\BadgeType;
+use App\Repository\UserBadgeRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +13,8 @@ class StaticPageController extends AbstractController
 {
     public function __construct(
         private readonly UserRepository $repository,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
+        private readonly UserBadgeRepository $userBadgeRepository,
     )
     {}
 
@@ -55,6 +58,8 @@ class StaticPageController extends AbstractController
 
         return $this->render('leaderboard/index.html.twig', [
             'contributors' => $top,
+            'badgesByUserId' => $this->userBadgeRepository->findGroupedByUserId($top),
+            'badgeTypes' => BadgeType::cases(),
         ]);
     }
 }

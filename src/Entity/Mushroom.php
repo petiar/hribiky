@@ -72,6 +72,15 @@ class Mushroom
     #[ORM\OneToMany(mappedBy: 'mushroom', targetEntity: MushroomArticleLink::class, cascade: ['persist', 'remove'])]
     private Collection $articleLinks;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $descriptionScore = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $descriptionScoredAt = null;
+
+    #[ORM\Column(type: 'smallint', options: ['default' => 0])]
+    private int $descriptionScoreAttempts = 0;
+
     public function getEditLink(): ?MushroomEditLink
     {
         return $this->editLink;
@@ -331,6 +340,42 @@ class Mushroom
     public function __toString(): string
     {
         return $this->title;
+    }
+
+    public function getDescriptionScore(): ?int
+    {
+        return $this->descriptionScore;
+    }
+
+    public function setDescriptionScore(?int $descriptionScore): Mushroom
+    {
+        $this->descriptionScore = $descriptionScore;
+
+        return $this;
+    }
+
+    public function getDescriptionScoredAt(): ?\DateTimeImmutable
+    {
+        return $this->descriptionScoredAt;
+    }
+
+    public function setDescriptionScoredAt(?\DateTimeImmutable $descriptionScoredAt): Mushroom
+    {
+        $this->descriptionScoredAt = $descriptionScoredAt;
+
+        return $this;
+    }
+
+    public function getDescriptionScoreAttempts(): int
+    {
+        return $this->descriptionScoreAttempts;
+    }
+
+    public function incrementDescriptionScoreAttempts(): Mushroom
+    {
+        $this->descriptionScoreAttempts++;
+
+        return $this;
     }
 
     public function getLastModified(): \DateTimeInterface
