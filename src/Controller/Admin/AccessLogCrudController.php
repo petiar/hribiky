@@ -74,7 +74,10 @@ class AccessLogCrudController extends AbstractCrudController
             ->linkToCrudAction('blockIp');
 
         return $actions
-            ->add(Crud::PAGE_INDEX, $blockIp);
+            ->add(Crud::PAGE_INDEX, $blockIp)
+            // Záznamy vznikajú automaticky; ručné pridanie nedáva zmysel a padalo
+            // (AccessLog vyžaduje IP adresu v konštruktore).
+            ->disable(Action::NEW);
     }
 
     public function blockIp(AdminUrlGenerator $urlGenerator, EntityManagerInterface $em, Request $request): Response
