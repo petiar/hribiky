@@ -1,0 +1,43 @@
+name: Tests
+
+on:
+  # Každý pull request do main — výsledok je povinná kontrola pred merge (branch protection).
+  pull_request:
+    branches:
+      - main
+  # Volá ho deploy.yml pred nasadením.
+  workflow_call:
+  # Ručné spustenie z GitHubu (záložka Actions).
+  workflow_dispatch:
+
+jobs:
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo, pdo_sqlite, sqlite3
+
+      - name: Cache Composer balíkov
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Inštalácia závislostí
+        run: composer install --no-interaction --no-scripts --no-progress
+
+      - name: Vytvor .env
+        run: echo "APP_ENV=test" > .env
+
+      - name: Inštalácia importmap assetov
+        run: php bin/console importmap:install
+
+      - name: Spustenie testov
+        run: composer test

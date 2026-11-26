@@ -96,4 +96,64 @@ class NearbyApiTest extends WebTestCase
         $this->assertCount(1, $data['hribiky']);
         $this->assertSame('Hríbik pri Primaciálnom námestí', $data['hribiky'][0]['title']);
     }
+
+    // --- Ochrana osobných údajov ---
+
+    /** Jediné polia, ktoré smú byť v odpovedi nearby (zdokumentované v docs/api/mushrooms.md). */
+    private const PUBLIC_FIELDS = [
+        'id', 'title', 'name', 'description', 'latitude', 'longitude', 'altitude', 'created_at', 'distance',
+    ];
+
+    public function testMobileNearbyReturnsOnlyPublicFields(): void
+    {
+        $this->createMushroomWithPrivateData();
+
+        $this->client->request('GET', sprintf(
+            '/api/mushrooms/nearby?latitude=%s&longitude=%s&radius=100',
+            self::LAT,
+            self::LNG,
+        ), [], [], ['HTTP_API-KEY' => self::VALID_KEY]);
+
+        $this->assertOnlyPublicFields($this->client->getResponse()->getContent());
+    }
+
+    public function testWebNearbyWithoutApiKeyReturnsOnlyPublicFields(): void
+    {
+        $this->createMushroomWithPrivateData();
+
+        // Webový endpoint je verejný — bez API kľúča.
+        $this->client->request('GET', sprintf('/api/nearby?lat=%s&lng=%s&radius=100', self::LAT, self::LNG));
+
+        $this->assertResponseIsSuccessful();
+        $this->assertOnlyPublicFields($this->client->getResponse()->getContent());
+    }
+
+    private function createMushroomWithPrivateData(): void
+    {
+        $mushroom = (new Mushroom())
+            ->setTitle('Hríbik s e-mailom')
+            ->setName('Tajný autor')
+            ->setEmail('tajny.autor@example.com')
+            ->setLatitude(self::LAT)
+            ->setLongitude(self::LNG)
+            ->setPublished(true)
+            ->setApprovalToken('tajny-approval-token-hash');
+
+        $this->em->persist($mushroom);
+        $this->em->flush();
+    }
+
+    private function assertOnlyPublicFields(string $rawResponse): void
+    {
+        $data = json_decode($rawResponse, true);
+        $this->assertNotEmpty($data['hribiky']);
+
+        foreach ($data['hribiky'] as $item) {
+            $this->assertEqualsCanonicalizing(self::PUBLIC_FIELDS, array_keys($item));
+        }
+
+        // Pre istotu aj nad surovým JSON — citlivé hodnoty sa nesmú objaviť nikde.
+        $this->assertStringNotContainsString('tajny.autor@example.com', $rawResponse);
+        $this->assertStringNotContainsString('tajny-approval-token-hash', $rawResponse);
+    }
 }

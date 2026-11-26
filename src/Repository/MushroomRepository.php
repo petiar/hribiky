@@ -14,13 +14,21 @@ class MushroomRepository extends ServiceEntityRepository
         parent::__construct($registry, Mushroom::class);
     }
 
+    /**
+     * Výsledok ide priamo do verejných API odpovedí (/api/nearby bez API kľúča, /api/mushrooms/nearby).
+     * Preto vyberáme LEN verejné stĺpce — nikdy nie h.* (unikal by email, approval_token a pod.).
+     * Nový stĺpec pridávaj sem len vtedy, ak smie byť verejný.
+     *
+     * @return array<int, array{id: int, title: string, name: string, description: ?string,
+     *     latitude: float, longitude: float, altitude: ?int, created_at: string, distance: float}>
+     */
     public function findNearby(float $lat, float $lng, float $radius = 100): array
     {
         $conn = $this->getEntityManager()->getConnection();
 
         $sql = "
         SELECT * FROM (
-            SELECT h.*,
+            SELECT h.id, h.title, h.name, h.description, h.latitude, h.longitude, h.altitude, h.created_at,
                 (6371000 * acos(
                     cos(radians(:lat)) * cos(radians(h.latitude)) *
                     cos(radians(h.longitude) - radians(:lng)) +

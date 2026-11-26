@@ -18,6 +18,7 @@
         "phpstan/phpdoc-parser": "^2.3",
         "symfony/asset": "7.3.*",
         "symfony/asset-mapper": "7.3.*",
+        "symfony/clock": "7.3.*",
         "symfony/console": "7.3.*",
         "symfony/doctrine-messenger": "7.3.*",
         "symfony/dotenv": "7.3.*",
@@ -91,7 +92,14 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "test": [
+            "@php bin/console cache:clear --env=test",
+            "@php bin/phpunit"
         ]
+    },
+    "scripts-descriptions": {
+        "test": "Vyčistí testovaciu cache (APP_DEBUG=0 ju sám neobnoví) a spustí PHPUnit"
     },
     "conflict": {
         "symfony/symfony": "*"
