@@ -8,6 +8,7 @@ use App\Form\MushroomType;
 use App\Repository\MushroomRepository;
 use App\Service\FotoUploader;
 use App\Service\MushroomApiFormatter;
+use App\Service\TitleNormalizer;
 use App\Service\UploadLimits;
 use App\Service\MailService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -104,7 +105,8 @@ class MushroomApiController extends AbstractController
             return $this->json(['status' => 'error'] + $error + ['id' => null], $error['code'] === 'photo_too_large' ? 413 : 400);
         }
         $mushroom = new Mushroom();
-        $mushroom->setTitle($request->request->get('title'));
+        // NÁZOV CELÝ VEĽKÝMI PÍSMENAMI → Názov S Veľkými Prvými Písmenami
+        $mushroom->setTitle(TitleNormalizer::fixAllCaps((string) $request->request->get('title')));
         $mushroom->setDescription($request->request->get('description'));
         $mushroom->setLatitude($request->request->get('latitude'));
         $mushroom->setLongitude($request->request->get('longitude'));

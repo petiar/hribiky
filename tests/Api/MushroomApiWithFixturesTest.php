@@ -103,4 +103,19 @@ class MushroomApiWithFixturesTest extends WebTestCase
         $this->assertFalse($mushroom->isPublished());
         $this->assertSame('api', $mushroom->getSource());
     }
+
+    public function testCreateMushroomWithAllCapsTitleIsNormalized(): void
+    {
+        $this->client->request('POST', '/api/mushrooms', [
+            'title' => 'CHATA POD CHOPKOM',
+            'name' => 'Tester',
+            'latitude' => '48.1486',
+            'longitude' => '17.1077',
+        ], [], ['HTTP_API-KEY' => self::VALID_KEY]);
+
+        $this->assertResponseStatusCodeSame(201);
+        $id = json_decode($this->client->getResponse()->getContent(), true)['id'];
+        $this->em->clear();
+        $this->assertSame('Chata Pod Chopkom', $this->em->find(Mushroom::class, $id)->getTitle());
+    }
 }

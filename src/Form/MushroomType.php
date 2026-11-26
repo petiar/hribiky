@@ -4,6 +4,8 @@ namespace App\Form;
 
 use App\Entity\Mushroom;
 use App\Service\FotoUploader;
+use App\Service\TitleNormalizer;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -63,6 +65,12 @@ class MushroomType extends AbstractType
                 'label' => 'Fotky',
                 'multiple' => true,
             ]);
+
+        // NÁZOV CELÝ VEĽKÝMI PÍSMENAMI → Názov S Veľkými Prvými Písmenami
+        $builder->get('title')->addModelTransformer(new CallbackTransformer(
+            fn(?string $title) => $title,
+            fn(?string $title) => $title === null ? null : TitleNormalizer::fixAllCaps($title),
+        ));
 
     }
 
