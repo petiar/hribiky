@@ -26,3 +26,6 @@
 .env
 .env.dev
 .env.test
+
+# Symfony 7.4: automaticky generovaný popis konfigurácie pre IDE (projekt používa YAML)
+/config/reference.php
