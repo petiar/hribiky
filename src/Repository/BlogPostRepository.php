@@ -101,6 +101,29 @@ class BlogPostRepository extends ServiceEntityRepository
     }
 
     /**
+     * Fotky a tagy pre zoznam článkov (blog, tag stránka) jedným dotazom — inak sa načítavali
+     * dvoma dotazmi pre každý článok. Doctrine ich doplní do už načítaných entít.
+     *
+     * @param BlogPost[] $posts
+     */
+    public function preloadPhotosAndTags(array $posts): void
+    {
+        if ($posts === []) {
+            return;
+        }
+
+        $this->createQueryBuilder('b')
+            ->addSelect('p', 't')
+            ->leftJoin('b.photos', 'p')
+            ->leftJoin('b.tags', 't')
+            ->andWhere('b IN (:posts)')
+            ->setParameter('posts', $posts)
+            ->addOrderBy('p.id', 'ASC') // post.photos.first = prvá nahraná fotka, ako doteraz
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * @return BlogPost[]
      */
     public function findAllPublished(): array

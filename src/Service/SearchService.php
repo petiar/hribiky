@@ -46,8 +46,10 @@ class SearchService
     public function searchMushrooms(string $query, int $limit): array
     {
         $qb = $this->entityManager->createQueryBuilder()
-            ->select('m')
+            ->select('m', 'el')
             ->from(Mushroom::class, 'm')
+            // editLink je inverzná strana OneToOne — inak samostatný dotaz pre každý nájdený hríbik.
+            ->leftJoin('m.editLink', 'el')
             ->andWhere('m.published = true');
 
         return $this->applySearch($qb, 'm', ['m.title', 'm.description'], 'm.title', 'm.createdAt', $query, $limit);

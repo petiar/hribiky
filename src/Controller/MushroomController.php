@@ -29,9 +29,10 @@ class MushroomController extends AbstractController
     ) {}
 
     #[Route('/', name: 'app_home')]
-    public function index(EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
+    public function index(MushroomRepository $mushroomRepository, SerializerInterface $serializer): Response
     {
-        $mushrooms = $entityManager->getRepository(Mushroom::class)->findBy(['published' => 1]);
+        // Fotky (a edit link) v jednom dotaze — predtým samostatný dotaz na fotky pre každý hríbik (stovky dotazov).
+        $mushrooms = $mushroomRepository->findPublishedForApi();
         $data = [];
         foreach ($mushrooms as $mushroom) {
             $data[] = [
