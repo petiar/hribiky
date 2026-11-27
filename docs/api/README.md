@@ -49,11 +49,16 @@ Formát chýb **nie je jednotný**. Appka sa má rozhodovať podľa HTTP status 
 | IP adresa je zablokovaná | `403` | text `Access forbidden.` (nie JSON), platí pre všetky endpointy |
 | Záznam s daným `{id}` neexistuje | `404` | **HTML stránka**, nie JSON |
 | Záznam existuje, ale nie je schválený | `200` | `[]` (prázdne JSON pole) |
-| `nearby` bez súradníc | `400` | `{"error": "Missing coordinates"}` |
+| `nearby` bez súradníc | `400` | `{"status": "error", "error": "Missing coordinates"}` |
+| `nearby` s neplatnými súradnicami alebo polomerom (text, mimo rozsahu, polomer ≤ 0) | `400` | `{"status": "error", "error": "Invalid coordinates"}` / `"Invalid radius"` |
 | `POST /api/mushrooms`, chýba povinné pole | `422` | `{"status": "error", "message": "Missing required field: title", "id": null}` |
 | `POST /api/mushrooms_comments`, chýba povinné pole | **`200`** | `{"status": "error", "message": "Missing required field: mushroom_id", "id": null}` |
 | Fotka je väčšia ako limit servera na jeden súbor | `413` | `{"status": "error", "code": "photo_too_large", "message": "Photo \"IMG_1.jpg\" is too large (max 8 MB).", "id": null}` |
 | Súbor nie je fotka (overuje sa podľa obsahu, nie podľa názvu) — povolené JPEG, PNG, WebP, GIF | `415` | `{"status": "error", "code": "photo_unsupported_type", "message": "File \"IMG_1.jpg\" is not a supported photo (JPEG, PNG, WebP, GIF).", "id": null}` |
+| Neplatná súradnica alebo výška pri `POST /api/mushrooms` (text, prázdne, mimo rozsahu) | `422` | `{"status": "error", "code": "invalid_field", "field": "latitude", "message": "Invalid field: latitude (must be a number between -90 and 90).", "id": null}` |
+| `POST /api/mushrooms_comments` s neexistujúcim `mushroom_id` | `404` | `{"status": "error", "code": "mushroom_not_found", "message": "Mushroom \"999\" not found.", "id": null}` |
+| Neexistujúci hríbik/komentár (`GET /api/mushrooms/999`) alebo neznáma adresa pod `/api/` | `404` | `{"status": "error", "code": "not_found", "message": "Not found."}` (predtým HTML stránka) |
+| Neočakávaná chyba servera | `500` | `{"status": "error", "code": "server_error", "message": "Internal server error."}` (predtým HTML stránka) |
 | Fotku sa nepodarilo nahrať (prerušený prenos) | `400` | `{"status": "error", "code": "photo_upload_failed", "message": "…", "id": null}` |
 | Celý request (všetky fotky spolu) je väčší ako limit servera | `413` | `{"status": "error", "code": "request_too_large", "message": "Request is too large (max 8 MB in total)…", "id": null}` |
 | Viac ako 5 fotiek k hríbiku alebo komentáru | `422` | `{"status": "error", "code": "too_many_photos", "message": "Too many photos (max 5).", "id": null}` |

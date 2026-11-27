@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\ApiInput;
 use App\Entity\Mushroom;
 use App\Entity\MushroomComment;
 use App\Form\MushroomType;
@@ -64,12 +65,17 @@ class MushroomController extends AbstractController
     #[Route('/api/nearby', name: 'api_nearby', methods: ['GET'])]
     public function nearby(Request $request, MushroomRepository $mushroomRepository): JsonResponse
     {
-        $lat = $request->query->get('lat');
-        $lng = $request->query->get('lng');
-        $radius = $request->query->get('radius', 100); // default 100m
-
-        if (!$lat || !$lng) {
+        if (!$request->query->has('lat') || !$request->query->has('lng')) {
             return $this->json(['error' => 'Missing coordinates'], 400);
+        }
+
+        // Text alebo súradnice mimo rozsahu — predtým TypeError v repozitári a 500.
+        $lat = ApiInput::latitude($request->query->get('lat'));
+        $lng = ApiInput::longitude($request->query->get('lng'));
+        $radius = ApiInput::number($request->query->get('radius', 100), 0.001); // predvolene 100 m
+
+        if ($lat === null || $lng === null || $radius === null) {
+            return $this->json(['error' => 'Invalid coordinates'], 400);
         }
 
         $nearby = $mushroomRepository->findNearby($lat, $lng, $radius);

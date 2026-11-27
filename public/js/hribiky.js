@@ -14,6 +14,8 @@ window.addEventListener('load', () => {
 
 const markers = [];
 let activeInfoWindow = null;
+/** id hríbika → { marker, infowindow, position } — na otvorenie hríbika z odkazu /?hribik=ID */
+const markersById = {};
 
 function initMap() {
     const mapEl = document.getElementById("map");
@@ -81,6 +83,7 @@ function initMap() {
             </div>`;
 
             const infowindow = new google.maps.InfoWindow({ content });
+            markersById[hrib.id] = { marker, infowindow, position: { lat: hrib.latitude, lng: hrib.longitude } };
             marker.addListener("click", function() {
                 if (activeInfoWindow) activeInfoWindow.close();
                 infowindow.open({ anchor: marker, map });
@@ -122,6 +125,8 @@ function initMap() {
             },
         });
     }
+
+    focusMushroomFromUrl();
 
     $('#addRozcestnik').click(function() {
         if (navigator.geolocation) {
@@ -220,6 +225,36 @@ function initMap() {
                 enableButton( submitButton, originalText);
             }
         });
+    });
+}
+
+/**
+ * Odkaz „Zobraziť na mape“ z detailu hríbika vedie na /?hribik=ID — mapu vycentrujeme
+ * a priblížime na ten hríbik a otvoríme jeho okno (aj keď je inak v zhluku).
+ */
+function focusMushroomFromUrl() {
+    const id = new URLSearchParams(window.location.search).get('hribik');
+    const item = id && markersById[id];
+    if (!item) {
+        return;
+    }
+
+    map.setCenter(item.position);
+    map.setZoom(16);
+
+    // Zhluky (MarkerClusterer) sa prepočítajú až po zmene zoomu — okno otvoríme, keď je mapa v pokoji.
+    google.maps.event.addListenerOnce(map, 'idle', function () {
+        setTimeout(function () {
+            if (activeInfoWindow) activeInfoWindow.close();
+            if (item.marker.map) {
+                item.infowindow.open({ anchor: item.marker, map });
+            } else {
+                // Hríbik je stále v zhluku (iný hríbik takmer na tom istom mieste) — okno ukážeme na jeho súradniciach.
+                item.infowindow.setPosition(item.position);
+                item.infowindow.open({ map });
+            }
+            activeInfoWindow = item.infowindow;
+        }, 300);
     });
 }
 

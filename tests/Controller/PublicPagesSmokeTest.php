@@ -55,6 +55,25 @@ class PublicPagesSmokeTest extends WebTestCase
         $this->assertSelectorTextContains('body', 'Chopok');
     }
 
+    public function testMushroomDetailLinksToMapFocusedOnIt(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $mushroom = (new Mushroom())->setTitle('Chopok')->setName('Tester')->setLatitude(48.94)->setLongitude(19.59)->setPublished(true);
+        $em->persist($mushroom);
+        $em->flush();
+
+        $crawler = $client->request('GET', '/' . $mushroom->getId());
+
+        // Odkaz „Zobraziť na mape“ → titulná stránka s mapou priblíženou na tento hríbik (hribiky.js).
+        $links = $crawler->filter(sprintf('a[href="/?hribik=%d"]', $mushroom->getId()));
+        $this->assertGreaterThanOrEqual(1, $links->count());
+        $this->assertStringContainsString('Zobraziť na mape', $crawler->filter('body')->text());
+
+        $client->request('GET', '/?hribik=' . $mushroom->getId());
+        $this->assertResponseIsSuccessful();
+    }
+
     public function testUnknownPageReturns404(): void
     {
         $client = static::createClient();

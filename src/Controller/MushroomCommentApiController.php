@@ -5,7 +5,8 @@
  use App\Entity\Mushroom;
  use App\Entity\MushroomComment;
  use App\Repository\MushroomCommentRepository;
- use App\Service\FotoUploader;
+ use App\Service\ApiInput;
+use App\Service\FotoUploader;
  use App\Service\MushroomApiFormatter;
  use App\Service\UploadLimits;
  use App\Service\MailService;
@@ -36,7 +37,7 @@
          return $this->json($data);
      }
 
-     #[Route('/{id}', name: 'show', methods: ['GET'])]
+     #[Route('/{id}', name: 'show', requirements: ['id' => '\d+'], methods: ['GET'])]
      public function show(MushroomComment $mushroomComment): JsonResponse
      {
          if ($mushroomComment->isPublished()) {
@@ -87,7 +88,17 @@
              return $this->json(['status' => 'error'] + $uploadLimits->unsupportedApiError($unsupported) + ['id' => null], 415);
          }
 
-         $mushroom = $entityManager->getRepository(Mushroom::class)->findOneBy(['id' => $request->request->get('mushroom_id')]);
+         // Neexistujúci hríbik — predtým sa komentár pokúsil uložiť bez hríbika a API spadlo s 500.
+         $mushroomId = ApiInput::id($request->request->get('mushroom_id'));
+         $mushroom = $mushroomId ? $entityManager->getRepository(Mushroom::class)->find($mushroomId) : null;
+         if (!$mushroom) {
+             return $this->json([
+                 'status' => 'error',
+                 'code' => 'mushroom_not_found',
+                 'message' => sprintf('Mushroom "%s" not found.', $request->request->get('mushroom_id')),
+                 'id' => null,
+             ], 404);
+         }
 
          $mushroomComment = new MushroomComment();
          $mushroomComment->setDescription($request->request->get('description'));
