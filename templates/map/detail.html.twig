@@ -7,12 +7,25 @@
     {% set title = mushroom.title %}
 {% endif %}
 
-{% block title %}{{ title }}{% endblock %}
+{# SEO: titulok s typom miesta a značkou webu; popis od autora, ak je dosť dlhý, inak poskladaný z údajov. #}
+{% set seo_title = 'seo.detail_title'|trans({'%title%': title, '%site%': 'site_name'|trans}) %}
+{% set author_description = mushroom.description|meta_text %}
+{% if author_description|length >= 70 %}
+    {% set seo_description = author_description %}
+{% else %}
+    {% set seo_description = 'seo.detail_description'|trans({
+        '%title%': mushroom.title,
+        '%altitude%': mushroom.altitude is not empty ? 'seo.detail_altitude'|trans({'%altitude%': mushroom.altitude}) : '',
+        '%country%': mushroom.country in ['SK', 'CZ', 'PL', 'AT', 'HU'] ? ', ' ~ ('country.' ~ mushroom.country)|trans : '',
+    })|meta_text %}
+{% endif %}
 
-{% block meta_description %}<meta name="description" content="{{ mushroom.description|striptags }}">{% endblock %}
+{% block title %}{{ seo_title }}{% endblock %}
+
+{% block meta_description %}<meta name="description" content="{{ seo_description }}">{% endblock %}
 {% block og_title %}{{ title }}{% endblock %}
 {% block og_type %}place{% endblock %}
-{% block og_description %}{{ mushroom.description|striptags }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
 {% block og_image %}{% if mushroom.photos is defined and mushroom.photos|length > 0 %}{{ absolute_url(asset('uploads/photos/' ~ mushroom.photos.0.path)) }}{% else %}{{ absolute_url(asset('images/android-chrome-512x512.png')) }}{% endif %}{% endblock %}
 
 {% block ogtags %}
@@ -28,7 +41,7 @@
             <div class="md-info">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <h2 class="mb-4">{{ title }}</h2>
+                        <h1 class="h2 mb-4">{{ title }}</h1>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><strong>{{ 'mushroom.added_by'|trans }}:</strong> {{ mushroom.name }}
                                 ({{ mushroom.createdAt|date('d.m.Y H:i') }})
@@ -189,7 +202,7 @@
                 "@type": "Country",
                 "name": countries[mushroom.country]|default(mushroom.country)
             } : null
-        } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}
+        } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG')) | raw }}
 </script>
     <script type="application/ld+json">
 {{ {
@@ -199,7 +212,7 @@
             "url": pageUrl,
             "datePublished": mushroom.createdAt|date('c'),
             "dateModified": (mushroom.lastModified ?? mushroom.createdAt)|date('c')
-        } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}
+        } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG')) | raw }}
 </script>
     {% if firstPhoto %}
         <script type="application/ld+json">
@@ -210,7 +223,7 @@
                 "contentUrl": absolute_url(asset('uploads/photos/' ~ firstPhoto.path)),
                 "url": absolute_url(asset('uploads/photos/' ~ firstPhoto.path)),
                 "dateCreated": mushroom.createdAt|date('c')
-            } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) | raw }}
+            } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG')) | raw }}
 </script>
     {% endif %}
 {% endblock %}

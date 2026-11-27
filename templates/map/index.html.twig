@@ -1,6 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'site_name'|trans }}{% endblock %}
+{% set seo_title = 'seo.home_title'|trans({'%site%': 'site_name'|trans}) %}
+{% set seo_description = 'seo.home_description'|trans({'%count%': count}) %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ seo_description }}">{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
 
 {% block navbarbrand %}{{ count }} {{ 'mushroom_count'|trans }}{% endblock %}
 
@@ -8,11 +14,49 @@
 
 {% block body %}
     <div class="container mt-3">
+        {# Stránka je len mapa — nadpis je pre vyhľadávače a čítačky obrazovky. #}
+        <h1 class="visually-hidden">{{ 'seo.home_heading'|trans }}</h1>
         <div id="map" style="height: 80vh;"></div>
     </div>
 
     {% include 'map/modal.html.twig' %}
 
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# WebSite so SearchAction (vyhľadávacie pole v Google) + Organization. #}
+    <script type="application/ld+json">
+{{ {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebSite",
+                "@id": url('app_home') ~ "#website",
+                "url": url('app_home'),
+                "name": 'site_name'|trans,
+                "description": seo_description,
+                "inLanguage": app.request.locale == 'cs' ? 'cs-CZ' : 'sk-SK',
+                "publisher": { "@id": url('app_home') ~ "#organization" },
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": {
+                        "@type": "EntryPoint",
+                        "urlTemplate": url('search') ~ "?q={search_term_string}"
+                    },
+                    "query-input": "required name=search_term_string"
+                }
+            },
+            {
+                "@type": "Organization",
+                "@id": url('app_home') ~ "#organization",
+                "name": 'site_name'|trans,
+                "url": url('app_home'),
+                "logo": absolute_url(asset('images/android-chrome-512x512.png'))
+            }
+        ]
+    } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG')) | raw }}
+</script>
 {% endblock %}
 
 {% block mapscripts %}

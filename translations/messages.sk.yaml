@@ -136,3 +136,19 @@ search.no_results: "Pre „%query%“ sme nič nenašli. Skús iné slovo alebo 
 search.truncated: "Zobrazených je prvých %limit% výsledkov. Spresni hľadanie."
 search.show_all: "Zobraziť všetky výsledky"
 search.suggest_none: "Nič sme nenašli"
+
+# SEO — titulky a popisy (meta description) stránok
+seo:
+    detail_title: '%title% – turistický rozcestník | %site%'
+    detail_description: 'Hríbik %title%%altitude%%country% – turistický rozcestník s fotkami, GPS súradnicami a polohou na mape.'
+    detail_altitude: ', %altitude% m n. m.'
+    home_title: '%site% – mapa turistických rozcestníkov na Slovensku a v Česku'
+    home_description: 'Mapa %count% turistických rozcestníkov (hríbikov) na Slovensku a v Česku s fotkami, GPS súradnicami a nadmorskou výškou. Pridaj aj ty hríbik, pri ktorom stojíš.'
+    home_heading: 'Mapa turistických rozcestníkov – hríbikov'
+
+country:
+    SK: 'Slovensko'
+    CZ: 'Česko'
+    PL: 'Poľsko'
+    AT: 'Rakúsko'
+    HU: 'Maďarsko'
