@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\BlogPostRepository;
+use App\Repository\MushroomRepository;
 use App\Repository\TagRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -92,7 +93,7 @@ class BlogController extends AbstractController
     }
 
     #[Route('/blog/{slug}', name: 'blog_show')]
-    public function show(string $slug, BlogPostRepository $repository): Response
+    public function show(string $slug, BlogPostRepository $repository, MushroomRepository $mushroomRepository): Response
     {
         $post = $repository->findOneBy(['slug' => $slug]);
 
@@ -104,9 +105,14 @@ class BlogController extends AbstractController
         $related = $repository->findRelated($post);
         $repository->preloadPhotosAndTags($related);
 
+        // Hríbik, o ktorom článok je — odkaz na detail, pohorie, kraj a hríbiky v okolí (prepojenie blogu s mapou).
+        $mushroom = $mushroomRepository->findPublishedForBlogPost($post);
+
         return $this->render('blog/show.html.twig', [
             'post' => $post,
             'related' => $related,
+            'mushroom' => $mushroom,
+            'neighbours' => $mushroom ? $mushroomRepository->findNeighbours($mushroom, 4) : [],
         ]);
     }
 }

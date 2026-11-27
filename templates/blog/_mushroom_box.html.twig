@@ -1,0 +1,39 @@
+{# Hríbik, o ktorom je článok: odkaz na detail, mapu, pohorie a kraj (BlogController::show). #}
+{% set cs = app.request.locale == 'cs' %}
+{% set range_name = cs ? (mushroom.mountainRangeCs ?: mushroom.mountainRange) : mushroom.mountainRange %}
+<aside class="card shadow-sm mt-5 blog-mushroom" aria-labelledby="blog-mushroom-title">
+    <div class="row g-0">
+        {% if mushroom.photos|length > 0 %}
+            <div class="col-sm-4">
+                <a href="{{ path('mushroom_detail', {id: mushroom.id}) }}">
+                    <img src="{{ asset(photo_thumb(mushroom.photos.first.path)) }}" class="blog-mushroom-img rounded-start" alt="{{ mushroom.title }}" loading="lazy">
+                </a>
+            </div>
+        {% endif %}
+        <div class="{{ mushroom.photos|length > 0 ? 'col-sm-8' : 'col-12' }}">
+            <div class="card-body">
+                <p class="text-body-secondary small text-uppercase mb-1">{{ 'blog.mushroom_box_label'|trans }}</p>
+                <h2 class="h5 card-title" id="blog-mushroom-title">
+                    <a href="{{ path('mushroom_detail', {id: mushroom.id}) }}">{{ mushroom.title }}</a>
+                    {% if mushroom.altitude %}<span class="text-body-secondary fw-normal fs-6 text-nowrap">({{ mushroom.altitude }} m n. m.)</span>{% endif %}
+                </h2>
+                <ul class="list-unstyled small mb-3">
+                    {% if mushroom.locality %}
+                        <li><i class="bi bi-geo-alt"></i> {{ [mushroom.locality, mushroom.district]|filter(v => v)|join(', ') }}</li>
+                    {% endif %}
+                    {% if range_name %}
+                        <li><i class="bi bi-triangle"></i> {{ 'mushroom.mountain_range'|trans }}:
+                            <a href="{{ path('area_range', {slug: mushroom.mountainRange|area_slug}) }}">{{ range_name }}</a>
+                            {%- if mushroom.mountainRangeDistance > 0 %} ({{ 'mushroom.mountain_range_near'|trans }}){% endif %}
+                        </li>
+                    {% endif %}
+                    {% if mushroom.region %}
+                        <li><i class="bi bi-map"></i> <a href="{{ path('area_region', {slug: mushroom.region|area_slug}) }}">{{ mushroom.region }}</a></li>
+                    {% endif %}
+                </ul>
+                <a href="{{ path('mushroom_detail', {id: mushroom.id}) }}" class="btn btn-sm btn-primary me-2 mb-1">{{ 'blog.mushroom_detail'|trans }}</a>
+                <a href="{{ path('app_home', {hribik: mushroom.id}) }}" class="btn btn-sm btn-outline-primary mb-1"><i class="bi bi-geo-alt-fill"></i> {{ 'show_on_map'|trans }}</a>
+            </div>
+        </div>
+    </div>
+</aside>

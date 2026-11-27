@@ -1,0 +1,25 @@
+{# Zoznam hríbikov v okolí — detail hríbika a blogový článok. neighbours = MushroomRepository::findNeighbours() #}
+{% if neighbours is not empty %}
+    <section class="{{ class|default('mt-5 mb-5') }}" id="v-okoli">
+        <h4 class="mb-3">{{ 'mushroom.neighbours_title'|trans }}</h4>
+        <div class="list-group shadow-sm">
+            {% for n in neighbours %}
+                {% set nm = n.mushroom %}
+                <a href="{{ path('mushroom_detail', {id: nm.id}) }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3">
+                    {% if nm.photos|length > 0 %}
+                        <img src="{{ asset(photo_thumb(nm.photos.first.path)) }}" alt="" class="neighbour-photo rounded flex-shrink-0" loading="lazy">
+                    {% else %}
+                        <span class="neighbour-photo rounded flex-shrink-0 d-flex align-items-center justify-content-center text-body-secondary bg-body-tertiary" aria-hidden="true"><i class="bi bi-signpost-split"></i></span>
+                    {% endif %}
+                    <span class="flex-grow-1">
+                        {{ nm.title }}
+                        {% if nm.altitude %}<span class="text-body-secondary small text-nowrap">({{ nm.altitude }} m n. m.)</span>{% endif %}
+                    </span>
+                    <span class="text-body-secondary small text-nowrap">
+                        {{- n.distance < 1000 ? n.distance ~ ' m' : (n.distance / 1000)|number_format(1, ',', ' ') ~ ' km' -}}
+                    </span>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\BlogPost;
 use App\Entity\Mushroom;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ParameterType;
@@ -130,6 +131,20 @@ class MushroomRepository extends ServiceEntityRepository
         $h = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
 
         return 2 * 6371000 * asin(min(1, sqrt($h)));
+    }
+
+    /** Schválený hríbik, o ktorom je blogový článok (MushroomArticleLink), aj s fotkami. */
+    public function findPublishedForBlogPost(BlogPost $post): ?Mushroom
+    {
+        return $this->createQueryBuilder('m')
+            ->addSelect('p')
+            ->leftJoin('m.photos', 'p')
+            ->innerJoin('m.articleLinks', 'al')
+            ->where('al.blogPost = :post')->setParameter('post', $post)
+            ->andWhere('m.published = true')
+            ->orderBy('m.id', 'ASC')
+            ->addOrderBy('p.id', 'ASC')
+            ->getQuery()->getResult()[0] ?? null;
     }
 
     public function findOneWithoutBlogPost(): ?Mushroom

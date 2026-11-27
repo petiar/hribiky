@@ -4,6 +4,8 @@ namespace App\Tests\Controller;
 
 use App\Controller\BlogController;
 use App\Entity\BlogPost;
+use App\Entity\MushroomArticleLink;
+use App\Entity\Mushroom;
 use App\Service\ThumbnailService;
 use App\Entity\Photo;
 use App\Entity\Tag;
@@ -207,6 +209,45 @@ class BlogControllerTest extends WebTestCase
     /**
      * @param bool|string $withThumb true = nový 800 px náhľad, 'legacy' = len starší 400 px náhľad (thumbs/), false = žiadny
      */
+    public function testArticleLinksToItsMushroomAreasAndNeighbours(): void
+    {
+        $mushroom = (new Mushroom())->setTitle('Kráľova hoľa, vrchol')->setName('T')->setLatitude(46.5)->setLongitude(21.5)
+            ->setAltitude(1946)->setPublished(true)
+            ->setAddress('Šumiac', 'okres Brezno', 'Banskobystrický kraj')
+            ->setMountainRange('Nízke Tatry', 'Nízké Tatry', 0);
+        $neighbour = (new Mushroom())->setTitle('Pod Kráľovou hoľou')->setName('T')->setLatitude(46.51)->setLongitude(21.5)->setPublished(true);
+        $post = (new BlogPost())->setTitle('Výstup na Kráľovu hoľu')->setSlug('clanok-' . uniqid())->setShortDescription('Popis')
+            ->setText('Text')->setPublished(true)->setPublishedAt(new \DateTime('2026-01-01'));
+        $link = (new MushroomArticleLink())->setMushroom($mushroom)->setBlogPost($post)->setTitle('Výstup')->setUrl('https://hribiky.sk/blog/x');
+        foreach ([$mushroom, $neighbour, $post, $link] as $entity) {
+            $this->em->persist($entity);
+        }
+        $this->em->flush();
+
+        $crawler = $this->client->request('GET', '/blog/' . $post->getSlug());
+
+        $this->assertResponseIsSuccessful();
+        $box = $crawler->filter('.blog-mushroom');
+        $this->assertStringContainsString('Kráľova hoľa, vrchol', $box->text());
+        $this->assertStringContainsString('(1946 m n. m.)', $box->text());
+        $this->assertCount(1, $box->filter('a[href="/pohorie/nizke-tatry"]'));
+        $this->assertCount(1, $box->filter('a[href="/kraj/banskobystricky-kraj"]'));
+        $this->assertCount(1, $box->filter('a[href="/' . $mushroom->getId() . '"].btn'));
+        $this->assertCount(1, $crawler->filter('.blog-mushroom-line a[href="/' . $mushroom->getId() . '"]'));
+        $this->assertStringContainsString('Pod Kráľovou hoľou', $crawler->filter('#v-okoli')->text());
+        $this->assertStringContainsString('"@id": ' . json_encode('http://localhost/' . $mushroom->getId()), $this->client->getResponse()->getContent());
+    }
+
+    public function testArticleWithoutMushroomHasNoBox(): void
+    {
+        $this->createPosts(1);
+        $crawler = $this->client->request('GET', '/blog');
+        $this->client->click($crawler->filter('.card a')->first()->link());
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(0, $this->client->getCrawler()->filter('.blog-mushroom'));
+    }
+
     private function createPostWithPhoto(string $title, string $filename, bool|string $withThumb): void
     {
         $dir = static::getContainer()->getParameter('photos_directory');
