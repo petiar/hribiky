@@ -1,4 +1,9 @@
 mushroom:
+    location: 'Poloha'
+    mountain_range: 'Pohorie'
+    mountain_range_near: 'na úpätí'
+    neighbours_title: 'Hríbiky v okolí'
+    location_source: 'Poloha a pohorie podľa'
     added_by: 'Pridal'
     no_photos: 'Bez fotiek.'
     no_comments: 'Zatiaľ žiadne aktualizácie.'
@@ -140,8 +145,8 @@ search.suggest_none: "Nič sme nenašli"
 # SEO — titulky a popisy (meta description) stránok
 seo:
     detail_title: '%title% – turistický rozcestník | %site%'
-    detail_description: 'Hríbik %title%%altitude%%country% – turistický rozcestník s fotkami, GPS súradnicami a polohou na mape.'
-    detail_altitude: ', %altitude% m n. m.'
+    detail_description: 'Hríbik %title%%details% – turistický rozcestník s fotkami, GPS súradnicami a polohou na mape.'
+    detail_altitude: '%altitude% m n. m.'
     home_title: '%site% – mapa turistických rozcestníkov na Slovensku a v Česku'
     home_description: 'Mapa %count% turistických rozcestníkov (hríbikov) na Slovensku a v Česku s fotkami, GPS súradnicami a nadmorskou výškou. Pridaj aj ty hríbik, pri ktorom stojíš.'
     home_heading: 'Mapa turistických rozcestníkov – hríbikov'

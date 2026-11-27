@@ -476,3 +476,10 @@ h2.app-title{
         aspect-ratio: 1 / 1;
     }
 }
+
+/* Detail hríbika — hríbiky v okolí */
+.neighbour-photo {
+    width: 3.5rem;
+    height: 3.5rem;
+    object-fit: cover;
+}

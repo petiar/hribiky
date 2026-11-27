@@ -1,4 +1,9 @@
 mushroom:
+    location: 'Poloha'
+    mountain_range: 'Pohoří'
+    mountain_range_near: 'na úpatí'
+    neighbours_title: 'Hříbky v okolí'
+    location_source: 'Poloha a pohoří podle'
     added_by: 'Přidal'
     no_photos: 'Bez fotek.'
     no_comments: 'Zatím žádné aktualizace.'
@@ -138,8 +143,8 @@ search.suggest_none: "Nic jsme nenašli"
 # SEO — titulky a popisy (meta description) stránek
 seo:
     detail_title: '%title% – turistický rozcestník | %site%'
-    detail_description: 'Hříbek %title%%altitude%%country% – turistický rozcestník s fotkami, GPS souřadnicemi a polohou na mapě.'
-    detail_altitude: ', %altitude% m n. m.'
+    detail_description: 'Hříbek %title%%details% – turistický rozcestník s fotkami, GPS souřadnicemi a polohou na mapě.'
+    detail_altitude: '%altitude% m n. m.'
     home_title: '%site% – mapa turistických rozcestníků v Česku a na Slovensku'
     home_description: 'Mapa %count% turistických rozcestníků (hříbků) v Česku a na Slovensku s fotkami, GPS souřadnicemi a nadmořskou výškou. Přidej i ty hříbek, u kterého stojíš.'
     home_heading: 'Mapa turistických rozcestníků – hříbků'

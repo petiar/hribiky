@@ -81,6 +81,29 @@ class Mushroom
     #[ORM\Column(type: 'smallint', options: ['default' => 0])]
     private int $descriptionScoreAttempts = 0;
 
+    // Poloha slovami — dopĺňa LocationResolver (app:resolve-locations) z OpenStreetMap.
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $locality = null; // obec
+
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $district = null; // okres
+
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $region = null; // kraj
+
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $mountainRange = null; // pohorie (geomorfologický celok), slovenský názov
+
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $mountainRangeCs = null; // pohorie, český názov
+
+    /** 0 = hríbik je v pohorí; > 0 = je mimo neho, toľko metrov od hranice („pod pohorím“). */
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $mountainRangeDistance = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $locationResolvedAt = null;
+
     public function getEditLink(): ?MushroomEditLink
     {
         return $this->editLink;
@@ -145,6 +168,9 @@ class Mushroom
 
     public function setLatitude(float $latitude): Mushroom
     {
+        if (isset($this->latitude) && $this->latitude !== $latitude) {
+            $this->locationResolvedAt = null; // presunutý hríbik — app:resolve-locations zistí polohu nanovo
+        }
         $this->latitude = $latitude;
 
         return $this;
@@ -157,6 +183,9 @@ class Mushroom
 
     public function setLongitude(float $longitude): Mushroom
     {
+        if (isset($this->longitude) && $this->longitude !== $longitude) {
+            $this->locationResolvedAt = null; // presunutý hríbik — app:resolve-locations zistí polohu nanovo
+        }
         $this->longitude = $longitude;
 
         return $this;
@@ -397,4 +426,63 @@ class Mushroom
         return $latest;
     }
 
+    public function getLocality(): ?string
+    {
+        return $this->locality;
+    }
+
+    public function getDistrict(): ?string
+    {
+        return $this->district;
+    }
+
+    public function getRegion(): ?string
+    {
+        return $this->region;
+    }
+
+    public function getMountainRange(): ?string
+    {
+        return $this->mountainRange;
+    }
+
+    public function getMountainRangeCs(): ?string
+    {
+        return $this->mountainRangeCs;
+    }
+
+    public function getMountainRangeDistance(): ?int
+    {
+        return $this->mountainRangeDistance;
+    }
+
+    public function getLocationResolvedAt(): ?\DateTimeImmutable
+    {
+        return $this->locationResolvedAt;
+    }
+
+    public function setAddress(?string $locality, ?string $district, ?string $region): self
+    {
+        $this->locality = $locality;
+        $this->district = $district;
+        $this->region = $region;
+
+        return $this;
+    }
+
+    public function setMountainRange(?string $sk, ?string $cs, ?int $distance): self
+    {
+        $this->mountainRange = $sk;
+        $this->mountainRangeCs = $cs;
+        $this->mountainRangeDistance = $distance;
+
+        return $this;
+    }
+
+    public function setLocationResolvedAt(?\DateTimeImmutable $at): self
+    {
+        $this->locationResolvedAt = $at;
+
+        return $this;
+    }
 }

@@ -129,15 +129,16 @@ class MushroomController extends AbstractController
     }
 
     #[Route('/{id}', name: 'mushroom_detail', requirements: ['id' => '\d+'])]
-    public function detail(int $id, EntityManagerInterface $em): Response
+    public function detail(int $id, MushroomRepository $mushroomRepository): Response
     {
-        $mushroom = $em->getRepository(Mushroom::class)->find($id);
+        $mushroom = $mushroomRepository->find($id);
         if (!$mushroom || (!$mushroom->isPublished() && !$this->isGranted('ROLE_ADMIN'))) {
             throw $this->createNotFoundException('Rozcestník nenájdený');
         }
 
         return $this->render('map/detail.html.twig', [
             'mushroom' => $mushroom,
+            'neighbours' => $mushroomRepository->findNeighbours($mushroom),
         ]);
     }
 }

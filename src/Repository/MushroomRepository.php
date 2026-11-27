@@ -85,6 +85,53 @@ class MushroomRepository extends ServiceEntityRepository
         return $stmt->executeQuery()->fetchAllAssociative();
     }
 
+    /**
+     * Schválené hríbiky v okolí daného (bez neho), od najbližšieho — na detail hríbika.
+     *
+     * @return list<array{mushroom: Mushroom, distance: int}> distance v metroch
+     */
+    public function findNeighbours(Mushroom $mushroom, int $limit = 6, int $radiusMeters = 25000): array
+    {
+        // Kandidáti v obdĺžniku okolo hríbika (lacné, bez SQL funkcií — funguje aj v SQLite testoch),
+        // presnú vzdialenosť a poradie dopočítame v PHP.
+        $lat = $mushroom->getLatitude();
+        $lng = $mushroom->getLongitude();
+        $dLat = $radiusMeters / 111_000;
+        $dLng = $dLat / max(0.1, cos(deg2rad($lat)));
+
+        $candidates = $this->createQueryBuilder('m')
+            ->leftJoin('m.photos', 'p')->addSelect('p')
+            ->where('m.published = true')
+            ->andWhere('m.id <> :id')
+            ->andWhere('m.latitude BETWEEN :minLat AND :maxLat')
+            ->andWhere('m.longitude BETWEEN :minLng AND :maxLng')
+            ->setParameter('id', $mushroom->getId())
+            ->setParameter('minLat', $lat - $dLat)->setParameter('maxLat', $lat + $dLat)
+            ->setParameter('minLng', $lng - $dLng)->setParameter('maxLng', $lng + $dLng)
+            ->getQuery()->getResult();
+
+        $result = [];
+        foreach ($candidates as $candidate) {
+            $distance = self::distanceMeters($lat, $lng, $candidate->getLatitude(), $candidate->getLongitude());
+            if ($distance <= $radiusMeters) {
+                $result[] = ['mushroom' => $candidate, 'distance' => (int) round($distance)];
+            }
+        }
+        usort($result, fn ($a, $b) => $a['distance'] <=> $b['distance']);
+
+        return array_slice($result, 0, $limit);
+    }
+
+    /** Vzdialenosť dvoch bodov po povrchu Zeme v metroch (haversine). */
+    public static function distanceMeters(float $lat1, float $lng1, float $lat2, float $lng2): float
+    {
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+        $h = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
+
+        return 2 * 6371000 * asin(min(1, sqrt($h)));
+    }
+
     public function findOneWithoutBlogPost(): ?Mushroom
     {
         $conn = $this->getEntityManager()->getConnection();

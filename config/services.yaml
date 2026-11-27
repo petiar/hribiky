@@ -10,6 +10,10 @@ parameters:
     app.email_to_me: 'petiar@gmail.com'
     ios_api_key: '%env(IOS_API_KEY)%'
     anthropic_api_key: '%env(ANTHROPIC_API_KEY)%'
+    # Nominatim (OpenStreetMap) — obec, okres, kraj hríbika. User-Agent musí identifikovať aplikáciu;
+    # kontakt sa dá doplniť na serveri v .env.local (NOMINATIM_USER_AGENT=…).
+    env(NOMINATIM_USER_AGENT): 'Hribiky.sk/1.0 (+https://hribiky.sk)'
+    env(NOMINATIM_URL): 'https://nominatim.openstreetmap.org/reverse'
 
 services:
     # default configuration for services in *this* file

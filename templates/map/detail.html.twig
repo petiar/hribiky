@@ -7,16 +7,24 @@
     {% set title = mushroom.title %}
 {% endif %}
 
+{# Pohorie po česky na .cz (ak OSM český názov má), inak slovenský. #}
+{% set mountain_range = app.request.locale == 'cs' ? (mushroom.mountainRangeCs ?: mushroom.mountainRange) : mushroom.mountainRange %}
+
 {# SEO: titulok s typom miesta a značkou webu; popis od autora, ak je dosť dlhý, inak poskladaný z údajov. #}
 {% set seo_title = 'seo.detail_title'|trans({'%title%': title, '%site%': 'site_name'|trans}) %}
 {% set author_description = mushroom.description|meta_text %}
 {% if author_description|length >= 70 %}
     {% set seo_description = author_description %}
 {% else %}
+    {% set details = [
+        mushroom.altitude is not empty ? 'seo.detail_altitude'|trans({'%altitude%': mushroom.altitude}) : null,
+        mountain_range,
+        mushroom.locality,
+        mushroom.country in ['SK', 'CZ', 'PL', 'AT', 'HU'] ? ('country.' ~ mushroom.country)|trans : null,
+    ]|filter(v => v is not empty) %}
     {% set seo_description = 'seo.detail_description'|trans({
         '%title%': mushroom.title,
-        '%altitude%': mushroom.altitude is not empty ? 'seo.detail_altitude'|trans({'%altitude%': mushroom.altitude}) : '',
-        '%country%': mushroom.country in ['SK', 'CZ', 'PL', 'AT', 'HU'] ? ', ' ~ ('country.' ~ mushroom.country)|trans : '',
+        '%details%': details is empty ? '' : ', ' ~ details|join(', '),
     })|meta_text %}
 {% endif %}
 
@@ -47,6 +55,15 @@
                                 ({{ mushroom.createdAt|date('d.m.Y H:i') }})
                             </li>
 
+                            {% set place = [mushroom.locality, mushroom.district, mushroom.region]|filter(v => v is not empty) %}
+                            {% if place is not empty %}
+                                <li class="list-group-item"><strong>{{ 'mushroom.location'|trans }}:</strong> {{ place|join(', ') }}</li>
+                            {% endif %}
+                            {% if mountain_range %}
+                                <li class="list-group-item"><strong>{{ 'mushroom.mountain_range'|trans }}:</strong> {{ mountain_range }}
+                                    {%- if mushroom.mountainRangeDistance > 0 %} <span class="text-body-secondary">({{ 'mushroom.mountain_range_near'|trans }})</span>{% endif %}
+                                </li>
+                            {% endif %}
                             <li class="list-group-item"><strong>GPS:</strong>
                                 <a href="{{ path('app_home', {hribik: mushroom.id}) }}" class="ms-1 me-2 text-nowrap" title="{{ 'show_on_map'|trans }}"><i class="bi bi-geo-alt-fill"></i> {{ 'show_on_map_short'|trans }}</a>
                                 {% if (mushroom.country == "CZ") %}
@@ -129,6 +146,35 @@
                         </div>
                     </div>
                 {% endif %}
+
+                {% if neighbours is not empty %}
+                    <section class="mt-5 mb-5" id="v-okoli">
+                        <h4 class="mb-3">{{ 'mushroom.neighbours_title'|trans }}</h4>
+                        <div class="list-group shadow-sm">
+                            {% for n in neighbours %}
+                                {% set nm = n.mushroom %}
+                                <a href="{{ path('mushroom_detail', {id: nm.id}) }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3">
+                                    {% if nm.photos|length > 0 %}
+                                        <img src="{{ asset(photo_thumb(nm.photos.first.path)) }}" alt="" class="neighbour-photo rounded flex-shrink-0" loading="lazy">
+                                    {% else %}
+                                        <span class="neighbour-photo rounded flex-shrink-0 d-flex align-items-center justify-content-center text-body-secondary bg-body-tertiary" aria-hidden="true"><i class="bi bi-signpost-split"></i></span>
+                                    {% endif %}
+                                    <span class="flex-grow-1">
+                                        {{ nm.title }}
+                                        {% if nm.altitude %}<span class="text-body-secondary small text-nowrap">({{ nm.altitude }} m n. m.)</span>{% endif %}
+                                    </span>
+                                    <span class="text-body-secondary small text-nowrap">
+                                        {{- n.distance < 1000 ? n.distance ~ ' m' : (n.distance / 1000)|number_format(1, ',', ' ') ~ ' km' -}}
+                                    </span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endif %}
+
+                {% if place is not empty or mountain_range %}
+                    <p class="small text-body-secondary">{{ 'mushroom.location_source'|trans }} <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></p>
+                {% endif %}
             </div>
 
             {# Fotky: na počítači pravý stĺpec cez celú výšku, na mobile hneď pod údajmi. #}
@@ -198,6 +244,12 @@
                 "elevation": mushroom.altitude
             },
             "image": firstPhoto ? { "@id": pageUrl ~ "#photo-1" } : null,
+            "address": mushroom.locality ? {
+                "@type": "PostalAddress",
+                "addressLocality": mushroom.locality,
+                "addressRegion": mushroom.region,
+                "addressCountry": mushroom.country
+            } : null,
             "containedInPlace": mushroom.country ? {
                 "@type": "Country",
                 "name": countries[mushroom.country]|default(mushroom.country)
