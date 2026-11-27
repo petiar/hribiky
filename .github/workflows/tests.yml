@@ -15,7 +15,7 @@ jobs:
     name: PHPUnit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -25,7 +25,7 @@ jobs:
           extensions: pdo, pdo_sqlite, sqlite3, gd, exif
 
       - name: Cache Composer balíkov
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.composer/cache/files
           key: composer-${{ hashFiles('composer.lock') }}
