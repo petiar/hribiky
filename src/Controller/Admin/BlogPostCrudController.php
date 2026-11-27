@@ -44,6 +44,8 @@ class BlogPostCrudController extends AbstractCrudController
             ->setHelp('HTML obsah článku. Používaj &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;&lt;li&gt;, &lt;strong&gt;.');
 
         yield TextField::new('tagsText', 'Tagy')
+            // Tagify pôvodný input skryje – povinné skryté pole by prehliadač potichu zablokoval pri odoslaní.
+            ->setRequired(false)
             ->setHelp('Tagy oddeľuj čiarkou. Nové tagy sa automaticky vytvoria.')
             ->formatValue(fn($v, $entity) => implode(', ', $entity->getTags()->map(fn($t) => $t->getName())->toArray()));
 
