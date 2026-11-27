@@ -21,6 +21,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          # Predvolene 10 min — prvé generovanie 800 px náhľadov môže trvať dlhšie.
+          command_timeout: 30m
           script: |
             # Pri chybe sa deploy zastaví a v GitHub Actions bude červený
             # (predtým pokračoval ďalej a web mohol skončiť napoly aktualizovaný).
@@ -34,6 +36,9 @@ jobs:
             # JavaScript/CSS z assets/ (AssetMapper, Stimulus, Turbo) — na produkcii sa musia skompilovať
             # do public/assets, inak vracajú 404.
             php bin/console asset-map:compile
+            # Chýbajúce náhľady fotiek (800 px). Prvý beh po zmene veľkosti trvá niekoľko minút,
+            # potom len skontroluje existenciu súborov. Chyba tu deploy nezastaví — web má zálohu (starší náhľad/originál).
+            php bin/console app:generate-thumbnails --no-interaction --no-ansi | tail -n 3 || echo "Upozornenie: náhľady sa nepodarilo vygenerovať"
             # Websupport ukladá opcache na disk (opcache.file_cache_only=1, adresár viditeľný len pre PHP-FPM,
             # nie pre SSH) a každá doména môže bežať na inej verzii PHP s vlastnou cache (hribiky.cz je alias
             # s PHP 8.4). opcache_reset() disk nemaže — po upgrade Symfony zostal na .cz starý kód a vracala 500.

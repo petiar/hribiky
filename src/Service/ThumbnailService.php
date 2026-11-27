@@ -2,10 +2,21 @@
 
 namespace App\Service;
 
+/**
+ * Náhľady fotiek (800 px na šírku, JPEG kvalita 80 — ostré aj na retina displeji, ~2,5× menšie než originál).
+ * Používa ich web (kartičky, mapa, galérie) aj API (`photo_thumbnails` pre appku).
+ *
+ * Náhľady sa vytvárajú pri nahraní fotky (FotoUploader) a príkazom `app:generate-thumbnails`
+ * (spúšťa ho deploy). Pôvodné 400 px náhľady v `thumbs/` slúžia len ako záloha, kým sa nové
+ * nevygenerujú — adresár sa dá neskôr zmazať.
+ */
 class ThumbnailService
 {
-    public const THUMB_WIDTH = 400;
-    private const THUMB_SUBDIR = 'thumbs';
+    public const THUMB_WIDTH = 800;
+    public const THUMB_QUALITY = 80;
+    public const THUMB_SUBDIR = 'thumbs-800';
+    /** Staršie 400 px náhľady — záloha pre publicUrl(), kým nie sú vygenerované nové. */
+    private const LEGACY_SUBDIR = 'thumbs';
 
     public function __construct(
         private string $uploadDir,
@@ -17,13 +28,20 @@ class ThumbnailService
         return file_exists($this->thumbPath($filename));
     }
 
-    /** Vráti verejnú URL thumbu, ak existuje, inak originál. */
+    /**
+     * Verejná URL náhľadu (relatívna, od koreňa webu): 800 px náhľad, inak starší 400 px, inak originál.
+     * Nič negeneruje — len kontroluje existenciu súborov.
+     */
     public function publicUrl(string $filename): string
     {
-        if ($this->thumbExists($filename)) {
-            return '/uploads/photos/' . self::THUMB_SUBDIR . '/' . basename($filename);
+        $name = basename($filename);
+        if ($this->thumbExists($name)) {
+            return '/uploads/photos/' . self::THUMB_SUBDIR . '/' . $name;
         }
-        return '/uploads/photos/' . basename($filename);
+        if (file_exists($this->uploadDir . '/' . self::LEGACY_SUBDIR . '/' . $name)) {
+            return '/uploads/photos/' . self::LEGACY_SUBDIR . '/' . $name;
+        }
+        return '/uploads/photos/' . $name;
     }
 
     /** Zabezpečí, že thumb existuje – generuje ho ak treba. Vráti true pri úspechu. */
@@ -59,8 +77,7 @@ class ThumbnailService
         $destPath = $thumbDir . '/' . basename($filename);
 
         if ($width <= self::THUMB_WIDTH) {
-            $result = $this->imageLoader->save($source, $destPath, $type);
-            return $result;
+            return $this->imageLoader->save($source, $destPath, $type, self::THUMB_QUALITY);
         }
 
         $newHeight = (int) round($height * self::THUMB_WIDTH / $width);
@@ -70,9 +87,7 @@ class ThumbnailService
             return false;
         }
 
-        $result = $this->imageLoader->save($thumb, $destPath, $type);
-
-        return $result;
+        return $this->imageLoader->save($thumb, $destPath, $type, self::THUMB_QUALITY);
     }
 
     private function thumbPath(string $filename): string

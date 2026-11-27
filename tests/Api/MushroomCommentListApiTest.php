@@ -45,7 +45,7 @@ class MushroomCommentListApiTest extends WebTestCase
         $data = $this->list();
 
         $this->assertSame(array_reverse($ids), array_column($data, 'id'));
-        $this->assertSame(['id', 'name', 'description', 'photos', 'createdAt'], array_keys($data[0]));
+        $this->assertSame(['id', 'name', 'description', 'photos', 'photo_thumbnails', 'createdAt'], array_keys($data[0]));
         $this->assertStringStartsWith('http', $data[0]['photos'][0]);
     }
 

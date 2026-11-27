@@ -7,7 +7,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * photo_thumb(path) — cesta k náhľadu fotky (400 px), ak existuje, inak k originálu.
+ * photo_thumb(path) — cesta k náhľadu fotky (800 px; kým nie je vygenerovaný, starší 400 px), inak k originálu.
  * Použitie: asset(photo_thumb(photo.path)) všade, kde je obrázok malý (kartičky, miniatúry).
  */
 class PhotoExtension extends AbstractExtension

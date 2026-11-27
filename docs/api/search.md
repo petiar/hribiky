@@ -44,6 +44,7 @@ Vyhľadávanie v hríbikoch a blogových článkoch. Používa rovnakú logiku a
 | `published_at` | `string \| null` | Dátum publikovania, ISO 8601 |
 | `url` | `string` | Absolútna URL článku na webe. Appka zatiaľ nemá API na čítanie článkov, článok otvor vo WebView alebo v prehliadači. |
 | `image_url` | `string \| null` | Absolútna URL titulnej fotky, `null` ak článok fotku nemá |
+| `thumbnail_url` | `string \| null` | Náhľad titulnej fotky (800 px), inak ako `image_url`. *(Nové, 2026-11.)* |
 
 ### Príklad
 
@@ -63,6 +64,7 @@ Vyhľadávanie v hríbikoch a blogových článkoch. Používa rovnakú logiku a
       "longitude": 19.7284203718,
       "altitude": null,
       "photos": ["https://hribiky.sk/uploads/photos/6967b025cf140.jpg"],
+      "photo_thumbnails": ["https://hribiky.sk/uploads/photos/thumbs-800/6967b025cf140.jpg"],
       "createdAt": "2026-01-14T16:03:01+00:00"
     },
     {
@@ -74,6 +76,7 @@ Vyhľadávanie v hríbikoch a blogových článkoch. Používa rovnakú logiku a
       "longitude": 19.7159638327,
       "altitude": 638,
       "photos": [],
+      "photo_thumbnails": [],
       "createdAt": "2026-05-02T14:49:00+00:00"
     }
   ],
@@ -85,7 +88,8 @@ Vyhľadávanie v hríbikoch a blogových článkoch. Používa rovnakú logiku a
       "short_description": "Objavte čaro turistického rozcestníka…",
       "published_at": "2026-04-09T12:56:39+00:00",
       "url": "https://hribiky.sk/blog/bela-rozcestnik-pri-krasnej-riecke-a-lavke-do-liptovskeho-petra",
-      "image_url": "https://hribiky.sk/uploads/photos/6967b025cf140.jpg"
+      "image_url": "https://hribiky.sk/uploads/photos/6967b025cf140.jpg",
+      "thumbnail_url": "https://hribiky.sk/uploads/photos/thumbs-800/6967b025cf140.jpg"
     }
   ],
   "posts_has_more": true
@@ -104,6 +108,8 @@ export interface Mushroom {
   longitude: number;
   altitude: number | null;
   photos: string[];
+  /** Náhľady 800 px, rovnaké poradie a dĺžka ako photos. */
+  photo_thumbnails: string[];
   /** ISO 8601 */
   createdAt: string;
 }
@@ -115,6 +121,7 @@ export interface SearchPost {
   published_at: string | null;
   url: string;
   image_url: string | null;
+  thumbnail_url: string | null;
 }
 
 export interface SearchResponse {
