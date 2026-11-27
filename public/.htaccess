@@ -18,6 +18,10 @@ DirectoryIndex index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Nahrané súbory (fotky od návštevníkov): nikdy nevydať ako skript, HTML ani SVG.
+    # Druhá poistka k overeniu typu pri nahrávaní — chráni aj pred súbormi nahranými skôr.
+    RewriteRule ^uploads/.+\.(php[0-9]?|phtml|phar|html?|xhtml|shtml|svgz?|js|mjs|xml|xsl)$ - [F,NC,L]
+
     # HTTP -> HTTPS presmerovanie
     RewriteCond %{HTTPS} off
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
@@ -70,4 +74,12 @@ DirectoryIndex index.php
         # When mod_rewrite is not available, we instruct a temporary redirect to the front controller
         RedirectMatch 307 ^/$ /index.php/
     </IfModule>
+</IfModule>
+
+# Nahrané súbory: prehliadač nesmie hádať typ obsahu ani v nich spúšťať skripty.
+<IfModule mod_headers.c>
+    <If "%{REQUEST_URI} =~ m#^/uploads/#">
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox"
+    </If>
 </IfModule>

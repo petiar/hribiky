@@ -189,6 +189,7 @@ Pridá nový hríbik. Hríbik sa uloží ako **neschválený** a zobrazí sa až
 - `422`: chýba povinné pole, napr. `{"status": "error", "message": "Missing required field: latitude", "id": null}`
 - `422`: viac ako 5 fotiek, `code: "too_many_photos"`. Hríbik sa **neuloží**.
 - `413`: fotka alebo celý request je priveľký, `code` je `photo_too_large` alebo `request_too_large` (viď [README](README.md#chybové-odpovede)). Hríbik sa **neuloží**, odošli ho znova s menšími fotkami.
+- `415`: súbor nie je fotka (JPEG, PNG, WebP, GIF), `code` je `photo_unsupported_type`. Hríbik sa **neuloží**.
 - `400`: fotku sa nepodarilo nahrať, `code: "photo_upload_failed"`
 
 ### Príklad (curl)

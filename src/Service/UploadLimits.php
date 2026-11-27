@@ -12,6 +12,14 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class UploadLimits
 {
+    /**
+     * Povolené typy fotiek — určené podľa OBSAHU súboru (finfo), nie podľa názvu či hlavičky od klienta.
+     * Nikdy sem nepridávaj image/svg+xml: SVG môže obsahovať JavaScript (XSS z našej domény).
+     * Rovnaké typy ako vo webových formulároch. HEIC/AVIF zámerne nie: väčšina prehliadačov ich
+     * nezobrazí a ImageLoader z nich nevie spraviť náhľad (appka posiela vždy JPEG).
+     */
+    public const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
     public function __construct(
         private readonly ?int $maxFileBytes = null,
         private readonly ?int $maxPostBytes = null,
@@ -43,6 +51,43 @@ class UploadLimits
         }
 
         return null;
+    }
+
+    public static function isAllowedImage(UploadedFile $file): bool
+    {
+        return in_array($file->getMimeType(), self::ALLOWED_IMAGE_TYPES, true);
+    }
+
+    /**
+     * Prvý (inak platne nahraný) súbor, ktorý nie je povolená fotka — napr. HTML, SVG, PHP, PDF.
+     *
+     * @param iterable<mixed> $files
+     */
+    public function findUnsupportedFile(iterable $files): ?UploadedFile
+    {
+        foreach (FotoUploader::flattenFiles($files) as $file) {
+            if ($file->isValid() && !self::isAllowedImage($file)) {
+                return $file;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{code: string, message: string}
+     */
+    public function unsupportedApiError(UploadedFile $file): array
+    {
+        return [
+            'code' => 'photo_unsupported_type',
+            'message' => sprintf('File "%s" is not a supported photo (JPEG, PNG, WebP, GIF).', $file->getClientOriginalName()),
+        ];
+    }
+
+    public function unsupportedWebError(UploadedFile $file): string
+    {
+        return sprintf('Súbor „%s“ nie je fotka. Povolené sú JPEG, PNG, WebP a GIF.', $file->getClientOriginalName());
     }
 
     /**

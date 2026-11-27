@@ -53,6 +53,9 @@ class BlogPhotoController extends AbstractController
         if ($invalid = $this->uploadLimits->findInvalidFile($files)) {
             return $this->json(['error' => $this->uploadLimits->webError($invalid)], 413);
         }
+        if ($unsupported = $this->uploadLimits->findUnsupportedFile($files)) {
+            return $this->json(['error' => $this->uploadLimits->unsupportedWebError($unsupported)], 415);
+        }
 
         $photos = [];
         foreach ($files as $file) {

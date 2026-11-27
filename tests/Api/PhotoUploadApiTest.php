@@ -229,6 +229,68 @@ class PhotoUploadApiTest extends WebTestCase
         $this->assertSame([], FotoUploader::flattenFiles(null, []));
     }
 
+    // --- Typ súboru (len skutočné fotky) ---
+
+    /**
+     * Súbory, ktoré sa tvária ako fotka (.jpg), ale obsahujú HTML/SVG/PHP — do verejného
+     * public/uploads by sa inak dal podstrčiť skript (XSS z našej domény).
+     */
+    #[DataProvider('disguisedFiles')]
+    public function testApiRejectsNonImageDisguisedAsJpeg(string $content): void
+    {
+        $path = $this->sourceDir . '/podvrh-' . uniqid() . '.jpg';
+        file_put_contents($path, $content);
+
+        $this->client->request('POST', '/api/mushrooms', $this->mushroomFields(), [
+            'photos' => [new UploadedFile($path, 'foto.jpg', 'image/jpeg', null, true)],
+        ], ['HTTP_API-KEY' => self::VALID_KEY]);
+
+        $this->assertResponseStatusCodeSame(415);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('photo_unsupported_type', $data['code']);
+        $this->assertSame(0, $this->em->getRepository(Mushroom::class)->count([]));
+        $this->assertSame([], glob(static::getContainer()->getParameter('photos_directory') . '/*.{html,svg,php,txt}', GLOB_BRACE));
+    }
+
+    public static function disguisedFiles(): array
+    {
+        return [
+            'HTML so skriptom' => ['<!DOCTYPE html><html><body><script>alert(document.cookie)</script></body></html>'],
+            'SVG so skriptom' => ['<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'],
+            'PHP skript' => ['<?php system($_GET["c"]);'],
+        ];
+    }
+
+    public function testApiCommentRejectsNonImage(): void
+    {
+        $mushroomId = $this->createMushroom();
+        $path = $this->sourceDir . '/podvrh.jpg';
+        file_put_contents($path, '<html><script>alert(1)</script></html>');
+
+        $this->client->request('POST', '/api/mushrooms_comments', ['name' => 'Tester', 'mushroom_id' => $mushroomId], [
+            'photos' => [new UploadedFile($path, 'foto.jpg', 'image/jpeg', null, true)],
+        ], ['HTTP_API-KEY' => self::VALID_KEY]);
+
+        $this->assertResponseStatusCodeSame(415);
+        $this->assertSame('photo_unsupported_type', json_decode($this->client->getResponse()->getContent(), true)['code']);
+        $this->assertSame(0, $this->em->getRepository(MushroomComment::class)->count([]));
+    }
+
+    public function testApiAcceptsRealPhotoTypes(): void
+    {
+        foreach (['jpg' => 'imagejpeg', 'png' => 'imagepng', 'webp' => 'imagewebp'] as $ext => $fn) {
+            $image = imagecreatetruecolor(300, 200);
+            $path = $this->sourceDir . '/foto.' . $ext;
+            $fn($image, $path);
+
+            $this->client->request('POST', '/api/mushrooms', $this->mushroomFields(), [
+                'photos' => [new UploadedFile($path, 'foto.' . $ext, 'application/octet-stream', null, true)],
+            ], ['HTTP_API-KEY' => self::VALID_KEY]);
+
+            $this->assertResponseStatusCodeSame(201, "Typ $ext");
+        }
+    }
+
     // --- Pomocné metódy ---
 
     private function mushroomFields(): array

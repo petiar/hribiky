@@ -133,6 +133,19 @@ class AdminSmokeTest extends WebTestCase
         $this->assertCount(1, $crawler->filter('a[href^="/admin/rozcestnik/' . $mushroom->getId() . '/generate-blog"]'), 'V zozname chýba akcia „Generovať blog“.');
     }
 
+    public function testBlogPhotoUploadRejectsNonImage(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'svg');
+        file_put_contents($path, '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+
+        $this->client->request('POST', '/admin/blog-post/temp-photos', [], [
+            'files' => [new \Symfony\Component\HttpFoundation\File\UploadedFile($path, 'obrazok.svg', 'image/svg+xml', null, true)],
+        ]);
+
+        $this->assertResponseStatusCodeSame(415);
+        $this->assertStringContainsString('nie je fotka', $this->client->getResponse()->getContent());
+    }
+
     /**
      * @return array<string, string> názov route → URL
      */
