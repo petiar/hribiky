@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Repository\BlogPostRepository;
 use App\Repository\MushroomRepository;
 use App\Repository\TagRepository;
+use App\Service\AreaCatalog;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,6 +19,7 @@ class SitemapController extends AbstractController
         private MushroomRepository $mushroomRepo,
         private BlogPostRepository $blogPostRepo,
         private TagRepository $tagRepo,
+        private AreaCatalog $areaCatalog,
     ) {}
 
     #[Route('sitemap.xml', name: 'sitemap')]
@@ -51,6 +53,25 @@ class SitemapController extends AbstractController
         // Ďalšie verejné stránky. (Vyhľadávanie má noindex, strany blogu ?page=N netreba — články sú tu všetky.)
         $this->addUrl($xml, $urlset, 'about', [], null, 'monthly', '0.5');
         $this->addUrl($xml, $urlset, 'app_leaderboard', [], null, 'weekly', '0.4');
+
+        // Pohoria a kraje — len oblasti s aspoň AreaCatalog::MIN_INDEXED hríbikmi (ostatné majú noindex).
+        // lastmod = posledná zmena hríbika v oblasti.
+        $areaLastmod = [];
+        foreach ($mushrooms as $mushroom) {
+            foreach (['area_range' => $mushroom->getMountainRange(), 'area_region' => $mushroom->getRegion()] as $route => $name) {
+                if ($name !== null && ($areaLastmod[$route][$name] ?? null) < $mushroom->getLastModified()) {
+                    $areaLastmod[$route][$name] = $mushroom->getLastModified();
+                }
+            }
+        }
+        $this->addUrl($xml, $urlset, 'area_index', [], $mapLastmod, 'weekly', '0.6');
+        foreach (['area_range' => $this->areaCatalog->ranges(), 'area_region' => $this->areaCatalog->regions()] as $route => $areas) {
+            foreach ($areas as $area) {
+                if ($area['count'] >= AreaCatalog::MIN_INDEXED) {
+                    $this->addUrl($xml, $urlset, $route, ['slug' => $area['slug']], $areaLastmod[$route][$area['name']] ?? null, 'weekly', '0.6');
+                }
+            }
+        }
 
         foreach ($mushrooms as $mushroom) {
             $url = $xml->createElement('url');

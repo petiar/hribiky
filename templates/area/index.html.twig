@@ -1,0 +1,38 @@
+{# Rozcestník stránok pohorí a krajov (AreaController::index). #}
+{% extends 'base.html.twig' %}
+
+{% set cs = app.request.locale == 'cs' %}
+{% set seo_title = 'area.index_title'|trans ~ ' – ' ~ 'area.index_subtitle'|trans ~ ' | ' ~ 'site_name'|trans %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ 'area.index_description'|trans }}">{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ 'area.index_description'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4 mb-5">
+        <h1 class="h2 mb-3">{{ 'area.index_title'|trans }}</h1>
+        <p class="lead fs-6 mb-4">{{ 'area.index_description'|trans }}</p>
+
+        <div class="row g-5">
+            {% for section in [
+                {title: 'area.ranges'|trans, items: ranges, route: 'area_range'},
+                {title: 'area.regions'|trans, items: regions, route: 'area_region'},
+            ] %}
+                <section class="col-md-6">
+                    <h2 class="h4 mb-3">{{ section.title }}</h2>
+                    <div class="list-group shadow-sm">
+                        {% for a in section.items %}
+                            <a href="{{ path(section.route, {slug: a.slug}) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                {{ cs ? a.nameCs : a.name }}
+                                <span class="badge rounded-pill text-bg-secondary">{{ a.count }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endfor %}
+        </div>
+
+        <p class="small text-body-secondary mt-4">{{ 'mushroom.location_source'|trans }} <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></p>
+    </div>
+{% endblock %}

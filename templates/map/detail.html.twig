@@ -57,10 +57,13 @@
 
                             {% set place = [mushroom.locality, mushroom.district, mushroom.region]|filter(v => v is not empty) %}
                             {% if place is not empty %}
-                                <li class="list-group-item"><strong>{{ 'mushroom.location'|trans }}:</strong> {{ place|join(', ') }}</li>
+                                <li class="list-group-item"><strong>{{ 'mushroom.location'|trans }}:</strong>
+                                    {{ [mushroom.locality, mushroom.district]|filter(v => v is not empty)|join(', ') }}
+                                    {%- if mushroom.region %}{{ mushroom.locality or mushroom.district ? ',' }} <a href="{{ path('area_region', {slug: mushroom.region|area_slug}) }}">{{ mushroom.region }}</a>{% endif %}
+                                </li>
                             {% endif %}
                             {% if mountain_range %}
-                                <li class="list-group-item"><strong>{{ 'mushroom.mountain_range'|trans }}:</strong> {{ mountain_range }}
+                                <li class="list-group-item"><strong>{{ 'mushroom.mountain_range'|trans }}:</strong> <a href="{{ path('area_range', {slug: mushroom.mountainRange|area_slug}) }}">{{ mountain_range }}</a>
                                     {%- if mushroom.mountainRangeDistance > 0 %} <span class="text-body-secondary">({{ 'mushroom.mountain_range_near'|trans }})</span>{% endif %}
                                 </li>
                             {% endif %}

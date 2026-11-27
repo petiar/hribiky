@@ -155,3 +155,23 @@ country:
     PL: 'Polsko'
     AT: 'Rakousko'
     HU: 'Maďarsko'
+
+# Stránky pohoří a krajů (AreaController)
+area:
+    index_title: 'Pohoří a kraje'
+    index_subtitle: 'turistické rozcestníky podle oblastí'
+    index_description: 'Hříbky – turistické rozcestníky v Česku a na Slovensku – podle pohoří a krajů. U každé oblasti mapa, fotky a GPS souřadnice rozcestníků.'
+    ranges: 'Pohoří'
+    regions: 'Kraje'
+    menu: 'Pohoří a kraje'
+    range_title: '%name% – turistické rozcestníky (%count%)'
+    region_title: '%name% – turistické rozcestníky (%count%)'
+    range_heading: 'Hříbky v pohoří %name%'
+    region_heading: 'Hříbky – %name%'
+    range_description: '{1}Turistický rozcestník (hříbek) v pohoří %name% s fotkami, GPS souřadnicemi a polohou na mapě.|[2,4]%count% turistické rozcestníky (hříbky) v pohoří %name% s fotkami, GPS souřadnicemi a polohou na mapě.|[5,Inf]%count% turistických rozcestníků (hříbků) v pohoří %name% s fotkami, GPS souřadnicemi a polohou na mapě.'
+    region_description: '{1}Turistický rozcestník (hříbek) – %name% – s fotkami, GPS souřadnicemi a polohou na mapě.|[2,4]%count% turistické rozcestníky (hříbky) – %name% – s fotkami, GPS souřadnicemi a polohou na mapě.|[5,Inf]%count% turistických rozcestníků (hříbků) – %name% – s fotkami, GPS souřadnicemi a polohou na mapě.'
+    intro_count: '{1}Zatím tu máme jeden hříbek.|[2,4]Máme tu %count% hříbky.|[5,Inf]Máme tu %count% hříbků.'
+    intro_highest: 'Nejvýše položený je %title% (%altitude% m n. m.).'
+    intro_localities: 'Obce a města: %list%.'
+    related_regions: 'Kraje'
+    related_ranges: 'Pohoří v kraji'

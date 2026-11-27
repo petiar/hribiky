@@ -483,3 +483,19 @@ h2.app-title{
     height: 3.5rem;
     object-fit: cover;
 }
+
+/* Stránky pohorí a krajov */
+#map.area-map { /* #map (hlavná stránka) má 80vh */
+    height: 360px;
+}
+@media (min-width: 768px) {
+    #map.area-map { height: 480px; }
+}
+.area-card-img {
+    height: 11rem;
+    object-fit: cover;
+}
+.area-card:hover {
+    transform: translateY(-2px);
+    transition: transform .15s ease;
+}

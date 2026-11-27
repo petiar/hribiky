@@ -12,6 +12,11 @@ window.addEventListener('load', () => {
     }
 });
 
+/** Text od používateľov (názov, popis) do HTML okna na mape — inak by sa z neho stali značky a skripty. */
+function escapeHtml(text) {
+    return String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 const markers = [];
 let activeInfoWindow = null;
 /** id hríbika → { marker, infowindow, position } — na otvorenie hríbika z odkazu /?hribik=ID */
@@ -61,7 +66,7 @@ function initMap() {
             if (hrib.fotky && hrib.fotky.length > 0) {
                 imagesHtml = `<div class="iw-photo-wrap"><div class="slideshow-container" id="slideshow-${hrib.id}">`;
                 hrib.fotky.forEach((foto, index) => {
-                    imagesHtml += `<div class="slide" style="display:${index===0?'block':'none'};"><img src="${foto}" class="iw-photo"></div>`;
+                    imagesHtml += `<div class="slide" style="display:${index===0?'block':'none'};"><img src="${escapeHtml(foto)}" class="iw-photo"></div>`;
                 });
                 if (hrib.fotky.length > 1) {
                     imagesHtml += `<a class="prev" data-id="${hrib.id}">&#10094;</a><a class="next" data-id="${hrib.id}">&#10095;</a>`;
@@ -76,9 +81,9 @@ function initMap() {
             let content = `<div class="infowindow">
                 ${imagesHtml}
                 <div class="iw-body">
-                    <h6 class="iw-title"><a href="/${hrib.id}">${hrib.title}</a></h6>
-                    ${shortDesc ? `<p class="iw-desc">${shortDesc}</p>` : ''}
-                    <a href="/${hrib.id}" class="iw-btn">Zobraziť detail &rarr;</a>
+                    <h6 class="iw-title"><a href="/${Number(hrib.id)}">${escapeHtml(hrib.title)}</a></h6>
+                    ${shortDesc ? `<p class="iw-desc">${escapeHtml(shortDesc)}</p>` : ''}
+                    <a href="/${Number(hrib.id)}" class="iw-btn">Zobraziť detail &rarr;</a>
                 </div>
             </div>`;
 
@@ -92,6 +97,16 @@ function initMap() {
         });
 
 
+
+        // Stránky pohorí a krajov (data-fit-bounds): priblížiť mapu na hríbiky oblasti.
+        if (mapEl.dataset.fitBounds && hribiky.length > 0) {
+            const bounds = new google.maps.LatLngBounds();
+            hribiky.forEach(h => bounds.extend({ lat: h.latitude, lng: h.longitude }));
+            map.fitBounds(bounds, 40);
+            google.maps.event.addListenerOnce(map, 'idle', () => {
+                if (map.getZoom() > 14) map.setZoom(14); // jeden hríbik — nepribližovať až na dvor
+            });
+        }
 
         const clusterer = new markerClusterer.MarkerClusterer({
             map,

@@ -187,6 +187,7 @@
             {% else %}
             <li class="nav-item"><a href="https://hribiky.sk{{ app.request.pathInfo }}" class="nav-link px-2 text-body-secondary">Slovensky</a></li>
             {% endif %}
+            <li class="nav-item"><a href="{{ path('area_index') }}" class="nav-link px-2 text-body-secondary">{{ 'area.menu'|trans }}</a></li>
             <li class="nav-item"><a href="{{ path('app_leaderboard') }}" class="nav-link px-2 text-body-secondary">Leaderboard</a></li>
             <li class="nav-item"><a href="{{ path('privacy') }}" class="nav-link px-2 text-body-secondary">Súkromie</a></li>
             <li class="nav-item ms-2">

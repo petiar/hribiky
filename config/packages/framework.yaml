@@ -10,7 +10,7 @@ framework:
     assets:
         # Pri každej zmene CSS/JS/obrázkov v public/ zvýš verziu — mení URL (?0.99.0),
         # inak prehliadače návštevníkov ďalej používajú starú verziu z cache.
-        version: 0.99.1
+        version: 0.99.4
     error_controller: App\Controller\ErrorController::show
 
 when@test:

@@ -10,7 +10,7 @@ use App\Form\MushroomCommentType;
 use App\Repository\MushroomRepository;
 use App\Service\FotoUploader;
 use App\Service\MailService;
-use App\Service\ThumbnailService;
+use App\Service\MapMarkers;
 use App\Service\UploadLimits;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,38 +18,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validation;
 
 class MushroomController extends AbstractController
 {
     public function __construct(
-        private ThumbnailService $thumbnailService,
         private string $uploadDir,
     ) {}
 
     #[Route('/', name: 'app_home')]
-    public function index(MushroomRepository $mushroomRepository, SerializerInterface $serializer): Response
+    public function index(MushroomRepository $mushroomRepository, MapMarkers $mapMarkers): Response
     {
         // Fotky (a edit link) v jednom dotaze — predtým samostatný dotaz na fotky pre každý hríbik (stovky dotazov).
         $mushrooms = $mushroomRepository->findPublishedForApi();
-        $data = [];
-        foreach ($mushrooms as $mushroom) {
-            $data[] = [
-                'id' => $mushroom->getId(),
-                'title' => $mushroom->getTitle(),
-                'description' => $mushroom->getDescription(),
-                'latitude' => $mushroom->getLatitude(),
-                'longitude' => $mushroom->getLongitude(),
-                // Náhľady tu negenerujeme (vznikajú pri nahraní a príkazom app:generate-thumbnails v deployi) —
-                // inak by po zmene veľkosti náhľadov jedna návšteva mapy generovala stovky obrázkov naraz.
-                'fotky' => array_map(
-                    fn($fotka) => $this->thumbnailService->publicUrl($fotka->getPath()),
-                    $mushroom->getPhotos()->toArray(),
-                ),
-            ];
-        }
-        $mushroomsJson = $serializer->serialize($data, 'json');
+        $mushroomsJson = $mapMarkers->toJson($mushrooms);
         $mushroom = new Mushroom();
         $mushroomForm = $this->createForm(MushroomType::class, $mushroom);
         $mushroomComment = new MushroomComment();

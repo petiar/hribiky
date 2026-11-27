@@ -1,0 +1,96 @@
+{# Stránka pohoria alebo kraja: hríbiky v oblasti na mape a v zozname (AreaController). #}
+{% extends 'base.html.twig' %}
+
+{% set is_range = type == 'range' %}
+{% set cs = app.request.locale == 'cs' %}
+{% set name = cs ? area.nameCs : area.name %}
+{% set count = mushrooms|length %}
+{% set seo_title = ('area.' ~ type ~ '_title')|trans({'%name%': name, '%count%': count}) ~ ' | ' ~ 'site_name'|trans %}
+{% set seo_description = ('area.' ~ type ~ '_description')|trans({'%name%': name, '%count%': count})
+    ~ (highest ? ' ' ~ 'area.intro_highest'|trans({'%title%': highest.title, '%altitude%': highest.altitude}) : '') %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ seo_description|meta_text }}">{% endblock %}
+{% block robots %}{% if not indexable %}<meta name="robots" content="noindex,follow">{% endif %}{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ seo_description|meta_text }}{% endblock %}
+{% block og_image %}{% set withPhoto = mushrooms|filter(m => m.photos|length > 0)|first %}{% if withPhoto %}{{ absolute_url(asset('uploads/photos/' ~ withPhoto.photos.first.path)) }}{% else %}{{ absolute_url(asset('images/android-chrome-512x512.png')) }}{% endif %}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4 mb-5">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">{{ 'site_name'|trans }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('area_index') }}">{{ 'area.index_title'|trans }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ name }}</li>
+            </ol>
+        </nav>
+
+        <h1 class="h2 mb-3">{{ ('area.' ~ type ~ '_heading')|trans({'%name%': name}) }}</h1>
+        <p class="lead fs-6">
+            {{ 'area.intro_count'|trans({'%count%': count}) }}
+            {% if highest %}{{ 'area.intro_highest'|trans({'%title%': highest.title, '%altitude%': highest.altitude}) }}{% endif %}
+            {% if localities is not empty %}{{ 'area.intro_localities'|trans({'%list%': localities|join(', ')}) }}{% endif %}
+        </p>
+
+        {% if related is not empty %}
+            <p class="mb-4">
+                <strong>{{ (is_range ? 'area.related_regions' : 'area.related_ranges')|trans }}:</strong>
+                {% for r in related %}
+                    <a href="{{ path(is_range ? 'area_region' : 'area_range', {slug: r.slug}) }}" class="badge rounded-pill bg-body-tertiary text-body border text-decoration-none fw-normal fs-6 me-1 mb-1">
+                        {{ cs ? r.nameCs : r.name }} <span class="text-body-secondary">{{ r.count }}</span>
+                    </a>
+                {% endfor %}
+            </p>
+        {% endif %}
+
+        {# Mapa: public/js/hribiky.js, data-fit-bounds = priblížiť na hríbiky oblasti. #}
+        <div id="map" class="area-map rounded shadow-sm mb-4" data-fit-bounds="1"></div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+            {% for m in mushrooms %}
+                <div class="col">
+                    <a href="{{ path('mushroom_detail', {id: m.id}) }}" class="card h-100 shadow-sm text-decoration-none area-card">
+                        {% if m.photos|length > 0 %}
+                            <img src="{{ asset(photo_thumb(m.photos.first.path)) }}" class="card-img-top area-card-img" alt="{{ m.title }}" loading="lazy">
+                        {% else %}
+                            <div class="card-img-top area-card-img d-flex align-items-center justify-content-center bg-body-tertiary text-body-secondary fs-1" aria-hidden="true"><i class="bi bi-signpost-split"></i></div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h2 class="h6 card-title mb-1">{{ m.title }}</h2>
+                            <p class="card-text small text-body-secondary mb-0">
+                                {% if m.altitude %}{{ m.altitude }} m n. m.{% endif %}
+                                {% if m.altitude and m.locality %} · {% endif %}
+                                {{ m.locality }}
+                                {% if is_range and m.mountainRangeDistance > 0 %} · {{ 'mushroom.mountain_range_near'|trans }}{% endif %}
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="application/ld+json">
+{{ {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": 'site_name'|trans, "item": url('app_home') },
+            { "@type": "ListItem", "position": 2, "name": 'area.index_title'|trans, "item": url('area_index') },
+            { "@type": "ListItem", "position": 3, "name": name, "item": url(is_range ? 'area_range' : 'area_region', {slug: area.slug}) }
+        ]
+    } | json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG')) | raw }}
+</script>
+{% endblock %}
+
+{% block mapscripts %}
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=marker&v=weekly&language={{ app.request.locale }}" defer></script>
+    <script>
+        const hribiky = {{ mushroomsJson|raw }};
+    </script>
+{% endblock %}
