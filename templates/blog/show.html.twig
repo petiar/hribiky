@@ -39,6 +39,13 @@
             "name": {{ 'site_name'|trans|json_encode|raw }},
             "url": {{ url('app_home')|json_encode|raw }}
         },
+        {% if mushroom %}
+        "about": {
+            "@type": "TouristAttraction",
+            "@id": {{ url('mushroom_detail', {id: mushroom.id})|json_encode|raw }},
+            "name": {{ mushroom.title|json_encode|raw }}
+        },
+        {% endif %}
         "keywords": {{ post.tags|map(t => t.name)|join(', ')|json_encode|raw }}
     }
     </script>
@@ -144,11 +151,26 @@
                 {% endif %}
             </div>
 
+            {% if mushroom %}
+                {# Hneď pod nadpisom: kde to je (odkazy na detail a pohorie) — pre čitateľa aj pre Google. #}
+                <p class="small mb-3 blog-mushroom-line">
+                    <i class="bi bi-signpost-split"></i>
+                    <a href="{{ path('mushroom_detail', {id: mushroom.id}) }}">{{ mushroom.title }}</a>
+                    {%- if mushroom.mountainRange %} · <a href="{{ path('area_range', {slug: mushroom.mountainRange|area_slug}) }}">{{ app.request.locale == 'cs' ? (mushroom.mountainRangeCs ?: mushroom.mountainRange) : mushroom.mountainRange }}</a>{% endif %}
+                    {%- if mushroom.region %} · <a href="{{ path('area_region', {slug: mushroom.region|area_slug}) }}">{{ mushroom.region }}</a>{% endif %}
+                </p>
+            {% endif %}
+
             <p class="lead border-start border-3 ps-3 text-muted">{{ post.shortDescription }}</p>
 
             <div class="blog-content mt-4">
                 {{ post.text|raw }}
             </div>
+
+            {% if mushroom %}
+                {% include 'blog/_mushroom_box.html.twig' with {mushroom: mushroom} %}
+                {% include 'map/_neighbours.html.twig' with {neighbours: neighbours, class: 'mt-4'} only %}
+            {% endif %}
 
             {% if post.photos is defined and post.photos|length > 1 %}
             <div class="mt-5">

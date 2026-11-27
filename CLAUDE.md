@@ -69,6 +69,8 @@ php bin/console app:resolve-locations     # Obec/okres/kraj/pohorie pre hríbiky
 - Detail hríbika: `<h1>`, popis od autora (≥ 70 znakov) alebo poskladaný z údajov; hlavná stránka: skrytý `<h1>`, JSON-LD `WebSite` + `SearchAction` + `Organization`
 - JSON-LD cez `json_encode` s `JSON_UNESCAPED_SLASHES` musí mať aj `JSON_HEX_TAG` (inak `</script>` v texte od používateľa ukončí skript)
 - Related posts podľa tagov na konci článku
+- Článok o hríbiku (cez `MushroomArticleLink`) má riadok pod nadpisom a rámik s odkazmi na detail, pohorie, kraj + hríbiky v okolí; JSON-LD `about`
+- `BlogPost::setText()` čistí HTML (`App\Util\BlogHtml`: &nbsp;, prázdne odrážky); existujúce články `app:clean-blog-html` (deploy)
 - Poloha slovami na detaile: obec, okres, kraj (Nominatim, `ReverseGeocoder`) + pohorie z lokálnych OSM dát (`MountainRangeLocator`, `data/geomorfologia/`). Ukladá `app:resolve-locations` (deploy + cron), presun hríbika vynuluje `locationResolvedAt`
 - Stránky pohorí a krajov: `/pohoria-a-kraje`, `/pohorie/{slug}`, `/kraj/{slug}` (`AreaController`, `AreaCatalog` — bez tabuľky, z polí hríbikov; slug zo slovenského názvu, Twig filter `area_slug`). Oblasti s < 2 hríbikmi majú noindex a nie sú v sitemap
 - „Hríbiky v okolí“ na detaile: `MushroomRepository::findNeighbours()` (obdĺžnik v DQL + haversine v PHP — testy bežia na SQLite, nepoužívaj MySQL-only funkcie)

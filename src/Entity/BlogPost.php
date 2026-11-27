@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Util\BlogHtml;
 use App\Repository\BlogPostRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -103,7 +104,7 @@ class BlogPost
 
     public function setText(string $text): self
     {
-        $this->text = $text;
+        $this->text = BlogHtml::clean($text); // &nbsp; a prázdne odrážky z editora
 
         return $this;
     }

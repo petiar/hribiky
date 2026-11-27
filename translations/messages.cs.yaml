@@ -175,3 +175,8 @@ area:
     intro_localities: 'Obce a města: %list%.'
     related_regions: 'Kraje'
     related_ranges: 'Pohoří v kraji'
+
+# Blogový článok — rámik s hríbikom
+blog:
+    mushroom_box_label: 'Hříbek z tohoto článku'
+    mushroom_detail: 'Detail hříbku'
