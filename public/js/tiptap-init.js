@@ -78,6 +78,35 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.on('selectionUpdate', updateActive);
     editor.on('transaction', updateActive);
 
+    // Textarea je skrytá a povinná (required). Prehliadač kontroluje povinné polia ešte PRED
+    // udalosťou submit, takže pri novom článku (prázdna textarea) odoslanie potichu zablokoval –
+    // chybu nemal kde ukázať. Preto obsah zapisujeme do textarey priebežne pri každej zmene.
+    const syncTextarea = () => {
+        textarea.value = editor.isEmpty ? '' : editor.getHTML();
+    };
+    editor.on('update', syncTextarea);
+    syncTextarea();
+
+    // Ak je text naozaj prázdny, prehliadač chybu pri skrytom poli neukáže – ukážeme ju pri editore.
+    const errorEl = document.createElement('div');
+    errorEl.className = 'invalid-feedback d-block';
+    errorEl.textContent = 'Text článku je povinný.';
+    errorEl.hidden = true;
+    wrapper.after(errorEl);
+
+    textarea.addEventListener('invalid', () => {
+        wrapper.style.borderColor = '#dc3545';
+        errorEl.hidden = false;
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        editor.commands.focus();
+    });
+    editor.on('update', () => {
+        if (!editor.isEmpty) {
+            wrapper.style.borderColor = '';
+            errorEl.hidden = true;
+        }
+    });
+
     const form = textarea.closest('form');
     if (form) {
         form.addEventListener('submit', () => {
