@@ -22,6 +22,11 @@ DirectoryIndex index.php
     # Druhá poistka k overeniu typu pri nahrávaní — chráni aj pred súbormi nahranými skôr.
     RewriteRule ^uploads/.+\.(php[0-9]?|phtml|phar|html?|xhtml|shtml|svgz?|js|mjs|xml|xsl)$ - [F,NC,L]
 
+    # www.hribiky.sk / www.hribiky.cz -> bez www (jedna adresa pre Google; predtým www vracalo
+    # celý web s vlastným canonical a Google ho indexoval ako duplikát).
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
     # HTTP -> HTTPS presmerovanie. Za proxy, ktorá HTTPS ukončí sama a Apache pošle HTTP
     # (lokálne Lando: https://hribiky.lndo.site:444), rozhoduje X-Forwarded-Proto — inak nekonečná slučka.
     RewriteCond %{HTTPS} off
