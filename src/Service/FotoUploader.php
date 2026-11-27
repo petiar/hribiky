@@ -51,6 +51,12 @@ class FotoUploader
      */
     public function store(UploadedFile $file): string
     {
+        // Posledná poistka — controllery to kontrolujú skôr a vracajú zrozumiteľnú chybu.
+        // Bez nej by sa dal do verejného public/uploads uložiť napr. HTML/SVG so skriptom.
+        if (!UploadLimits::isAllowedImage($file)) {
+            throw new \InvalidArgumentException(sprintf('Súbor typu %s nie je povolená fotka.', $file->getMimeType()));
+        }
+
         $newFilename = uniqid() . '.' . $file->guessExtension();
         $file->move($this->uploadDir, $newFilename);
 

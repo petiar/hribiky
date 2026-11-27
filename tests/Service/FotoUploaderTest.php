@@ -83,6 +83,20 @@ class FotoUploaderTest extends KernelTestCase
         $this->assertSame([400, 600], array_slice(getimagesize($this->uploadDir . '/thumbs/' . $filename), 0, 2), 'Náhľad otočený rovnako.');
     }
 
+    public function testStoreRefusesNonImage(): void
+    {
+        $path = $this->sourceDir . '/podvrh.jpg';
+        file_put_contents($path, '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+
+        try {
+            $this->uploader->store(new UploadedFile($path, 'foto.jpg', 'image/jpeg', null, true));
+            $this->fail('store() mal odmietnuť súbor, ktorý nie je fotka.');
+        } catch (\InvalidArgumentException) {
+        }
+
+        $this->assertSame([], glob($this->uploadDir . '/*') ?: []);
+    }
+
     public function testUploadAndAttachCreatesPhotosForMushroom(): void
     {
         $mushroom = (new Mushroom())->setTitle('Test')->setName('Tester')->setLatitude(48.1)->setLongitude(17.1);

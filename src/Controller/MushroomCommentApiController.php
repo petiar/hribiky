@@ -82,6 +82,11 @@
              return $this->json(['status' => 'error'] + $error + ['id' => null], $error['code'] === 'photo_too_large' ? 413 : 400);
          }
 
+         // Len skutočné fotky (podľa obsahu súboru) — nie HTML, SVG, PHP…
+         if ($unsupported = $uploadLimits->findUnsupportedFile($files)) {
+             return $this->json(['status' => 'error'] + $uploadLimits->unsupportedApiError($unsupported) + ['id' => null], 415);
+         }
+
          $mushroom = $entityManager->getRepository(Mushroom::class)->findOneBy(['id' => $request->request->get('mushroom_id')]);
 
          $mushroomComment = new MushroomComment();

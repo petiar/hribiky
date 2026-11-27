@@ -59,3 +59,24 @@ when@prod:
                 channels: [deprecation]
                 path: php://stderr
                 formatter: monolog.formatter.json
+            # Kritická chyba (napr. 500 pre celý web) → e-mail. Tá istá chyba najviac raz za hodinu.
+            # Pamäť deduplikácie je v logs/, nie v cache/ — deploy cache maže.
+            error_mail:
+                type: deduplication
+                handler: error_mail_sender
+                level: critical
+                # Doplniť hodnoty do textu ({message}, {class}…) PRED porovnaním — inak by všetky
+                # chyby vyzerali rovnako a za hodinu by prišiel len jeden e-mail.
+                process_psr_3_messages: true
+                deduplication_level: critical
+                time: 3600
+                store: '%kernel.logs_dir%/monolog_dedup_critical'
+            error_mail_sender:
+                type: symfony_mailer
+                nested: true
+                from_email: '%app.email_from%'
+                to_email: '%app.email_to_me%'
+                subject: 'Hríbiky.sk: kritická chyba na produkcii'
+                level: critical
+                formatter: monolog.formatter.html
+                content_type: text/html

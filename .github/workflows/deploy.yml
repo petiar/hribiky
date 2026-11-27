@@ -40,3 +40,15 @@ jobs:
             echo '<?php if (function_exists("opcache_reset")) { opcache_reset(); } echo "ok";' > "public/$RESET"
             curl -fsS --max-time 30 "https://hribiky.sk/$RESET" || echo "Upozornenie: opcache sa nepodarilo vyčistiť"
             rm -f "public/$RESET"
+            # Kontrola po nasadení: hlavná stránka a API musia odpovedať 200. Inak deploy skončí
+            # červeno (a vypíše koniec logu), aby sa výpadok neodhalil až náhodou.
+            sleep 3
+            for URL in "https://hribiky.sk/" "https://hribiky.sk/api/leaderboard" "https://hribiky.sk/blog"; do
+              CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL" || echo "000")
+              echo "$URL -> $CODE"
+              if [ "$CODE" != "200" ]; then
+                echo "CHYBA: web po nasadení neodpovedá správne ($URL vrátil $CODE). Koniec var/log/prod.log:"
+                tail -n 30 var/log/prod.log || true
+                exit 1
+              fi
+            done

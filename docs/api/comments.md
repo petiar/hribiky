@@ -83,6 +83,7 @@ Pridá komentár k hríbiku. Komentár sa uloží ako **neschválený** a zobraz
 - `201 Created`: `{"status": "ok", "id": 32}`
 - `422`: viac ako 5 fotiek, `code: "too_many_photos"`. Komentár sa **neuloží**.
 - `413`: fotka alebo celý request je priveľký, `code` je `photo_too_large` alebo `request_too_large`. Komentár sa **neuloží**.
+- `415`: súbor nie je fotka (JPEG, PNG, WebP, GIF), `code` je `photo_unsupported_type`. Komentár sa **neuloží**.
 - **`200 OK`** pri chýbajúcom povinnom poli: `{"status": "error", "message": "Missing required field: mushroom_id", "id": null}`. Na rozdiel od hríbikov tu **nie je** status `422`, chybu treba rozpoznať podľa `"status": "error"` v tele.
 
 ### Príklad (curl)
