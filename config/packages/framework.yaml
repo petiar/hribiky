@@ -8,9 +8,9 @@ framework:
     #esi: true
     #fragments: true
     assets:
-        # Pri každej zmene CSS/JS/obrázkov v public/ zvýš verziu — mení URL (?0.98.7),
+        # Pri každej zmene CSS/JS/obrázkov v public/ zvýš verziu — mení URL (?0.98.8),
         # inak prehliadače návštevníkov ďalej používajú starú verziu z cache.
-        version: 0.98.7
+        version: 0.98.8
     error_controller: App\Controller\ErrorController::show
 
 when@test:

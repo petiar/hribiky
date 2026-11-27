@@ -372,7 +372,7 @@ h2.app-title{
     height: 100%;
 }
 
-body[data-bs-theme="dark"] .appstore-badge { filter: invert(1); }
+[data-bs-theme="dark"] .appstore-badge { filter: invert(1); }
 
 .cluster-bubble {
     position: absolute;
