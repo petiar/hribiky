@@ -29,6 +29,7 @@ php bin/phpunit --filter=TestClassName
 # Custom príkazy
 php bin/console app:generate-blog-posts   # Generuje AI blogposty z hríbikov + publikuje naplánované
 php bin/console app:count-mushrooms       # Štatistiky
+php bin/console app:resolve-locations     # Obec/okres/kraj/pohorie pre hríbiky bez polohy (--all = všetky)
 ```
 
 ## Architecture
@@ -68,6 +69,8 @@ php bin/console app:count-mushrooms       # Štatistiky
 - Detail hríbika: `<h1>`, popis od autora (≥ 70 znakov) alebo poskladaný z údajov; hlavná stránka: skrytý `<h1>`, JSON-LD `WebSite` + `SearchAction` + `Organization`
 - JSON-LD cez `json_encode` s `JSON_UNESCAPED_SLASHES` musí mať aj `JSON_HEX_TAG` (inak `</script>` v texte od používateľa ukončí skript)
 - Related posts podľa tagov na konci článku
+- Poloha slovami na detaile: obec, okres, kraj (Nominatim, `ReverseGeocoder`) + pohorie z lokálnych OSM dát (`MountainRangeLocator`, `data/geomorfologia/`). Ukladá `app:resolve-locations` (deploy + cron), presun hríbika vynuluje `locationResolvedAt`
+- „Hríbiky v okolí“ na detaile: `MushroomRepository::findNeighbours()` (obdĺžnik v DQL + haversine v PHP — testy bežia na SQLite, nepoužívaj MySQL-only funkcie)
 
 ### API
 - `ApiKeyListener` validuje `IOS_API_KEY` pre mobilné endpointy

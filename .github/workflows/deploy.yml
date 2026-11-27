@@ -39,6 +39,8 @@ jobs:
             # Chýbajúce náhľady fotiek (800 px). Prvý beh po zmene veľkosti trvá niekoľko minút,
             # potom len skontroluje existenciu súborov. Chyba tu deploy nezastaví — web má zálohu (starší náhľad/originál).
             php bin/console app:generate-thumbnails --no-interaction --no-ansi | tail -n 3 || echo "Upozornenie: náhľady sa nepodarilo vygenerovať"
+            # Obec, okres, kraj a pohorie pre hríbiky, ktoré ich ešte nemajú (Nominatim: 1 hríbik/s). Chyba deploy nezastaví.
+            php bin/console app:resolve-locations --no-interaction --no-ansi | tail -n 3 || echo "Upozornenie: polohu hríbikov sa nepodarilo doplniť"
             # Websupport ukladá opcache na disk (opcache.file_cache_only=1, adresár viditeľný len pre PHP-FPM,
             # nie pre SSH) a každá doména môže bežať na inej verzii PHP s vlastnou cache (hribiky.cz je alias
             # s PHP 8.4). opcache_reset() disk nemaže — po upgrade Symfony zostal na .cz starý kód a vracala 500.

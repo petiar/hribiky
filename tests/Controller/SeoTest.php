@@ -107,6 +107,61 @@ class SeoTest extends WebTestCase
         $this->assertStringNotContainsString('<script>alert(1)', $html);
     }
 
+    public function testDetailShowsLocationInWordsAndUsesItInDescription(): void
+    {
+        $client = static::createClient();
+        $mushroom = $this->createMushroom(null)
+            ->setAddress('Horná Lehota', 'okres Brezno', 'Banskobystrický kraj')
+            ->setMountainRange('Nízke Tatry', 'Nízké Tatry', 0);
+        static::getContainer()->get('doctrine')->getManager()->flush();
+
+        $crawler = $client->request('GET', '/' . $mushroom->getId());
+
+        $text = $crawler->filter('.md-info')->text();
+        $this->assertStringContainsString('Horná Lehota, okres Brezno, Banskobystrický kraj', $text);
+        $this->assertStringContainsString('Pohorie: Nízke Tatry', $text);
+        $this->assertStringNotContainsString('na úpätí', $text);
+        $this->assertSame(
+            'Hríbik Chopok, 2024 m n. m., Nízke Tatry, Horná Lehota, Slovensko – turistický rozcestník s fotkami, GPS súradnicami a polohou na mape.',
+            $this->metaDescription($crawler),
+        );
+        $this->assertStringContainsString('OpenStreetMap', $crawler->filter('.md-side')->text());
+        $this->assertStringContainsString('"addressLocality":"Horná Lehota"', $client->getResponse()->getContent());
+    }
+
+    public function testDetailMountainRangeNearAndCzechName(): void
+    {
+        $client = static::createClient(server: ['HTTP_HOST' => 'hribiky.cz']);
+        $mushroom = $this->createMushroom(null)->setMountainRange('Biele Karpaty', 'Bílé Karpaty', 79);
+        static::getContainer()->get('doctrine')->getManager()->flush();
+
+        $crawler = $client->request('GET', '/' . $mushroom->getId());
+
+        $this->assertStringContainsString('Pohoří: Bílé Karpaty (na úpatí)', $crawler->filter('.md-info')->text());
+    }
+
+    public function testDetailListsPublishedNeighboursByDistance(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        // Mimo súradníc ostatných testov (testovacia DB sa medzi testami nečistí).
+        $mushroom = $this->createMushroom(null)->setLatitude(45.0)->setLongitude(25.0);
+        foreach ([['Blízky', 45.005, true], ['Ďalší', 45.02, true], ['Neschválený', 45.004, false], ['Ďaleko', 45.5, true]] as [$title, $lat, $published]) {
+            $em->persist((new Mushroom())->setTitle($title)->setName('T')->setLatitude($lat)->setLongitude(25.0)->setPublished($published));
+        }
+        $em->flush();
+
+        $crawler = $client->request('GET', '/' . $mushroom->getId());
+
+        $items = $crawler->filter('#v-okoli .list-group-item');
+        $titles = $items->each(fn ($n) => $n->text());
+        $this->assertCount(2, $titles, implode(' | ', $titles));
+        $this->assertStringContainsString('Blízky', $titles[0]);
+        $this->assertStringContainsString('556 m', $titles[0]);
+        $this->assertStringContainsString('Ďalší', $titles[1]);
+        $this->assertStringContainsString('2,2 km', $titles[1]);
+    }
+
     public function testHomeHasTitleH1DescriptionAndJsonLd(): void
     {
         $client = static::createClient();
