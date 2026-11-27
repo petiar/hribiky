@@ -89,7 +89,7 @@ Server každú fotku aj tak zmenší na najviac 2000 px, otočí podľa EXIF a o
   - `createdAt` (camelCase) v hríbikoch a komentároch je ISO 8601 s časovou zónou, napr. `2026-05-02T14:49:00+00:00`. V JavaScripte stačí `new Date(createdAt)`.
   - **Výnimka:** `/api/mushrooms/nearby` vracia `created_at` (snake_case) vo formáte `2026-05-02 14:49:00` bez časovej zóny, v čase servera.
 - **Názvy polí** sú zmiešané: `createdAt` v camelCase, ostatné v snake_case (`mushroom_count`, `icon_url`, …). V typoch ich používaj presne tak, ako prídu.
-- **Fotky** sa vracajú ako pole absolútnych URL (`https://hribiky.sk/uploads/photos/<súbor>.jpg`).
+- **Fotky** sa vracajú ako pole absolútnych URL (`https://hribiky.sk/uploads/photos/<súbor>.jpg`). Vedľa je pole `photo_thumbnails` s náhľadmi (800 px, `…/uploads/photos/thumbs-800/<súbor>.jpg`) v rovnakom poradí — v zoznamoch a pri malých obrázkoch používaj náhľady (~2,5× menšie), plnú fotku až pri zväčšení.
 - **Súradnice** sú WGS84 v stupňoch (`latitude` −90 až 90, `longitude` −180 až 180), desatinná bodka. **Nadmorská výška** (`altitude`) je celé číslo v metroch alebo `null`.
 
 ## Spätná kompatibilita

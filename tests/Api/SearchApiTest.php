@@ -69,7 +69,7 @@ class SearchApiTest extends WebTestCase
 
         $item = $this->search('chopok')['posts'][0];
 
-        $this->assertSame(['id', 'title', 'short_description', 'published_at', 'url', 'image_url'], array_keys($item));
+        $this->assertSame(['id', 'title', 'short_description', 'published_at', 'url', 'image_url', 'thumbnail_url'], array_keys($item));
         $this->assertSame('Vylet na Chopok', $item['title']);
         $this->assertSame('Kratky popis vyletu', $item['short_description']);
         $this->assertSame('2026-03-15T10:00:00+00:00', $item['published_at']);

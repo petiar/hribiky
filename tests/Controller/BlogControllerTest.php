@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Controller\BlogController;
 use App\Entity\BlogPost;
+use App\Service\ThumbnailService;
 use App\Entity\Photo;
 use App\Entity\Tag;
 use Doctrine\ORM\EntityManagerInterface;
@@ -134,12 +135,15 @@ class BlogControllerTest extends WebTestCase
     public function testCardsUseThumbnailWhenAvailable(): void
     {
         $this->createPostWithPhoto('S nahladom', 'nahlad-test.jpg', withThumb: true);
+        $this->createPostWithPhoto('So starym nahladom', 'stary-nahlad-test.jpg', withThumb: 'legacy');
         $this->createPostWithPhoto('Bez nahladu', 'bez-nahladu-test.jpg', withThumb: false);
 
         $crawler = $this->client->request('GET', '/blog');
         $srcs = $crawler->filter('.card-img-top')->each(fn(Crawler $img) => $img->attr('src'));
 
-        $this->assertContains('/uploads/photos/thumbs/nahlad-test.jpg', array_map(fn($s) => strtok($s, '?'), $srcs));
+        $this->assertContains('/uploads/photos/thumbs-800/nahlad-test.jpg', array_map(fn($s) => strtok($s, '?'), $srcs));
+        // Kým sa 800 px náhľad nevygeneruje, použije sa starší 400 px.
+        $this->assertContains('/uploads/photos/thumbs/stary-nahlad-test.jpg', array_map(fn($s) => strtok($s, '?'), $srcs));
         // Bez náhľadu sa použije originál (nič sa nerozbije).
         $this->assertContains('/uploads/photos/bez-nahladu-test.jpg', array_map(fn($s) => strtok($s, '?'), $srcs));
     }
@@ -200,12 +204,17 @@ class BlogControllerTest extends WebTestCase
 
     // --- Pomocné metódy ---
 
-    private function createPostWithPhoto(string $title, string $filename, bool $withThumb): void
+    /**
+     * @param bool|string $withThumb true = nový 800 px náhľad, 'legacy' = len starší 400 px náhľad (thumbs/), false = žiadny
+     */
+    private function createPostWithPhoto(string $title, string $filename, bool|string $withThumb): void
     {
         $dir = static::getContainer()->getParameter('photos_directory');
-        @mkdir($dir . '/thumbs', 0777, true);
         touch($dir . '/' . $filename);
-        $withThumb ? touch($dir . '/thumbs/' . $filename) : @unlink($dir . '/thumbs/' . $filename);
+        foreach ([ThumbnailService::THUMB_SUBDIR => $withThumb === true, 'thumbs' => $withThumb === 'legacy'] as $subdir => $create) {
+            @mkdir($dir . '/' . $subdir, 0777, true);
+            $create ? touch($dir . '/' . $subdir . '/' . $filename) : @unlink($dir . '/' . $subdir . '/' . $filename);
+        }
 
         $post = (new BlogPost())
             ->setTitle($title)

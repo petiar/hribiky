@@ -6,6 +6,7 @@ use App\Entity\BlogPost;
 use App\Entity\Mushroom;
 use App\Service\MushroomApiFormatter;
 use App\Service\SearchService;
+use App\Service\ThumbnailService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,7 @@ class SearchApiController extends AbstractController
     public function __construct(
         private readonly SearchService $searchService,
         private readonly MushroomApiFormatter $mushroomFormatter,
+        private readonly ThumbnailService $thumbnailService,
     ) {
     }
 
@@ -73,6 +75,7 @@ class SearchApiController extends AbstractController
             // Appka zatiaľ nemá API na čítanie článkov — článok otvorí cez URL (WebView / prehliadač).
             'url' => $this->generateUrl('blog_show', ['slug' => $post->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL),
             'image_url' => $photo ? $baseUrl . '/uploads/photos/' . $photo->getPath() : null,
+            'thumbnail_url' => $photo ? $baseUrl . $this->thumbnailService->publicUrl($photo->getPath()) : null,
         ];
     }
 }

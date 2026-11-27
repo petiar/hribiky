@@ -16,6 +16,7 @@ Vracajú ho `GET /api/mushrooms` a `GET /api/mushrooms/{id}`.
 | `longitude` | `number` | Zemepisná dĺžka |
 | `altitude` | `int \| null` | Nadmorská výška v metroch |
 | `photos` | `[string]` | Absolútne URL fotiek, môže byť prázdne |
+| `photo_thumbnails` | `[string]` | Náhľady fotiek (800 px na šírku, ~200 kB namiesto ~500 kB). **Rovnaké poradie a dĺžka ako `photos`** — `photo_thumbnails[i]` je náhľad `photos[i]`. Ak náhľad ešte neexistuje, je tu URL originálu. Na zoznamy a malé obrázky; `photos` pri zväčšení na celú obrazovku. *(Nové, 2026-11.)* |
 | `createdAt` | `string` | Dátum pridania, ISO 8601 |
 
 E-mail autora sa v týchto odpovediach nevracia.
@@ -55,6 +56,10 @@ Pole objektov [`Mushroom`](#objekt-mushroom).
       "https://hribiky.sk/uploads/photos/69f5f2bc1957b.jpg",
       "https://hribiky.sk/uploads/photos/69f5f2bc24a87.jpg"
     ],
+    "photo_thumbnails": [
+      "https://hribiky.sk/uploads/photos/thumbs-800/69f5f2bc1957b.jpg",
+      "https://hribiky.sk/uploads/photos/thumbs-800/69f5f2bc24a87.jpg"
+    ],
     "createdAt": "2026-05-02T14:49:00+00:00"
   }
 ]
@@ -82,6 +87,7 @@ Keďže úspešná odpoveď je objekt a neschválený hríbik vráti pole, dekó
 | `name` | `string` | Meno autora |
 | `description` | `string \| null` | Text komentára |
 | `photos` | `[string]` | Absolútne URL fotiek |
+| `photo_thumbnails` | `[string]` | Náhľady fotiek (800 px na šírku, ~200 kB namiesto ~500 kB). **Rovnaké poradie a dĺžka ako `photos`** — `photo_thumbnails[i]` je náhľad `photos[i]`. Ak náhľad ešte neexistuje, je tu URL originálu. Na zoznamy a malé obrázky; `photos` pri zväčšení na celú obrazovku. *(Nové, 2026-11.)* |
 | `createdAt` | `string` | Dátum pridania, ISO 8601 |
 
 Poradie komentárov nie je zaručené.
@@ -96,6 +102,7 @@ Poradie komentárov nie je zaručené.
   "longitude": 19.7159638327,
   "altitude": 638,
   "photos": ["https://hribiky.sk/uploads/photos/69f5f2bc1957b.jpg"],
+  "photo_thumbnails": ["https://hribiky.sk/uploads/photos/thumbs-800/69f5f2bc1957b.jpg"],
   "createdAt": "2026-05-02T14:49:00+00:00",
   "comments": [
     {
@@ -103,6 +110,7 @@ Poradie komentárov nie je zaručené.
       "name": "Jana",
       "description": "Značka je už opravená.",
       "photos": [],
+      "photo_thumbnails": [],
       "createdAt": "2026-06-10T08:12:00+00:00"
     }
   ]

@@ -10,6 +10,7 @@ Komentár je update alebo poznámka k existujúcemu hríbiku (napr. „značka j
 | `name` | `string` | Meno autora |
 | `description` | `string \| null` | Text komentára |
 | `photos` | `[string]` | Absolútne URL fotiek, môže byť prázdne |
+| `photo_thumbnails` | `[string]` | Náhľady fotiek (800 px na šírku, ~200 kB namiesto ~500 kB). **Rovnaké poradie a dĺžka ako `photos`** — `photo_thumbnails[i]` je náhľad `photos[i]`. Ak náhľad ešte neexistuje, je tu URL originálu. Na zoznamy a malé obrázky; `photos` pri zväčšení na celú obrazovku. *(Nové, 2026-11.)* |
 | `createdAt` | `string` | Dátum pridania, ISO 8601 |
 
 Objekt **neobsahuje ID hríbika**, ku ktorému komentár patrí. Ak ho potrebuješ, načítaj komentáre cez `?mushroom_id=` alebo cez detail hríbika (`GET /api/mushrooms/{id}`, pole `comments`).
@@ -43,6 +44,7 @@ Pole objektov [`Comment`](#objekt-comment).
     "name": "Jana",
     "description": "Značka je už opravená.",
     "photos": ["https://hribiky.sk/uploads/photos/6a1b2c3d4e5f6.jpg"],
+    "photo_thumbnails": ["https://hribiky.sk/uploads/photos/thumbs-800/6a1b2c3d4e5f6.jpg"],
     "createdAt": "2026-06-10T08:12:00+00:00"
   }
 ]

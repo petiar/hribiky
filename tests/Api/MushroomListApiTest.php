@@ -5,6 +5,7 @@ namespace App\Tests\Api;
 use App\Entity\Mushroom;
 use App\Entity\MushroomEditLink;
 use App\Entity\Photo;
+use App\Service\ThumbnailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -95,6 +96,29 @@ class MushroomListApiTest extends WebTestCase
         $this->assertCount(3, $photos);
         $this->assertStringEndsWith('foto-1.jpg', $photos[0]);
         $this->assertStringEndsWith('foto-3.jpg', $photos[2]);
+    }
+
+    public function testPhotoThumbnailsMatchPhotosOneToOne(): void
+    {
+        $this->createMushrooms(1, photosEach: 3);
+        $dir = static::getContainer()->getParameter('photos_directory');
+        // Fotka 1 má 800 px náhľad, fotka 2 len starší 400 px, fotka 3 žiadny.
+        @mkdir($dir . '/' . ThumbnailService::THUMB_SUBDIR, 0777, true);
+        @mkdir($dir . '/thumbs', 0777, true);
+        touch($dir . '/' . ThumbnailService::THUMB_SUBDIR . '/h1-foto-1.jpg');
+        touch($dir . '/thumbs/h1-foto-2.jpg');
+
+        try {
+            $item = $this->list()[0];
+
+            $this->assertCount(count($item['photos']), $item['photo_thumbnails'], 'photo_thumbnails[i] patrí k photos[i]');
+            $this->assertSame('http://localhost/uploads/photos/thumbs-800/h1-foto-1.jpg', $item['photo_thumbnails'][0]);
+            $this->assertSame('http://localhost/uploads/photos/thumbs/h1-foto-2.jpg', $item['photo_thumbnails'][1]);
+            $this->assertSame($item['photos'][2], $item['photo_thumbnails'][2], 'Bez náhľadu → originál');
+        } finally {
+            @unlink($dir . '/' . ThumbnailService::THUMB_SUBDIR . '/h1-foto-1.jpg');
+            @unlink($dir . '/thumbs/h1-foto-2.jpg');
+        }
     }
 
     public function testUnpublishedAreExcluded(): void

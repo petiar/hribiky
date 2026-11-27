@@ -63,9 +63,9 @@ class FotoUploaderTest extends KernelTestCase
         $this->assertSame([2000, 1500], [$width, $height]);
         $this->assertLessThan($sourceSize * 0.5, filesize($stored));
 
-        $thumb = $this->uploadDir . '/thumbs/' . $filename;
+        $thumb = $this->uploadDir . '/' . ThumbnailService::THUMB_SUBDIR . '/' . $filename;
         $this->assertFileExists($thumb);
-        $this->assertSame(400, getimagesize($thumb)[0]);
+        $this->assertSame(ThumbnailService::THUMB_WIDTH, getimagesize($thumb)[0]);
     }
 
     public function testExifIsRemovedFromStoredPhotoAndThumbnailIsRotated(): void
@@ -80,7 +80,7 @@ class FotoUploaderTest extends KernelTestCase
         $stored = $this->uploadDir . '/' . $filename;
         $this->assertStringNotContainsString('TestPhone', file_get_contents($stored));
         $this->assertSame([400, 600], array_slice(getimagesize($stored), 0, 2), 'Originál otočený podľa EXIF.');
-        $this->assertSame([400, 600], array_slice(getimagesize($this->uploadDir . '/thumbs/' . $filename), 0, 2), 'Náhľad otočený rovnako.');
+        $this->assertSame([400, 600], array_slice(getimagesize($this->uploadDir . '/' . ThumbnailService::THUMB_SUBDIR . '/' . $filename), 0, 2), 'Náhľad otočený rovnako.');
     }
 
     public function testStoreRefusesNonImage(): void
@@ -110,7 +110,7 @@ class FotoUploaderTest extends KernelTestCase
         $this->assertCount(2, $mushroom->getPhotos());
         foreach ($mushroom->getPhotos() as $photo) {
             $this->assertFileExists($this->uploadDir . '/' . $photo->getPath());
-            $this->assertFileExists($this->uploadDir . '/thumbs/' . $photo->getPath());
+            $this->assertFileExists($this->uploadDir . '/' . ThumbnailService::THUMB_SUBDIR . '/' . $photo->getPath());
             $this->assertLessThanOrEqual(ImageOptimizer::MAX_DIMENSION, max(array_slice(getimagesize($this->uploadDir . '/' . $photo->getPath()), 0, 2)));
         }
     }

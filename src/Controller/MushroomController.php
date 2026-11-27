@@ -41,11 +41,12 @@ class MushroomController extends AbstractController
                 'description' => $mushroom->getDescription(),
                 'latitude' => $mushroom->getLatitude(),
                 'longitude' => $mushroom->getLongitude(),
-                'fotky' => array_map(function ($fotka) {
-                    $filename = basename($fotka->getPath());
-                    $this->thumbnailService->ensure($filename);
-                    return $this->thumbnailService->publicUrl($filename);
-                }, $mushroom->getPhotos()->toArray()),
+                // Náhľady tu negenerujeme (vznikajú pri nahraní a príkazom app:generate-thumbnails v deployi) —
+                // inak by po zmene veľkosti náhľadov jedna návšteva mapy generovala stovky obrázkov naraz.
+                'fotky' => array_map(
+                    fn($fotka) => $this->thumbnailService->publicUrl($fotka->getPath()),
+                    $mushroom->getPhotos()->toArray(),
+                ),
             ];
         }
         $mushroomsJson = $serializer->serialize($data, 'json');

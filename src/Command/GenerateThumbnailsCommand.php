@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:generate-thumbnails',
-    description: 'Vygeneruje náhľady (thumbs) pre všetky fotky, ktoré ich ešte nemajú.',
+    description: 'Vygeneruje náhľady (800 px, thumbs-800) pre všetky fotky, ktoré ich ešte nemajú. Spúšťa ho deploy.',
 )]
 class GenerateThumbnailsCommand extends Command
 {
