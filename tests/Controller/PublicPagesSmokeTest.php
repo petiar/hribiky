@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Entity\Mushroom;
+use App\Entity\MushroomComment;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -53,6 +54,28 @@ class PublicPagesSmokeTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('body', 'Chopok');
+    }
+
+    public function testMushroomDetailShowsOnlyApprovedComments(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $mushroom = (new Mushroom())->setTitle('Chopok')->setName('Tester')->setLatitude(48.94)->setLongitude(19.59)->setPublished(true);
+        $em->persist($mushroom);
+        foreach (['Schválený komentár' => true, 'Neschválený spam' => false] as $text => $published) {
+            $comment = (new MushroomComment())->setName('Jana')->setDescription($text)->setPublished($published)->setMushroom($mushroom);
+            $em->persist($comment);
+        }
+        $em->flush();
+        $em->clear(); // hríbik v pamäti ešte nemá komentáre v kolekcii — načítať nanovo z DB
+
+        $crawler = $client->request('GET', '/' . $mushroom->getId());
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(1, $crawler->filter('#komentare .comment'));
+        $this->assertStringContainsString('Schválený komentár', $crawler->filter('#komentare')->text());
+        // Predtým sa na detaile zobrazovali aj neschválené komentáre.
+        $this->assertStringNotContainsString('Neschválený spam', $client->getResponse()->getContent());
     }
 
     public function testMushroomDetailLinksToMapFocusedOnIt(): void
