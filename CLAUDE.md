@@ -64,6 +64,9 @@ php bin/console app:count-mushrooms       # Štatistiky
 - Sitemap na `/sitemap.xml` (mushroom detail + blog posty + blog index)
 - Blog show šablóna má JSON-LD `BlogPosting` + `BreadcrumbList`
 - OG tagy na všetkých verejných stránkach
+- Titulky a meta popisy: preklady `seo.*` (sk/cs); filter `meta_text` (`src/Twig/SeoExtension.php`) čistí a oreže text na 155 znakov
+- Detail hríbika: `<h1>`, popis od autora (≥ 70 znakov) alebo poskladaný z údajov; hlavná stránka: skrytý `<h1>`, JSON-LD `WebSite` + `SearchAction` + `Organization`
+- JSON-LD cez `json_encode` s `JSON_UNESCAPED_SLASHES` musí mať aj `JSON_HEX_TAG` (inak `</script>` v texte od používateľa ukončí skript)
 - Related posts podľa tagov na konci článku
 
 ### API
