@@ -34,14 +34,23 @@ jobs:
             # JavaScript/CSS z assets/ (AssetMapper, Stimulus, Turbo) — na produkcii sa musia skompilovať
             # do public/assets, inak vracajú 404.
             php bin/console asset-map:compile
-            # PHP-FPM drží v pamäti (opcache) staré verzie súborov a zmeny nekontroluje — po update
-            # balíkov to zhodilo celý web. Jednorazový skript s náhodným názvom opcache vyčistí.
-            RESET="opcache-reset-$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n').php"
-            echo '<?php if (function_exists("opcache_reset")) { opcache_reset(); } echo "ok";' > "public/$RESET"
-            # hribiky.sk aj hribiky.cz bežia v samostatných PHP procesoch, každý má vlastnú opcache.
+            # Websupport ukladá opcache na disk (opcache.file_cache_only=1, adresár viditeľný len pre PHP-FPM,
+            # nie pre SSH) a každá doména môže bežať na inej verzii PHP s vlastnou cache (hribiky.cz je alias
+            # s PHP 8.4). opcache_reset() disk nemaže — po upgrade Symfony zostal na .cz starý kód a vracala 500.
+            # Preto cache zmaže PHP skript spustený cez každú doménu (= v jej PHP procese).
+            RESET="opcache-clear-$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n').php"
+            cat > "public/$RESET" <<'PHP'
+            <?php
+            $d = ini_get('opcache.file_cache'); $n = 0; $e = 0;
+            if ($d && is_dir($d)) {
+                $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($d, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+                foreach ($it as $f) { ($f->isDir() ? @rmdir($f) : @unlink($f)) ? $n++ : $e++; }
+            }
+            if (function_exists('opcache_reset')) { @opcache_reset(); }
+            echo 'PHP ', PHP_VERSION, ', zmazanych ', $n, ', chyb ', $e;
+            PHP
             for DOMAIN in hribiky.sk hribiky.cz; do
-              curl -fsS --max-time 30 "https://$DOMAIN/$RESET" || echo "Upozornenie: opcache na $DOMAIN sa nepodarilo vyčistiť"
-              echo " ($DOMAIN)"
+              echo "opcache $DOMAIN: $(curl -fsS --max-time 60 "https://$DOMAIN/$RESET" || echo 'nepodarilo sa vyčistiť')"
             done
             rm -f "public/$RESET"
             # Kontrola po nasadení: hlavná stránka a API musia odpovedať 200. Inak deploy skončí
