@@ -6,6 +6,7 @@ use App\Entity\Mushroom;
 use App\Entity\Photo;
 use App\Form\MushroomType;
 use App\Repository\MushroomRepository;
+use App\Service\ApiInput;
 use App\Service\FotoUploader;
 use App\Service\MushroomApiFormatter;
 use App\Service\TitleNormalizer;
@@ -42,12 +43,20 @@ class MushroomApiController extends AbstractController
     #[Route('/nearby', name: '_nearby', methods: ['GET'])]
     public function nearby(Request $request, MushroomRepository $mushroomRepository): JsonResponse
     {
-        $latitude = $request->query->get('latitude');
-        $longitude = $request->query->get('longitude');
-        $radius = $request->query->get('radius', 100); // default 100m
+        // Kľúč `error` je pôvodný formát chyby tohto endpointu (appka ho môže čítať), `status` pre jednotnosť.
+        if (!$request->query->has('latitude') || !$request->query->has('longitude')) {
+            return $this->json(['status' => 'error', 'error' => 'Missing coordinates'], 400);
+        }
 
-        if (!$latitude || !$longitude) {
-            return $this->json(['error' => 'Missing coordinates'], 400);
+        $latitude = ApiInput::latitude($request->query->get('latitude'));
+        $longitude = ApiInput::longitude($request->query->get('longitude'));
+        $radius = ApiInput::number($request->query->get('radius', 100), 0.001); // predvolene 100 m
+
+        if ($latitude === null || $longitude === null) {
+            return $this->json(['status' => 'error', 'error' => 'Invalid coordinates'], 400);
+        }
+        if ($radius === null) {
+            return $this->json(['status' => 'error', 'error' => 'Invalid radius'], 400);
         }
 
         $nearby = $mushroomRepository->findNearby($latitude, $longitude, $radius);
@@ -55,7 +64,7 @@ class MushroomApiController extends AbstractController
         return new JsonResponse(['hribiky' => $nearby]);
     }
 
-    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    #[Route('/{id}', name: 'show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Mushroom $mushroom, Request $request, MushroomApiFormatter $formatter): JsonResponse
     {
         if ($mushroom->isPublished()) {
@@ -109,13 +118,28 @@ class MushroomApiController extends AbstractController
         if ($unsupported = $uploadLimits->findUnsupportedFile($files)) {
             return $this->json(['status' => 'error'] + $uploadLimits->unsupportedApiError($unsupported) + ['id' => null], 415);
         }
+        // Súradnice a výška musia byť čísla v rozsahu — inak setter entity spadol na TypeError (500).
+        $latitude = ApiInput::latitude($request->request->get('latitude'));
+        $longitude = ApiInput::longitude($request->request->get('longitude'));
+        $rawAltitude = trim((string) $request->request->get('altitude', ''));
+        $altitude = $rawAltitude === '' ? null : ApiInput::number($rawAltitude, -500, 9000);
+
+        foreach (['latitude' => [$latitude, -90, 90], 'longitude' => [$longitude, -180, 180]] as $field => [$value, $min, $max]) {
+            if ($value === null) {
+                return $this->invalidField($field, sprintf('a number between %d and %d', $min, $max));
+            }
+        }
+        if ($rawAltitude !== '' && $altitude === null) {
+            return $this->invalidField('altitude', 'a number in meters');
+        }
+
         $mushroom = new Mushroom();
         // NÁZOV CELÝ VEĽKÝMI PÍSMENAMI → Názov S Veľkými Prvými Písmenami
         $mushroom->setTitle(TitleNormalizer::fixAllCaps((string) $request->request->get('title')));
         $mushroom->setDescription($request->request->get('description'));
-        $mushroom->setLatitude($request->request->get('latitude'));
-        $mushroom->setLongitude($request->request->get('longitude'));
-        $mushroom->setAltitude($request->request->get('altitude'));
+        $mushroom->setLatitude($latitude);
+        $mushroom->setLongitude($longitude);
+        $mushroom->setAltitude($altitude);
         $mushroom->setName($request->request->get('name'));
         $mushroom->setEmail($request->request->get('email'));
         $mushroom->setCountry($request->request->get('country'));
@@ -134,5 +158,15 @@ class MushroomApiController extends AbstractController
         }
         return new JsonResponse(['status' => 'ok', 'id' => $mushroom->getId()], 201);
     }
-}
 
+    private function invalidField(string $field, string $expected): JsonResponse
+    {
+        return $this->json([
+            'status' => 'error',
+            'code' => 'invalid_field',
+            'message' => sprintf('Invalid field: %s (must be %s).', $field, $expected),
+            'field' => $field,
+            'id' => null,
+        ], 422);
+    }
+}

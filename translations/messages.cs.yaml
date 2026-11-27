@@ -65,6 +65,8 @@ thank_you_edit_link_description: 'Rozumím, že při turistice není moc času p
 thank_you_statistics: 'Mimochodem, toto je už %mushroomCount%. hříbek v pořadí, který máš na naší stránce. Tento počet sledujeme podle e-mailové adresy, kterou jsi použil(a), takže pokud chceš své skóre dál zvyšovat, používej pořád stejnou adresu. Je to ta, na kterou ti přišel i tento e-mail.'
 thank_you_body_comment: 'ať už jsi přidal svůj příběh, zážitek nebo upozornění ohledně houbičky, moc děkuji! Podívám se na to co nejdřív a pokud bude všechno v pořádku, rád to zveřejním.'
 back_to_map: 'Zpět na mapu'
+show_on_map: 'Zobrazit na mapě'
+show_on_map_short: 'na mapě'
 no_mushrooms_to_display: 'Zatím zde nejsou žádné hříbky k zobrazení.'
 date: 'Datum'
 text: 'Text'

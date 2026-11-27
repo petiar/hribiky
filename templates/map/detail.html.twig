@@ -33,6 +33,7 @@
                             </li>
 
                             <li class="list-group-item"><strong>GPS:</strong>
+                                <a href="{{ path('app_home', {hribik: mushroom.id}) }}" class="ms-1 me-2 text-nowrap" title="{{ 'show_on_map'|trans }}"><i class="bi bi-geo-alt-fill"></i> {{ 'show_on_map_short'|trans }}</a>
                                 {% if (mushroom.country == "CZ") %}
                                     <a href="https://mapy.com/en/turisticka?x={{ mushroom.longitude }}&y={{ mushroom.latitude }}&z=14" target="_blank">{{ mushroom.latitude }}, {{ mushroom.longitude }}</a>
                                 {% else %}
@@ -44,8 +45,9 @@
                     </div>
                 </div>
                 <div class="text-center mb-5">
-                    <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
-                        ← {{ 'back_to_map'|trans }}
+                    {# Mapa sa vycentruje a priblíži na tento hríbik (public/js/hribiky.js → focusMushroomFromUrl). #}
+                    <a href="{{ path('app_home', {hribik: mushroom.id}) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-geo-alt-fill"></i> {{ 'show_on_map'|trans }}
                     </a>
                 </div>
                 {% set visibleLinks = mushroom.articleLinks|filter(link => link.blogPost is null or link.blogPost.published) %}
