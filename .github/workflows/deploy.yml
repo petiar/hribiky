@@ -74,3 +74,9 @@ jobs:
                 exit 1
               fi
             done
+            # www.* má presmerovať na adresu bez www (public/.htaccess) — len upozornenie, deploy nezastaví.
+            for URL in "https://www.hribiky.sk/" "https://www.hribiky.cz/"; do
+              CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL" || echo "000")
+              echo "$URL -> $CODE"
+              [ "$CODE" = "301" ] || echo "Upozornenie: $URL nepresmeruje na adresu bez www"
+            done
