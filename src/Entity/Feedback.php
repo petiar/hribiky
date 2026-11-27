@@ -19,6 +19,10 @@ class Feedback
     #[ORM\Column(type: 'text')]
     private ?string $text = null;
 
+    /** Nepovinný e-mail odosielateľa, aby sa mu dalo odpovedať. */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $email = null;
+
     #[ORM\Column(type: Types::STRING, length: 20, enumType: FeedbackStatus::class)]
     private FeedbackStatus $status;
 
@@ -30,7 +34,8 @@ class Feedback
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
+        // Stĺpec je typu „datetime“ (mutable) — Doctrine DBAL 4 DateTimeImmutable odmietne.
+        $this->createdAt = new \DateTime();
         $this->status = FeedbackStatus::NotRead;
     }
 
@@ -48,6 +53,18 @@ class Feedback
     public function setText(string $text): self
     {
         $this->text = $text;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email !== null && trim($email) !== '' ? trim($email) : null;
 
         return $this;
     }

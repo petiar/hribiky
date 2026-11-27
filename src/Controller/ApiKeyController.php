@@ -37,7 +37,8 @@ class ApiKeyController extends AbstractController
                     ->findOneBy(['email' => $emailInput]);
 
                 $newApiKey = bin2hex(random_bytes(16));
-                $validUntil = (new \DateTimeImmutable())->modify('+1 year');
+                // Stĺpec valid_until je typu „datetime“ (mutable) — DBAL 4 DateTimeImmutable odmietne.
+                $validUntil = (new \DateTime())->modify('+1 year');
 
                 if ($apiKey) {
                     $apiKey->setKeyValue($newApiKey);
@@ -49,14 +50,14 @@ class ApiKeyController extends AbstractController
 
                 $entityManager->flush();
 
-                $mailService->send(
-                    'api/api_key_mail.html.twig',
-                    'Tvoj nový API kľúč',
-                    $emailInput,
-                    [
-                        'key' => $apiKey,
-                    ]
-                );
+                // send() nemá parametre — predtým sa im sem odovzdávali argumenty, PHP ich ignorovalo
+                // a e-mail s kľúčom nikdy neodišiel.
+                $mailService
+                    ->setTemplate('api/api_key_mail.html.twig')
+                    ->setSubject('Tvoj nový API kľúč')
+                    ->setRecipient($emailInput)
+                    ->setContext(['key' => $apiKey])
+                    ->send();
             }
         }
 

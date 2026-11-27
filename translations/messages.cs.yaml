@@ -86,9 +86,9 @@ error404:
     detail: 'Zobrazit detail'
 
 feedback:
-    title: 'Něco nefunguje?'
+    title: 'Napiš nám'
     check_progress: 'Ověřit stav ostatních návrhů'
-    description: 'Pokud si na stránce všimnete něčeho, co nefunguje, nebo máte nějaký dobrý nápad, jak tento web udělat ještě lepším, napište mi to zde. Vše si přečtu a pokud se mi to bude líbit, nebo pokud půjde o chybu, zapracujeme ji. Pokud chcete i nějakou reakci, uveďte v textu i kontakt na vás. Ideálně e-mail, telefonovat asi nebudu.'
+    description: 'Něco na webu nebo v aplikaci nefunguje, máš nápad, jak to udělat lépe, nebo otázku? Napiš mi. Všechno si přečtu a chyby opravím. Pokud chceš odpověď, vyplň i e-mail.'
     status: 'Jak se daří'
     status_description: 'Zde si můžete veřejně prohlédnout, co dělám a jak mi to jde.'
     no_status: 'Zatím zde nic není. Káva, kniha, Pink Floyd...'
@@ -97,7 +97,13 @@ feedback:
     status_rejected: 'Nebudu to dělat'
     status_inprogress: 'Už na tom pracuji'
     status_done: 'Hotovo'
-    text_label: 'V klidu se rozepište...'
+    text_label: 'Tvoje zpráva'
+    email_label: 'Tvůj e-mail (nepovinné)'
+    email_help: 'Jen pokud chceš odpověď. Nikomu ho nedám.'
+    email_alternative: 'Raději e-mailem? Napiš na'
+    thanks: 'Děkuji! Zpráva dorazila, přečtu si ji.'
+    too_many: 'Poslal jsi najednou příliš mnoho zpráv. Zkus to prosím za hodinu.'
+    meta_description: 'Zpětná vazba a podpora pro Hříbky.cz a mobilní aplikaci — nahlaste chybu, pošlete nápad nebo dotaz.'
 
 leaderboard.title: "Žebříček přispěvatelů"
 leaderboard.heading: "Žebříček přispěvatelů"
