@@ -31,14 +31,26 @@ class SitemapController extends AbstractController
         $urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
         $xml->appendChild($urlset);
 
-        // Blog index
-        $blogIndex = $xml->createElement('url');
-        $blogIndex->appendChild($xml->createElement('loc', $this->urlGenerator->generate('blog_index', [], UrlGeneratorInterface::ABSOLUTE_URL)));
-        $blogIndex->appendChild($xml->createElement('changefreq', 'daily'));
-        $blogIndex->appendChild($xml->createElement('priority', '0.8'));
-        $urlset->appendChild($blogIndex);
-
         $mushrooms = $this->mushroomRepo->findAllPublished();
+        $posts = $this->blogPostRepo->findAllPublished(); // od najnovšieho
+
+        // Titulná stránka (mapa) — zmení sa s každým novým alebo upraveným hríbikom.
+        $mapLastmod = null;
+        foreach ($mushrooms as $mushroom) {
+            $modified = $mushroom->getLastModified();
+            if ($mapLastmod === null || $modified > $mapLastmod) {
+                $mapLastmod = $modified;
+            }
+        }
+        $this->addUrl($xml, $urlset, 'app_home', [], $mapLastmod, 'daily', '1.0');
+
+        // Blog index — lastmod = najnovší článok.
+        $newestPost = $posts[0] ?? null;
+        $this->addUrl($xml, $urlset, 'blog_index', [], $newestPost?->getPublishedAt() ?? $newestPost?->getCreatedAt(), 'daily', '0.8');
+
+        // Ďalšie verejné stránky. (Vyhľadávanie má noindex, strany blogu ?page=N netreba — články sú tu všetky.)
+        $this->addUrl($xml, $urlset, 'about', [], null, 'monthly', '0.5');
+        $this->addUrl($xml, $urlset, 'app_leaderboard', [], null, 'weekly', '0.4');
 
         foreach ($mushrooms as $mushroom) {
             $url = $xml->createElement('url');
@@ -61,7 +73,7 @@ class SitemapController extends AbstractController
         }
 
         // Blog posty
-        foreach ($this->blogPostRepo->findAllPublished() as $post) {
+        foreach ($posts as $post) {
             $url = $xml->createElement('url');
             $url->appendChild($xml->createElement(
                 'loc',
@@ -94,5 +106,17 @@ class SitemapController extends AbstractController
         $response->setSharedMaxAge(3600);
 
         return $response;
+    }
+
+    private function addUrl(\DOMDocument $xml, \DOMElement $urlset, string $route, array $params, ?\DateTimeInterface $lastmod, string $changefreq, string $priority): void
+    {
+        $url = $xml->createElement('url');
+        $url->appendChild($xml->createElement('loc', $this->urlGenerator->generate($route, $params, UrlGeneratorInterface::ABSOLUTE_URL)));
+        if ($lastmod) {
+            $url->appendChild($xml->createElement('lastmod', $lastmod->format('Y-m-d')));
+        }
+        $url->appendChild($xml->createElement('changefreq', $changefreq));
+        $url->appendChild($xml->createElement('priority', $priority));
+        $urlset->appendChild($url);
     }
 }
