@@ -11,6 +11,41 @@
         gtag('config', 'G-WT9258KFMR');
     </script>
     <meta charset="UTF-8">
+    <script>
+        // Tmavý/svetlý režim — téma je na <html>, beží v <head> pred vykreslením (bez bliknutia).
+        // Turbo Drive je vypnuté (assets/controllers.json) — stránky stoja na jQuery a skriptoch, ktoré
+        // počítajú s plným načítaním. Keby sa Turbo zaplo, téma prežije aj jeho navigáciu (turbo:* nižšie).
+        (function () {
+            if (window.hribikyTheme) { return; }
+            function current() {
+                var saved = null;
+                try { saved = localStorage.getItem('theme'); } catch (e) {}
+                return saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            }
+            function apply(root) {
+                var theme = current();
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                var scope = root || document;
+                var sun = scope.querySelector('#icon-sun'), moon = scope.querySelector('#icon-moon');
+                // Zobraziť ikonku témy, na ktorú sa dá prepnúť.
+                if (sun && moon) {
+                    sun.classList.toggle('d-none', theme !== 'dark');
+                    moon.classList.toggle('d-none', theme === 'dark');
+                }
+            }
+            window.hribikyTheme = { apply: apply };
+            apply();
+            document.addEventListener('DOMContentLoaded', function () { apply(); });
+            document.addEventListener('turbo:before-render', function (e) { apply(e.detail.newBody); });
+            document.addEventListener('turbo:load', function () { apply(); });
+            // Delegovaný klik — funguje aj na tlačidle v novom <body> po Turbo navigácii.
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('#themeToggle')) { return; }
+                try { localStorage.setItem('theme', current() === 'dark' ? 'light' : 'dark'); } catch (err) {}
+                apply();
+            });
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#212529">
     <title>{% block title %}{{ 'site_name'|trans }}{% endblock %}</title>
@@ -66,7 +101,7 @@
     {% block ogtags %}{% endblock %}
 </head>
 <body data-locale="{{ app.request.locale }}">
-<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="light" id="mainNavbar">
+<nav class="navbar navbar-expand-lg bg-body-tertiary" id="mainNavbar">
     <div class="container">
         <a class="navbar-brand" href="{{ path('app_home') }}">
             {% block navbarbrand %}{{ 'menu.mushrooms'|trans }}{% endblock %}
@@ -165,42 +200,6 @@
         </ul>
     </footer>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const navbar = document.getElementById('mainNavbar');
-        const toggleBtn = document.getElementById('themeToggle');
-        const sunIcon = document.getElementById('icon-sun');
-        const moonIcon = document.getElementById('icon-moon');
-
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        let theme = savedTheme || (prefersDark ? 'dark' : 'light');
-
-        applyTheme(theme);
-
-        toggleBtn.addEventListener('click', () => {
-            theme = (theme === 'light') ? 'dark' : 'light';
-            applyTheme(theme);
-            localStorage.setItem('theme', theme);
-        });
-
-        function applyTheme(theme) {
-            document.body.setAttribute('data-bs-theme', theme);
-            navbar.setAttribute('data-bs-theme', theme);
-
-            // Zobraziť ikonku *opačnej* témy = tej, na ktorú sa dá prepnúť
-            if (theme === 'dark') {
-                // teraz je tmavý → zobrazím slniečko (prepnutie na svetlý)
-                sunIcon.classList.remove('d-none');
-                moonIcon.classList.add('d-none');
-            } else {
-                // teraz je svetlý → zobrazím mesiačik (prepnutie na tmavý)
-                sunIcon.classList.add('d-none');
-                moonIcon.classList.remove('d-none');
-            }
-        }
-    });
-</script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js"
             integrity="sha512-HvOjJrdwNpDbkGJIG2ZNqDlVqMo77qbs4Me4cah0HoDrfhrbA+8SBlZn1KrvAQw7cILLPFJvdwIgphzQmMm+Pw=="

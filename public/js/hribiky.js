@@ -1,6 +1,10 @@
 let map;
 
 window.addEventListener('load', () => {
+    // Mapa je len na hlavnej stránke — inde nie je čo inicializovať (a Google Maps sa tam nenačítava).
+    if (!document.getElementById('map')) {
+        return;
+    }
     if (typeof google !== 'undefined' && google.maps) {
         initMap();
     } else {
