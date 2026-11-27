@@ -15,6 +15,10 @@ class BlogController extends AbstractController
     /** Deliteľné 2 aj 3 — mriežka má na tablete 2 a na desktope 3 stĺpce. */
     public const POSTS_PER_PAGE = 12;
 
+    public function __construct(private BlogPostRepository $blogPostRepository)
+    {
+    }
+
     #[Route('/blog', name: 'blog_index')]
     public function index(Request $request, BlogPostRepository $repository): Response
     {
@@ -67,16 +71,21 @@ class BlogController extends AbstractController
             return $this->redirectToRoute($route, $routeParams, Response::HTTP_MOVED_PERMANENTLY);
         }
 
-        $posts = $loadPage(max($page, 1));
-        $totalPages = max(1, (int) ceil(count($posts) / self::POSTS_PER_PAGE));
+        $paginator = $loadPage(max($page, 1));
+        $totalPosts = count($paginator);
+        $totalPages = max(1, (int) ceil($totalPosts / self::POSTS_PER_PAGE));
 
         // Neplatná alebo neexistujúca stránka (0, -1, za koncom) → 404.
         if ($page < 1 || $page > $totalPages) {
             throw $this->createNotFoundException();
         }
 
+        $posts = iterator_to_array($paginator, false);
+        $this->blogPostRepository->preloadPhotosAndTags($posts);
+
         return $this->render($template, $context + [
             'posts' => $posts,
+            'totalPosts' => $totalPosts,
             'page' => $page,
             'totalPages' => $totalPages,
         ]);
@@ -91,9 +100,13 @@ class BlogController extends AbstractController
             throw $this->createNotFoundException();
         }
 
+        // Fotky súvisiacich článkov jedným dotazom (inak dotaz pre každý článok).
+        $related = $repository->findRelated($post);
+        $repository->preloadPhotosAndTags($related);
+
         return $this->render('blog/show.html.twig', [
             'post' => $post,
-            'related' => $repository->findRelated($post),
+            'related' => $related,
         ]);
     }
 }

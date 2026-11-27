@@ -51,7 +51,7 @@
     </nav>
 
     <h1 class="mb-2">Tag: <span class="badge bg-secondary">{{ tag.name }}</span></h1>
-    <p class="text-muted mb-5">{{ posts|length }} {{ posts|length == 1 ? 'článok' : (posts|length < 5 ? 'články' : 'článkov') }} s týmto tagom.</p>
+    <p class="text-muted mb-5">{{ totalPosts }} {{ totalPosts == 1 ? 'článok' : (totalPosts < 5 ? 'články' : 'článkov') }} s týmto tagom.</p>
 
     {% if posts is empty %}
         <p class="text-muted">Žiadne články s týmto tagom.</p>

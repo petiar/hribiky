@@ -112,8 +112,17 @@ class MushroomRepository extends ServiceEntityRepository
     /**
      * @return Mushroom[]
      */
+    /**
+     * Pre sitemap: komentáre (lastmod = posledný publikovaný komentár) a edit link v tom istom dotaze —
+     * predtým 2 dotazy navyše pre každý hríbik.
+     *
+     * @return Mushroom[]
+     */
     public function findAllPublished(): array {
         return $this->createQueryBuilder('m')
+            ->addSelect('u', 'el')
+            ->leftJoin('m.updates', 'u')
+            ->leftJoin('m.editLink', 'el')
             ->andWhere('m.published = :pub')->setParameter('pub', 1)
             ->orderBy('m.createdAt', 'DESC')
             ->getQuery()->getResult();
