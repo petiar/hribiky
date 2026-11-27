@@ -22,8 +22,10 @@ DirectoryIndex index.php
     # Druhá poistka k overeniu typu pri nahrávaní — chráni aj pred súbormi nahranými skôr.
     RewriteRule ^uploads/.+\.(php[0-9]?|phtml|phar|html?|xhtml|shtml|svgz?|js|mjs|xml|xsl)$ - [F,NC,L]
 
-    # HTTP -> HTTPS presmerovanie
+    # HTTP -> HTTPS presmerovanie. Za proxy, ktorá HTTPS ukončí sama a Apache pošle HTTP
+    # (lokálne Lando: https://hribiky.lndo.site:444), rozhoduje X-Forwarded-Proto — inak nekonečná slučka.
     RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
     # This RewriteRule is used to dynamically discover the RewriteBase path.
