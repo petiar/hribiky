@@ -22,8 +22,10 @@
 
 {% block body %}
     <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-6">
+        {# Rozloženie (hribiky.css → .mushroom-detail): na počítači vľavo údaje + komentáre, vpravo fotky;
+           na mobile údaje → fotky → komentáre. #}
+        <div class="mushroom-detail">
+            <div class="md-info">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
                         <h2 class="mb-4">{{ title }}</h2>
@@ -50,6 +52,53 @@
                         <i class="bi bi-geo-alt-fill"></i> {{ 'show_on_map'|trans }}
                     </a>
                 </div>
+            </div>
+
+            <div class="md-side">
+                {# Verejne len schválené komentáre; administrátor vidí aj čakajúce (s označením). #}
+                {% set comments = mushroom.updates
+                    |filter(c => c.published or is_granted('ROLE_ADMIN'))
+                    |sort((a, b) => b.createdAt <=> a.createdAt) %}
+                <section class="mushroom-comments mb-5" id="komentare">
+                    <h4 class="mb-3">
+                        {{ 'mushroom.comments_title'|trans }}
+                        {% if comments|length > 0 %}<span class="badge rounded-pill text-bg-secondary align-middle fs-6">{{ comments|length }}</span>{% endif %}
+                    </h4>
+                    {% for comment in comments %}
+                        {% set author = comment.name|default('mushroom.unknown_author'|trans) %}
+                        <article class="comment d-flex mb-3">
+                            <div class="comment-avatar flex-shrink-0 me-3" aria-hidden="true">{{ author|first|upper }}</div>
+                            <div class="comment-bubble flex-grow-1 rounded-3 p-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-1">
+                                    <strong>{{ author }}</strong>
+                                    <time class="text-body-secondary small" datetime="{{ comment.createdAt|date('c') }}">{{ comment.createdAt|date('d.m.Y') }}</time>
+                                </div>
+                                {% if not comment.published %}
+                                    <span class="badge text-bg-warning mb-2">{{ 'mushroom.comment_unapproved'|trans }}</span>
+                                {% endif %}
+                                {% if comment.description %}
+                                    <p class="mb-0">{{ comment.description|e|nl2br }}</p>
+                                {% endif %}
+                                {% if comment.photos|length > 0 %}
+                                    <div class="comment-photos d-flex flex-wrap gap-2 mt-2">
+                                        {% for foto in comment.photos %}
+                                            <img src="{{ asset(photo_thumb(foto.path)) }}"
+                                                 class="comment-photo rounded update-foto"
+                                                 alt="{{ 'mushroom.comment_photo_alt'|trans({'%name%': author}) }}"
+                                                 loading="lazy"
+                                                 data-bs-toggle="modal"
+                                                 data-bs-target="#lightboxModal"
+                                                 data-bs-src="{{ asset('uploads/photos/' ~ foto.path) }}">
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% else %}
+                        <p class="text-body-secondary">{{ 'mushroom.no_comments'|trans }}</p>
+                    {% endfor %}
+                </section>
+
                 {% set visibleLinks = mushroom.articleLinks|filter(link => link.blogPost is null or link.blogPost.published) %}
                 {% if visibleLinks|length > 0 %}
                     <div class="mt-5">
@@ -69,8 +118,8 @@
                 {% endif %}
             </div>
 
-            <!-- Pravý stĺpec: fotky -->
-            <div class="col-md-6">
+            {# Fotky: na počítači pravý stĺpec cez celú výšku, na mobile hneď pod údajmi. #}
+            <div class="md-photos mb-4">
                 {% if mushroom.photos|length > 0 %}
                     <div id="mushroomCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel">
                         <div class="carousel-inner">
@@ -98,36 +147,6 @@
             </div>
         </div>
 
-        <div class="mt-5">
-            {% if mushroom.updates|length > 0 %}
-                {% for update in mushroom.updates %}
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">Aktualizácia od {{ update.name|default('Neznámy autor') }}</h5>
-                            <p class="card-text">{{ update.description|default('Bez popisu') }}</p>
-                            <p class="text-muted small">{{ update.createdAt|date('d.m.Y H:i') }}</p>
-
-                            {% if update.photos|length > 0 %}
-                                <div class="row mt-3">
-                                    {% for foto in update.photos %}
-                                        <div class="col-6 col-md-3 mb-3">
-                                            <img src="{{ asset(photo_thumb(foto.path)) }}"
-                                                 class="img-fluid rounded shadow-sm update-foto"
-                                                 alt="Update foto"
-                                                 data-bs-toggle="modal"
-                                                 data-bs-target="#lightboxModal"
-                                                 data-bs-src="{{ asset('uploads/photos/' ~ foto.path) }}">
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p class="text-muted">{{ 'mushroom.no_comments'|trans }}</p>
-            {% endif %}
-        </div>
     </div>
     <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">

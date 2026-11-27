@@ -411,3 +411,68 @@ h2.app-title{
         min-width: 22rem;
     }
 }
+
+/* ---- Detail hríbika: údaje + komentáre vľavo, fotky vpravo (na mobile pod sebou) ---- */
+.mushroom-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "info" "photos" "side";
+    column-gap: 1.5rem;
+}
+.mushroom-detail > .md-info { grid-area: info; }
+.mushroom-detail > .md-photos { grid-area: photos; }
+.mushroom-detail > .md-side { grid-area: side; }
+@media (min-width: 768px) {
+    .mushroom-detail {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas: "info photos" "side photos";
+        /* Voľné miesto (vysoké fotky) ide do druhého riadku, nie medzi údaje a komentáre. */
+        grid-template-rows: auto 1fr;
+        align-items: start;
+    }
+}
+
+/* ---- Komentáre ---- */
+.comment-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #fff;
+    background: var(--bs-success);
+}
+.comment-bubble {
+    position: relative;
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+}
+/* „Chvost“ bubliny smerom k avataru */
+.comment-bubble::before {
+    content: "";
+    position: absolute;
+    top: 0.9rem;
+    left: -0.45rem;
+    width: 0.8rem;
+    height: 0.8rem;
+    background: inherit;
+    border-left: 1px solid var(--bs-border-color-translucent);
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    transform: rotate(45deg);
+}
+.comment-photo {
+    width: 5.5rem;
+    height: 5.5rem;
+    object-fit: cover;
+    cursor: zoom-in;
+}
+/* Mobil: 3 náhľady v rade cez celú šírku bubliny (gap-2 = 0,5 rem, 2 medzery = 1 rem). */
+@media (max-width: 575.98px) {
+    .comment-photo {
+        width: calc((100% - 1rem) / 3);
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+}
